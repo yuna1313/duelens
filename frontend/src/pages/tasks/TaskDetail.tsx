@@ -11,6 +11,7 @@ export function TaskDetail({ task, onStatusChange }: { task: TaskPreview; onStat
       <a className="task-back-link" href="#/tasks"><Icon name="back" size={14} />내 과제 목록으로</a>
       <div className="page-heading task-detail-heading">
         <div><div className="task-detail-title"><h1>{task.title}</h1><span className={`task-status ${task.status}`}>{statusLabels[task.status]}</span></div><p>{task.course} · {task.section}분반 · {task.source === 'example' ? '예시 과제' : '직접 입력'}</p></div>
+        <a className="button secondary" href={`#/tasks/${task.id}/edit`}><Icon name="edit" size={15} />수정</a>
       </div>
       <div className="task-detail-layout">
         <div className="task-detail-main">

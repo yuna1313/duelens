@@ -4,6 +4,7 @@ import { Icon } from '@/components/ui/Icon'
 import { createPreviewTasks } from '@/mocks/tasks'
 import { currentWeek, dateLabel, seoulDateKey } from '@/utils/date'
 import { filterTasks, statusLabels, taskDraft, TaskError, taskGroup, taskGroups, upsertTask } from '@/features/tasks/model'
+import { TaskFormDialog } from '@/features/tasks/components/TaskFormDialog'
 import type { SaveTaskResult, TaskDraft, TaskPreview, TaskStatus } from '@/features/tasks/model'
 import { TaskDetail } from './TaskDetail'
 import './TasksPage.css'
@@ -55,7 +56,7 @@ function WeekCard({ today, tasks }: { today: string; tasks: TaskPreview[] }) {
   )
 }
 
-interface Props { taskId: string | null; mode: 'list' | 'detail' }
+interface Props { taskId: string | null; mode: 'list' | 'create' | 'detail' | 'edit' }
 
 export function TasksPage({ taskId, mode }: Props) {
   const [today] = useState(seoulDateKey)
@@ -90,10 +91,10 @@ export function TasksPage({ taskId, mode }: Props) {
     }
   }
 
-  const pageTitle = { list: '내 과제', detail: '과제 상세' }[mode]
+  const pageTitle = { list: '내 과제', create: '과제 등록', detail: '과제 상세', edit: '과제 수정' }[mode]
   return (
     <WorkspaceLayout semester={semester} activePage="tasks" pageTitle={pageTitle}>
-      {mode === 'detail' ? selected ? (
+      {mode === 'detail' || mode === 'edit' ? selected ? (
         <TaskDetail task={selected} onStatusChange={nextStatus => {
           const result = saveTask({ ...taskDraft(selected), status: nextStatus }, selected.id)
           if (result.ok) {
@@ -114,10 +115,11 @@ export function TasksPage({ taskId, mode }: Props) {
           <h1>내 과제</h1>
           <p>{dueToday ? `오늘 마감 ${dueToday}개, 제출까지 잊지 말고 확인하세요.` : '할 일을 한곳에 모으고 차근차근 시작하세요.'}</p>
         </div>
+        <a href="#/tasks/new" className="button primary task-add-link"><Icon name="plus" size={16} />과제 추가</a>
       </div>
       <section className="task-preview-banner" aria-label="화면 미리보기 안내">
         <span className="task-preview-icon"><Icon name="info" size={19} /></span>
-        <div><strong>과제 화면 미리보기</strong><p>학교 계정과 연결되지 않았습니다. 예시 과제의 변경은 현재 내 과제 화면에서만 유지됩니다.</p></div>
+        <div><strong>과제 화면 미리보기</strong><p>예시 과제를 살펴보거나 직접 추가할 수 있습니다. 입력·변경 내용은 현재 내 과제 화면에서만 유지됩니다.</p></div>
         <button type="button" className="button secondary" onClick={() => {
           setShowPreview(value => !value); resetFilters(); setNotice(''); setFailure('')
         }}>{showPreview ? '예시 숨기기' : '예시 보기'}</button>
@@ -164,9 +166,9 @@ export function TasksPage({ taskId, mode }: Props) {
             <section className="panel task-empty">
               <span><Icon name={source.length ? 'search' : 'book'} size={28} /></span>
               <h2>{source.length ? '검색 조건에 맞는 과제가 없어요.' : '아직 등록된 과제가 없어요.'}</h2>
-              <p>{source.length ? '다른 검색어나 필터로 다시 찾아보세요.' : '예시 과제로 목록과 진행 상태를 살펴보세요.'}</p>
+              <p>{source.length ? '다른 검색어나 필터로 다시 찾아보세요.' : '과제를 직접 추가하고 할 일을 정리해 보세요.'}</p>
               {source.length ? <button className="button secondary" type="button" onClick={resetFilters}>필터 초기화</button>
-                : <button className="button secondary" type="button" onClick={() => setShowPreview(true)}>예시 과제 보기</button>}
+                : <a className="button secondary" href="#/tasks/new"><Icon name="plus" size={15} />첫 과제 추가</a>}
             </section>
           )}
         </div>
@@ -186,6 +188,20 @@ export function TasksPage({ taskId, mode }: Props) {
       {notice && <p className="task-save-notice" role="status"><Icon name="check" size={15} />{notice}</p>}
       {failure && <p className="task-operation-error" role="alert">{failure}</p>}
       <p className="task-footer-note"><Icon name="clock" size={14} />한국 표준시 (UTC+9) · 내 과제를 벗어나거나 새로고침하면 입력·변경 내용이 초기화됩니다. 학교 제출·서버 저장은 수행하지 않습니다.</p>
+      {(mode === 'create' || (mode === 'edit' && selected)) && (
+        <TaskFormDialog
+          key={selected?.id ?? 'new'} task={mode === 'edit' ? selected : undefined}
+          courses={[...new Set(tasks.map(task => task.course))]}
+          onCancel={() => { window.location.hash = mode === 'edit' && selected ? `/tasks/${selected.id}` : '/tasks' }}
+          onSave={saveTask}
+          onSaved={task => {
+            resetFilters()
+            setFailure('')
+            setNotice(mode === 'edit' ? '변경 내용을 과제 화면에 적용했습니다. 서버에 저장되지는 않습니다.' : '과제를 추가했습니다. 현재 내 과제 화면에서만 유지됩니다.')
+            window.location.hash = `/tasks/${task.id}`
+          }}
+        />
+      )}
     </WorkspaceLayout>
   )
 }
