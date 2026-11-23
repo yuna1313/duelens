@@ -8,12 +8,13 @@ const pages = [
   { id: 'notices', label: '공지함', icon: 'inbox' },
   { id: 'notifications', label: '알림', icon: 'bell' },
   { id: 'courses', label: '과목·수업', icon: 'book' },
+  { id: 'connection', label: '학교 연결', icon: 'link' },
 ] as const
 
 interface Props {
   children: ReactNode
   semester: string
-  activePage?: 'tasks' | 'notices' | 'notifications' | 'courses'
+  activePage?: 'tasks' | 'notices' | 'notifications' | 'courses' | 'connection'
   pageTitle?: string
 }
 
