@@ -42,8 +42,8 @@ export function StartPage() {
             <p className="start-options-lead">학교 계정 없이도 과목과 과제를 직접 정리할 수 있어요.</p>
             <div className="start-school-card">
               <div className="start-school-heading"><span className="start-school-icon"><Icon name="book" size={23} /></span><div><h3>인하대학교 I-Class</h3><span>learn.inha.ac.kr</span></div></div>
-              <button type="button" className="button secondary" disabled aria-describedby="start-school-status"><Icon name="shield" size={15} />학교 연결 준비 중</button>
-              <p id="start-school-status">현재는 학교 로그인과 공지 수집을 제공하지 않습니다.<br />아래에서 학교 연결 없이 시작할 수 있습니다.</p>
+              <a className="button secondary" href="#/connection" aria-describedby="start-school-status"><Icon name="link" size={15} />학교 연결 화면 보기</a>
+              <p id="start-school-status">연결 상태와 수집 흐름을 예시로 확인할 수 있습니다.<br />실제 학교 로그인·공지 수집은 아직 제공하지 않습니다.</p>
             </div>
             <div className="start-divider"><span>학교 연결 없이 시작하기</span></div>
             <a className="button primary start-manual-action" href="#/courses"><Icon name="book" size={15} />직접 입력으로 시작하기<Icon name="arrow" size={15} /></a>
