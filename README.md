@@ -14,7 +14,7 @@ duelens/
 │   ├── eslint.config.js
 │   ├── tsconfig*.json
 │   └── vite.config.ts
-├── backend/              # 백엔드 개발 공간 (기술 스택 미정)
+├── backend/              # Java + Spring Boot 백엔드
 ├── package.json          # npm 워크스페이스 및 공통 실행 진입점
 ├── package-lock.json     # npm 의존성 잠금 파일
 ├── .editorconfig
@@ -60,7 +60,18 @@ npm run preview
 현재 위 명령은 프론트엔드를 대상으로 합니다.
 `build`는 타입 검사 후 `frontend/dist/`에 배포용 파일을 생성합니다.
 `preview`는 빌드 결과를 로컬에서 확인할 때 사용합니다.
-백엔드의 실행·검증·배포 명령은 기술 스택을 결정한 후 추가합니다.
+백엔드는 별도 터미널에서 실행합니다.
+
+```sh
+npm run dev:backend
+npm run test:backend
+npm run build:backend
+```
+
+백엔드는 JDK 25 이상에서 Java 25 호환으로 빌드하며 Gradle Wrapper를 사용합니다.
+기동 상태는 <http://127.0.0.1:8080/api/health>에서 확인할 수 있습니다.
+프론트엔드 개발 서버의 `/api` 요청은 백엔드로 전달됩니다.
+자세한 내용은 [백엔드 개발 안내](backend/README.md)를 참고합니다.
 
 ## 프론트엔드 의존성 추가
 
