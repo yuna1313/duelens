@@ -1,5 +1,5 @@
-import { offsetDate } from '@/utils/date'
-import type { Notice } from '@/features/notices/model'
+import { offsetDate } from '../utils/date.ts'
+import type { Notice } from '../features/notices/model.ts'
 
 // 원문·검토 요약까지 화면 확인용으로 작성한 예시입니다. 학교 수집·AI 분석 결과가 아닙니다.
 export function createPreviewNotices(today: string): Notice[] {

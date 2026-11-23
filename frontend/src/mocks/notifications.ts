@@ -1,5 +1,5 @@
-import type { NotificationItem, PlannedNotification } from '@/features/notifications/model'
-import { offsetDate } from '@/utils/date'
+import type { NotificationItem, PlannedNotification } from '../features/notifications/model.ts'
+import { offsetDate } from '../utils/date.ts'
 
 // 알림 목록·읽음·발송 상태 확인용 예시입니다. 실제 과제 상태나 발송 서비스와 연결되지 않습니다.
 export function createPreviewNotifications(today: string): { items: NotificationItem[]; planned: PlannedNotification[] } {
