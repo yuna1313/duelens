@@ -1,11 +1,11 @@
 .task-page-heading { align-items: center; margin-bottom: 24px; }
 .task-page-heading h1 { margin-top: 8px; }
 .task-page-heading .eyebrow { font-size: 9px; }
-.task-course-link { text-decoration: none; flex-shrink: 0; }
+.task-add-link { text-decoration: none; flex-shrink: 0; }
 .task-preview-banner { display: flex; align-items: center; gap: 13px; border: 1px solid #dbeae5; border-radius: 12px; padding: 16px 18px; background: #edf6f3; }
 .task-preview-icon { display: grid; place-items: center; color: var(--brand); flex-shrink: 0; }
 .task-preview-banner strong { font-size: 12px; font-weight: 600; color: #345d53; }
-.task-preview-banner p { margin: 5px 0 0; color: #6e8b82; font-size: 11px; line-height: 1.7; }
+.task-preview-banner p { margin: 5px 0 0; color: #6e8b82; font-size: 11px; line-height: 1.7; word-break: keep-all; }
 .task-preview-banner .button { margin-left: auto; flex-shrink: 0; min-height: 34px; padding: 7px 11px; font-size: 10px; }
 .task-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 25px 0 27px; padding: 0 2px; }
 .task-stats dt { color: var(--muted); font-size: 11px; }
@@ -26,13 +26,13 @@
 .task-group h2 { font-size: 14px; margin: 0; font-weight: 650; }
 .task-group > header > span { display: grid; place-items: center; background: #edf0f3; border-radius: 4px; padding: 2px 5px; font-size: 10px; color: var(--muted); }
 .task-group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.task-row { display: flex; align-items: center; width: 100%; min-height: 88px; gap: 13px; padding: 18px; border: 1px solid var(--border); border-radius: 13px; background: white; color: var(--text); text-align: left; }
+.task-row { display: flex; align-items: center; width: 100%; min-height: 88px; gap: 13px; padding: 18px; border: 1px solid var(--border); border-radius: 13px; background: white; color: var(--text); text-align: left; text-decoration: none; }
 .task-row:hover { border-color: #b8d6ca; background: #fbfdfc; }
 .task-progress { display: grid; place-items: center; flex-shrink: 0; width: 19px; height: 19px; border: 1.5px solid #dce3e5; border-radius: 50%; color: #69998a; }
 .task-progress.written { background: #edf6f0; border-color: #a8c9bb; }
 .task-progress.submitted { background: var(--brand); border-color: var(--brand); color: white; }
 .task-row-main { min-width: 0; flex: 1; }
-.task-course { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); margin-bottom: 5px; }
+.task-course { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); margin-bottom: 5px; overflow-wrap: anywhere; }
 .task-course-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; background: #7ba4bb; }
 .task-course-dot.purple { background: #a28ac7; }
 .task-course-dot.sand { background: #c7a481; }
@@ -63,12 +63,14 @@
 .task-study-card button { display: inline-flex; gap: 6px; align-items: center; font-size: 11px; padding: 0; color: var(--brand); border: 0; background: none; }
 .task-empty { display: flex; min-height: 300px; flex-direction: column; justify-content: center; align-items: center; padding: 35px 20px; text-align: center; }
 .task-empty > span { display: grid; place-items: center; color: #78a091; background: var(--brand-soft); width: 60px; height: 60px; border-radius: 20px; margin-bottom: 20px; }
-.task-empty h2 { font-size: 17px; margin: 0 0 10px; }
+.task-empty h1, .task-empty h2 { font-size: 17px; margin: 0 0 10px; }
+.task-empty a { text-decoration: none; }
 .task-empty p { color: var(--muted); font-size: 12px; line-height: 1.8; margin: 0 0 20px; }
 .task-footer-note { display: flex; align-items: flex-start; gap: 6px; margin: 24px 0 0; font-size: 10px; color: var(--muted); line-height: 1.8; }
 .task-footer-note svg { flex-shrink: 0; margin-top: 2px; }
 .task-save-notice { display: flex; align-items: flex-start; gap: 7px; border-radius: 8px; background: var(--brand-soft); padding: 12px; font-size: 11px; color: var(--brand); }
 .task-save-notice svg { flex-shrink: 0; margin-top: 2px; }
+.task-operation-error { border-radius: 9px; background: #fff4f1; border: 1px solid #efd2cc; color: var(--error); padding: 12px 15px; font-size: 12px; }
 @media (max-width: 1150px) {
   .task-content-grid { grid-template-columns: minmax(0, 1fr); }
   .task-aside { display: none; }
