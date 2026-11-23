@@ -18,6 +18,7 @@ import { createWorkspaceStore, resolveTaskCourses, reviewTasks } from './workspa
 import { createWorkspacePreview } from './workspacePreview'
 import { planReminders } from './reminderPlan'
 import { parseRoute } from './routes'
+import { usePreviewClock } from './usePreviewClock'
 
 function subscribe(listener: () => void) {
   window.addEventListener('hashchange', listener)
@@ -28,16 +29,12 @@ const currentHash = () => window.location.hash
 
 function App() {
   const hash = useSyncExternalStore(subscribe, currentHash)
-  const [today] = useState(seoulDateKey)
+  const now = usePreviewClock()
+  const today = seoulDateKey(new Date(now))
   const [store] = useState(() => createWorkspaceStore(createWorkspacePreview(today)))
   const workspace = useSyncExternalStore(store.subscribe, store.getSnapshot)
   const courses = useCourses()
   const preferences = useReminderPreferences()
-  const [now, setNow] = useState(Date.now)
-  useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 60_000)
-    return () => window.clearInterval(timer)
-  }, [])
   const tasks = resolveTaskCourses(workspace.tasks, courses.data?.courses ?? [])
   const courseOptions = (courses.data?.courses ?? []).map(course => ({ id: course.id, name: course.name, section: course.section, label: `${termLabel(course.term)} · ${course.name} · ${course.section}분반` }))
   const reminders = preferences.saved && !preferences.error ? planReminders(tasks, preferences.saved.data, now) : []
