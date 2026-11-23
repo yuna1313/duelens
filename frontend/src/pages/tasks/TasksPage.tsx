@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { WorkspaceLayout } from '@/components/WorkspaceLayout'
-import { Icon } from '@/components/Icon'
-import { createPreviewTasks } from './previewData'
-import { currentWeek, dateLabel, filterTasks, seoulDateKey, statusLabels, taskGroup, taskGroups } from './model'
-import { TaskDetails } from './TaskDetails'
-import type { TaskPreview, TaskStatus } from './model'
-import './tasks.css'
+import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
+import { Icon } from '@/components/ui/Icon'
+import { createPreviewTasks } from '@/mocks/tasks'
+import { currentWeek, dateLabel, seoulDateKey } from '@/utils/date'
+import { filterTasks, statusLabels, taskGroup, taskGroups } from '@/features/tasks/model'
+import { TaskDetails } from '@/features/tasks/components/TaskDetails'
+import type { TaskPreview, TaskStatus } from '@/features/tasks/model'
+import './TasksPage.css'
 
 function TaskRow({ task, today, onSelect }: { task: TaskPreview; today: string; onSelect: () => void }) {
   const group = taskGroup(task, today)

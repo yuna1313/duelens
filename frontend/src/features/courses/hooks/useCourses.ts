@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { CourseError, isTerm } from './model'
-import type { Course, CourseDraft, CourseErrors } from './model'
-import { readCourses, saveCourse, storageKey, writeCourses } from './storage'
-import type { CourseState } from './storage'
+import { CourseError, isTerm } from '../model'
+import type { Course, CourseDraft, CourseErrors } from '../model'
+import { readCourses, saveCourse, storageKey, writeCourses } from '../storage'
+import type { CourseState } from '../storage'
 
 interface Snapshot { data: CourseState | null; error: string | null }
 export type SaveResult = { ok: true; course: Course } | { ok: false; message: string; fields: CourseErrors }

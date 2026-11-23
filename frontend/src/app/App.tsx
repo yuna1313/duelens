@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react'
-import { CoursesPage } from '@/features/courses/CoursesPage'
-import { TasksPage } from '@/features/tasks/TasksPage'
+import { CoursesPage } from '@/pages/courses/CoursesPage'
+import { TasksPage } from '@/pages/tasks/TasksPage'
 
 function subscribe(listener: () => void) {
   window.addEventListener('hashchange', listener)
