@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Icon } from '@/components/Icon'
-import { dateLabel, statusLabels } from './model'
-import type { TaskPreview, TaskStatus } from './model'
+import { Icon } from '@/components/ui/Icon'
+import { dateLabel, statusLabels } from '../model'
+import type { TaskPreview, TaskStatus } from '../model'
+import './TaskDetails.css'
 
 interface Props {
   task: TaskPreview

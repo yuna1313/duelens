@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
-import { Icon } from './Icon'
+import { Icon } from '../ui/Icon'
 import './WorkspaceLayout.css'
-import './controls.css'
 
 const pages = [
   { id: 'tasks', label: '내 과제', icon: 'grid' },

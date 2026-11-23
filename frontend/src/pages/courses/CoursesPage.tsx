@@ -1,12 +1,12 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { WorkspaceLayout } from '@/components/WorkspaceLayout'
-import { Icon } from '@/components/Icon'
-import { CourseForm } from './CourseForm'
-import { currentTerm, scheduleLabel, termLabel } from './model'
-import { useCourses } from './useCourses'
-import type { Course, CourseDraft } from './model'
-import type { SaveResult } from './useCourses'
-import './courses.css'
+import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
+import { Icon } from '@/components/ui/Icon'
+import { CourseForm } from '@/features/courses/components/CourseForm'
+import { currentTerm, scheduleLabel, termLabel } from '@/features/courses/model'
+import { useCourses } from '@/features/courses/hooks/useCourses'
+import type { Course, CourseDraft } from '@/features/courses/model'
+import type { SaveResult } from '@/features/courses/hooks/useCourses'
+import './CoursesPage.css'
 
 interface CourseDialogProps {
   term: string

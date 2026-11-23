@@ -1,9 +1,10 @@
 import { useId, useState } from 'react'
 import type { FormEvent } from 'react'
-import { courseDraft, emptyDraft, validateDraft, weekdays } from './model'
-import type { Course, CourseDraft, CourseErrors } from './model'
-import type { SaveResult } from './useCourses'
-import { Icon } from '@/components/Icon'
+import { courseDraft, emptyDraft, validateDraft, weekdays } from '../model'
+import type { Course, CourseDraft, CourseErrors } from '../model'
+import type { SaveResult } from '../hooks/useCourses'
+import { Icon } from '@/components/ui/Icon'
+import './CourseForm.css'
 
 interface Props {
   term: string
