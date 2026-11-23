@@ -4,6 +4,7 @@
 - 이 폴더가 Git 저장소 루트입니다. 프론트엔드 애플리케이션 루트는 `frontend/`, 백엔드 애플리케이션 루트는 `backend/`입니다. 중첩 `duelens/` 폴더나 별도 `.git`을 만들지 않습니다.
 - 프론트엔드와 백엔드는 모두 이 `duelens` 폴더 안의 단일 Git 저장소에서 함께 관리합니다.
 - 프론트엔드는 React, TypeScript, Vite와 npm을 사용합니다. 백엔드는 Java 25 호환 코드, Spring Boot, Gradle Wrapper를 사용합니다.
+- 현재 개발 순서는 프론트엔드 화면과 사용자 흐름 우선입니다. iClass 로그인·공지 수집·AI 분석·서버 저장 등 실제 연동은 후속 단계에서 구현합니다. 화면 예시 데이터는 실제 학교 데이터와 구분하여 표시합니다.
 - npm workspaces로 `frontend/` 패키지를 관리하며, 의존성 설치는 저장소 루트에서 실행합니다. 루트의 `package-lock.json` 하나를 유지하고 TypeScript의 엄격한 타입 검사를 사용합니다.
 - 루트의 `npm run dev`, `npm run typecheck`, `npm run lint`, `npm run build`, `npm run preview`는 현재 프론트엔드 명령입니다. 백엔드는 루트의 `npm run dev:backend`, `npm run test:backend`, `npm run build:backend` 또는 `./backend/gradlew -p backend <작업>`으로 실행·검증합니다.
 - 프론트엔드 변경 후 `npm run lint`와 `npm run build`를 실행합니다. 백엔드 변경 후 `npm run build:backend`로 통합 테스트와 빌드를 검증합니다.

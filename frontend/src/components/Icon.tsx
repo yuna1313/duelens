@@ -8,6 +8,10 @@ const paths = {
   calendar: 'M4 5h16v16H4z M8 2v6 M16 2v6 M4 11h16 M8 15h2 M14 15h2',
   chevron: 'm9 5 7 7-7 7',
   shield: 'm12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3z m-4 9 3 3 5-5',
+  grid: 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
+  search: 'M20 20l-5-5 M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14',
+  arrow: 'M4 12h16 m-6-6 6 6-6 6',
+  clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18 M12 7v5l3 2',
 } as const
 
 export function Icon({ name, size = 18 }: { name: keyof typeof paths; size?: number }) {

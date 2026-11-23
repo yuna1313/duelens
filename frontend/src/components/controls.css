@@ -1,0 +1,19 @@
+.page-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 28px; }
+.page-heading h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -.9px; }
+.page-heading p { margin: 9px 0 0; color: var(--muted); font-size: 12px; }
+.button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; border: 1px solid transparent; border-radius: 9px; padding: 10px 15px; font-size: 12px; font-weight: 550; line-height: 1.5; }
+.button.primary { background: var(--brand); color: white; }
+.button.primary:hover:not(:disabled) { background: var(--brand-hover); }
+.button.secondary { background: var(--surface); color: var(--secondary); border-color: #dfe6e9; }
+.button.secondary:hover { background: #f6f9f8; }
+.icon-button { display: inline-grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 8px; color: var(--secondary); background: transparent; }
+.icon-button:hover { color: var(--brand); background: var(--brand-soft); }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.eyebrow { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; color: #6d9184; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (max-width: 700px) {
+  .page-heading { gap: 10px; margin-bottom: 25px; }
+  .page-heading h1 { font-size: 24px; }
+  .page-heading p { font-size: 11px; }
+  .page-heading .button { font-size: 11px; padding: 9px 11px; }
+}
