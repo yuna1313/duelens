@@ -4,6 +4,7 @@ import './WorkspaceLayout.css'
 
 const pages = [
   { id: 'tasks', label: '내 과제', icon: 'grid' },
+  { id: 'notices', label: '공지함', icon: 'inbox' },
   { id: 'courses', label: '과목·수업', icon: 'book' },
 ] as const
 
@@ -23,15 +24,16 @@ function Brand() {
 interface Props {
   children: ReactNode
   semester: string
-  activePage?: 'tasks' | 'courses'
+  activePage?: 'tasks' | 'notices' | 'courses'
+  pageTitle?: string
 }
 
-export function WorkspaceLayout({ children, semester, activePage = 'courses' }: Props) {
+export function WorkspaceLayout({ children, semester, activePage = 'courses', pageTitle }: Props) {
   const today = new Intl.DateTimeFormat('ko-KR', {
     timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'long',
   }).format(new Date())
-  const title = pages.find(page => page.id === activePage)?.label
-  const storageLabel = activePage === 'tasks' ? '화면 미리보기' : '이 기기에 저장'
+  const title = pageTitle ?? pages.find(page => page.id === activePage)?.label
+  const storageLabel = activePage === 'courses' ? '이 기기에 저장' : '화면 미리보기'
   const navigation = pages.map(page => (
     <a
       key={page.id} href={`#/${page.id}`}
