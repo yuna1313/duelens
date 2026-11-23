@@ -53,16 +53,38 @@ npm run dev
 ```text
 frontend/
 ├── src/
-│   ├── App.tsx                   # 화면 진입점과 URL에 따른 화면 선택
-│   ├── components/               # 공통 레이아웃, 메뉴, 아이콘, 버튼 스타일
+│   ├── app/
+│   │   └── App.tsx               # 앱 조립과 URL에 따른 화면 선택
+│   ├── pages/
+│   │   ├── courses/              # 과목 화면 조합과 화면 전용 스타일
+│   │   └── tasks/                # 내 과제 화면 조합과 화면 전용 스타일
+│   ├── components/
+│   │   ├── layout/               # 여러 화면이 쓰는 레이아웃·메뉴
+│   │   └── ui/                   # 공통 UI 요소·아이콘
 │   ├── features/
-│   │   ├── courses/              # 과목·수업 화면, 폼, 검증, 브라우저 저장
-│   │   └── tasks/                # 내 과제 화면, 상세 창, 예시 데이터, 표시 로직
-│   └── index.css                 # 색상·글꼴 등 전역 스타일
+│   │   ├── courses/              # 과목 전용 components·hooks, 모델·검증·저장
+│   │   └── tasks/                # 과제 전용 components, 모델·검색·분류
+│   ├── mocks/                    # 화면 확인용 예시 데이터
+│   ├── styles/                   # 전역 색상·글꼴·공통 컨트롤 스타일
+│   ├── utils/                    # 업무와 무관한 순수 함수(날짜 등)
+│   └── main.tsx                  # React 실행 진입점
 └── tests/                        # 기능별 검증 및 표시 로직 테스트
 ```
 
-기능별로 화면·타입·로직을 함께 두고, 여러 화면이 사용하는 요소만 `components/`로 올립니다.
+화면 단위와 기능 단위를 구분하는 혼합 구조입니다. `pages/`는 화면을 조합하고, `features/`에는 해당 기능의 UI·훅·타입·로직을 모읍니다.
+예를 들어 과목 입력은 `features/courses/components/CourseForm.tsx`, 브라우저 저장 상태는 같은 기능의 `hooks/useCourses.ts`, 검증과 타입은 `model.ts`, 저장 처리는 `storage.ts`에서 관리합니다.
+전용 컴포넌트의 CSS는 컴포넌트 옆에, 화면 전체 스타일은 해당 페이지 옆에 둡니다.
+
+코드 배치 기준은 다음과 같습니다.
+
+- 앱은 페이지를, 페이지는 기능과 공용 코드를 조합합니다. 공용 코드에서 페이지·기능을 가져오지 않습니다. 서로 다른 기능의 조합은 페이지나 앱에서 처리합니다.
+- 특정 기능에서만 쓰는 훅·상수·타입은 해당 기능 안에 둡니다. 실제로 여러 기능이 함께 사용할 때 공용 위치로 옮깁니다.
+- `mocks/`는 화면 확인용 데이터입니다. 페이지에서 예시를 선택하며, 기능의 모델·저장 코드가 예시 데이터에 의존하지 않도록 합니다.
+- `utils/`는 날짜처럼 목적이 분명한 순수 함수를, `lib/`는 도입한 외부 라이브러리의 공통 설정을 위한 위치로 구분합니다. `lib/`는 해당 코드가 생길 때 추가합니다.
+- 공용 `api/`, `hooks/`, `contexts/`, `constants/` 등은 실제 공용 코드가 생길 때 추가합니다. 폴더를 채우기 위한 빈 파일이나 중계용 `index.ts`를 만들지 않고 실제 파일을 직접 import합니다.
+
+이 구성은 [Bulletproof React의 프로젝트 구조 지침](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md)의 기능별 배치와 공용 코드 분리를 참고했습니다.
+특정 연도의 단일 표준으로 취급하지 않으며, [Feature-Sliced Design](https://feature-sliced.design/docs/reference/layers)의 모든 계층을 도입한 구조도 아닙니다.
 현재 상태는 React의 상태와 훅으로 관리하며, API 호출 계층이나 전역 상태 라이브러리는 아직 도입하지 않았습니다.
 메뉴는 `#/tasks`, `#/courses` 주소로 이동하며 새로고침과 브라우저 뒤로 가기를 지원합니다.
 
@@ -132,7 +154,7 @@ npm install -D <개발용-패키지명> --workspace @duelens/frontend
 ## 소스 및 환경 변수
 
 프론트엔드의 `@/`는 `frontend/src/`를 가리킵니다.
-예: `import App from '@/App'`.
+예: `import App from '@/app/App'`.
 
 프론트엔드 환경 변수는 `frontend/.env.local`에 작성합니다.
 브라우저에서 사용하는 값은 `VITE_` 접두사가 필요하며 빌드 결과에 공개되므로 비밀키를 넣지 않습니다.

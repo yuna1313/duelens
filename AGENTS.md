@@ -9,6 +9,13 @@
 - 루트의 `npm run dev`, `npm run typecheck`, `npm run lint`, `npm run build`, `npm run preview`는 현재 프론트엔드 명령입니다. 백엔드는 루트의 `npm run dev:backend`, `npm run test:backend`, `npm run build:backend` 또는 `./backend/gradlew -p backend <작업>`으로 실행·검증합니다.
 - 프론트엔드 변경 후 `npm run lint`와 `npm run build`를 실행합니다. 백엔드 변경 후 `npm run build:backend`로 통합 테스트와 빌드를 검증합니다.
 
+## 프론트엔드 소스 배치
+
+- `frontend/src/app/`는 앱 조립·화면 선택, `pages/`는 화면별 조합, `features/<기능명>/`은 기능 전용 컴포넌트·훅·타입·검증·저장 로직을 담당합니다.
+- 공통 레이아웃은 `components/layout/`, 공통 UI는 `components/ui/`, 전역 스타일은 `styles/`, 화면 확인용 예시는 `mocks/`, 업무와 무관한 순수 함수는 `utils/`에 둡니다. 전용 스타일은 사용하는 컴포넌트·페이지 옆에 둡니다.
+- 의존 방향은 앱 → 페이지 → 기능·공용 코드입니다. 공용 코드에서 앱·페이지·기능을 import하지 않으며, 기능 사이의 조합은 페이지나 앱에서 처리합니다. 기능의 모델·저장은 예시 데이터에 의존하지 않습니다.
+- 특정 기능 전용 훅·상수·타입은 해당 기능 안에 둡니다. 공용 `api`, `hooks`, `contexts`, `constants`, 외부 라이브러리 공통 설정용 `lib`는 실제 코드가 생길 때 추가합니다. 빈 폴더나 중계 전용 `index.ts`를 미리 만들지 않습니다.
+
 ## 보안 개발 원칙
 
 - 의존성을 추가하거나 갱신할 때 실제 설치 버전과 공식 보안 공지를 확인합니다. 지원되는 안정 버전과 보안 패치를 사용하고, 강제 업데이트로 호환성 검증을 우회하지 않습니다.
