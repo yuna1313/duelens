@@ -31,7 +31,7 @@ export function PasteNoticeDialog({ onClose, onCreate }: { onClose: () => void; 
         <div><span className="eyebrow">NOTICE PREVIEW</span><h2 id={`${prefix}-heading`}>공지 붙여넣기</h2></div>
         <button type="button" className="icon-button" onClick={onClose} aria-label="공지 입력 닫기"><Icon name="close" size={21} /></button>
       </header>
-      <p className="paste-notice-help">원문을 입력하고 공지 화면을 확인해 보세요. 내용은 현재 화면에서만 유지되며 서버나 AI로 전송되지 않습니다.</p>
+      <p className="paste-notice-help">원문을 입력하고 공지 화면을 확인해 보세요. 등록한 원문은 이 탭의 메뉴 이동 중 유지되고 새로고침하면 초기화됩니다. 서버나 AI로 전송되지 않습니다.</p>
       <form noValidate onSubmit={event => {
         event.preventDefault()
         const nextErrors = validateNoticeDraft(draft)
