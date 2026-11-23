@@ -3,7 +3,8 @@ import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
 import { NoticeStatusBadge } from '@/features/notices/components/NoticeStatusBadge'
 import { NoticeSummary } from '@/features/notices/components/NoticeSummary'
-import { filterNotices, noticeTabs, noticeTimestamp } from '@/features/notices/model'
+import { PasteNoticeDialog } from '@/features/notices/components/PasteNoticeDialog'
+import { createManualNotice, filterNotices, noticeTabs, noticeTimestamp } from '@/features/notices/model'
 import type { Notice, NoticeTab } from '@/features/notices/model'
 import { createPreviewNotices } from '@/mocks/notices'
 import { seoulDateKey } from '@/utils/date'
@@ -36,6 +37,7 @@ export function NoticesPage({ noticeId }: { noticeId: string | null }) {
   const [query, setQuery] = useState('')
   const [course, setCourse] = useState('all')
   const [tab, setTab] = useState<NoticeTab>('all')
+  const [pasting, setPasting] = useState(false)
   const [message, setMessage] = useState('')
   const source = notices.filter(notice => showExamples || notice.source === 'manual')
   const filtered = filterNotices(source, query, course, tab)
@@ -69,6 +71,7 @@ export function NoticesPage({ noticeId }: { noticeId: string | null }) {
         <>
           <div className="page-heading notice-page-heading">
             <div><h1>공지함</h1><p>새 공지를 확인하고 제출 조건을 살펴보세요.</p></div>
+            <button className="button primary" type="button" onClick={() => setPasting(true)}><Icon name="plus" size={16} />공지 붙여넣기</button>
           </div>
           <section className="notice-preview-banner" aria-label="화면 미리보기 안내">
             <Icon name="info" size={18} />
@@ -106,9 +109,9 @@ export function NoticesPage({ noticeId }: { noticeId: string | null }) {
               <section className="panel notice-empty">
                 <span className="notice-empty-icon"><Icon name={source.length ? 'search' : 'inbox'} size={28} /></span>
                 <h2>{source.length ? '검색 조건에 맞는 공지가 없어요.' : '아직 등록된 공지가 없어요.'}</h2>
-                <p>{source.length ? '검색어나 과목·처리 상태를 바꿔 다시 찾아보세요.' : '예시 공지로 목록과 원문 화면을 살펴보세요.'}</p>
-                <button type="button" className="button secondary" onClick={source.length ? resetFilters : () => setShowExamples(true)}>
-                  {source.length ? '필터 초기화' : '예시 공지 보기'}
+                <p>{source.length ? '검색어나 과목·처리 상태를 바꿔 다시 찾아보세요.' : '예시 공지를 살펴보거나 공지 원문을 직접 붙여넣어 보세요.'}</p>
+                <button type="button" className="button secondary" onClick={source.length ? resetFilters : () => setPasting(true)}>
+                  {source.length ? '필터 초기화' : '공지 붙여넣기'}
                 </button>
               </section>
             )}
@@ -118,6 +121,14 @@ export function NoticesPage({ noticeId }: { noticeId: string | null }) {
       )}
       {message && <p className="notice-message" role="status"><Icon name="check" size={15} />{message}</p>}
       <p className="notice-footer-note"><Icon name="shield" size={14} />학교 미연결 · 공지함을 벗어나거나 새로고침하면 입력·읽음 상태가 초기화됩니다.</p>
+      {pasting && <PasteNoticeDialog onClose={() => setPasting(false)} onCreate={draft => {
+        const notice = createManualNotice(draft, crypto.randomUUID())
+        setNotices(previous => [{ ...notice, isRead: true }, ...previous])
+        setPasting(false)
+        resetFilters()
+        setMessage('원문 미리보기를 열었습니다. 입력 내용은 저장하거나 전송하지 않았습니다.')
+        window.location.hash = `/notices/${notice.id}`
+      }} />}
     </WorkspaceLayout>
   )
 }
