@@ -4,7 +4,7 @@ import { NoticeStatusBadge } from '@/features/notices/components/NoticeStatusBad
 import { noticeTimestamp } from '@/features/notices/model'
 import type { Notice } from '@/features/notices/model'
 
-export function NoticeDocument({ notice, onToggleRead }: { notice: Notice; onToggleRead: () => void }) {
+export function NoticeDocument({ notice, onToggleRead, reviewHref }: { notice: Notice; onToggleRead: () => void; reviewHref?: string }) {
   return (
     <>
       <a className="notice-back-link" href="#/notices"><Icon name="back" size={14} />공지 목록으로</a>
@@ -30,7 +30,7 @@ export function NoticeDocument({ notice, onToggleRead }: { notice: Notice; onTog
             ? '디자인 확인용으로 작성된 예시 원문입니다. 실제 학교 공지가 아닙니다.'
             : '직접 입력한 원문입니다. 서버 전송·AI 분석·과제 반영은 수행하지 않았습니다.'}</span></footer>
         </article>
-        <NoticeSummary notice={notice} />
+        <NoticeSummary notice={notice} reviewHref={reviewHref} />
       </div>
     </>
   )
