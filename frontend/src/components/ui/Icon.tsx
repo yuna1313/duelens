@@ -17,6 +17,7 @@ const paths = {
   refresh: 'M20 7a8 8 0 1 0 0 10 M20 2v5h-5',
   back: 'M20 12H4 m6-6-6 6 6 6',
   external: 'M14 3h7v7 M21 3l-9 9 M10 3H4v17h16v-6',
+  bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 10h18c0-3-3-3-3-10 M10 22h4 M12 2v-1',
 } as const
 
 export function Icon({ name, size = 18 }: { name: keyof typeof paths; size?: number }) {
