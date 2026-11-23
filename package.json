@@ -8,7 +8,10 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace @duelens/frontend --",
+    "dev:backend": "./backend/gradlew -p backend bootRun",
     "build": "npm run build --workspace @duelens/frontend --",
+    "build:backend": "./backend/gradlew -p backend build",
+    "test:backend": "./backend/gradlew -p backend test",
     "lint": "npm run lint --workspace @duelens/frontend --",
     "preview": "npm run preview --workspace @duelens/frontend --",
     "typecheck": "npm run typecheck --workspace @duelens/frontend --"
