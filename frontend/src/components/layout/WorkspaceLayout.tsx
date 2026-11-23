@@ -5,6 +5,7 @@ import './WorkspaceLayout.css'
 const pages = [
   { id: 'tasks', label: '내 과제', icon: 'grid' },
   { id: 'notices', label: '공지함', icon: 'inbox' },
+  { id: 'notifications', label: '알림', icon: 'bell' },
   { id: 'courses', label: '과목·수업', icon: 'book' },
 ] as const
 
@@ -24,7 +25,7 @@ function Brand() {
 interface Props {
   children: ReactNode
   semester: string
-  activePage?: 'tasks' | 'notices' | 'courses'
+  activePage?: 'tasks' | 'notices' | 'notifications' | 'courses'
   pageTitle?: string
 }
 
