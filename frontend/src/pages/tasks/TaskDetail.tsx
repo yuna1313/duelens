@@ -26,6 +26,7 @@ export function TaskDetail({ task, onStatusChange }: { task: TaskPreview; onStat
             </dl>
           </section>
           <section className="panel task-description-panel"><h2>과제 안내·메모</h2><p>{task.description || '아직 입력한 안내나 메모가 없습니다.'}</p></section>
+          <a className="panel task-history-link" href={`#/tasks/${task.id}/history`}><Icon name="clock" size={17} /><span><strong>변경 이력</strong><small>버전별 변경 전후와 근거를 확인하세요.</small></span><Icon name="chevron" size={15} /></a>
         </div>
         <aside className="panel task-status-panel">
           <h2>어디까지 진행했나요?</h2>
