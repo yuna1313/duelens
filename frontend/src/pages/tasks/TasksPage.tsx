@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
 import { createPreviewTasks } from '@/mocks/tasks'
+import { createPreviewHistory } from '@/mocks/history'
 import { currentWeek, dateLabel, seoulDateKey } from '@/utils/date'
 import { filterTasks, statusLabels, taskDraft, TaskError, taskGroup, taskGroups, upsertTask } from '@/features/tasks/model'
 import { TaskFormDialog } from '@/features/tasks/components/TaskFormDialog'
 import type { SaveTaskResult, TaskDraft, TaskPreview, TaskStatus } from '@/features/tasks/model'
 import { TaskDetail } from './TaskDetail'
+import { TaskHistory } from './TaskHistory'
 import './TasksPage.css'
 
 function TaskRow({ task, today }: { task: TaskPreview; today: string }) {
@@ -56,11 +58,12 @@ function WeekCard({ today, tasks }: { today: string; tasks: TaskPreview[] }) {
   )
 }
 
-interface Props { taskId: string | null; mode: 'list' | 'create' | 'detail' | 'edit' }
+interface Props { taskId: string | null; mode: 'list' | 'create' | 'detail' | 'edit' | 'history' }
 
 export function TasksPage({ taskId, mode }: Props) {
   const [today] = useState(seoulDateKey)
   const [tasks, setTasks] = useState(() => createPreviewTasks(today))
+  const [history] = useState(() => createPreviewHistory(today))
   const [showPreview, setShowPreview] = useState(true)
   const [query, setQuery] = useState('')
   const [course, setCourse] = useState('all')
@@ -91,11 +94,11 @@ export function TasksPage({ taskId, mode }: Props) {
     }
   }
 
-  const pageTitle = { list: '내 과제', create: '과제 등록', detail: '과제 상세', edit: '과제 수정' }[mode]
+  const pageTitle = { list: '내 과제', create: '과제 등록', detail: '과제 상세', edit: '과제 수정', history: '변경 이력' }[mode]
   return (
     <WorkspaceLayout semester={semester} activePage="tasks" pageTitle={pageTitle}>
-      {mode === 'detail' || mode === 'edit' ? selected ? (
-        <TaskDetail task={selected} onStatusChange={nextStatus => {
+      {mode === 'detail' || mode === 'edit' || mode === 'history' ? selected ? (
+        mode === 'history' ? <TaskHistory key={selected.id} task={selected} records={history} /> : <TaskDetail task={selected} onStatusChange={nextStatus => {
           const result = saveTask({ ...taskDraft(selected), status: nextStatus }, selected.id)
           if (result.ok) {
             setFailure('')
