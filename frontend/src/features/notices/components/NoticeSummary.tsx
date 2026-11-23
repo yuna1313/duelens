@@ -3,7 +3,7 @@ import { noticeStatusLabels } from '../model'
 import type { Notice } from '../model'
 import './NoticeSummary.css'
 
-export function NoticeSummary({ notice, onOpen }: { notice: Notice; onOpen?: () => void }) {
+export function NoticeSummary({ notice, onOpen, reviewHref }: { notice: Notice; onOpen?: () => void; reviewHref?: string }) {
   return (
     <section className="panel notice-summary" aria-label="공지 검토 요약">
       <span className="eyebrow">{notice.source === 'example' ? 'REVIEW PREVIEW' : 'MANUAL NOTICE'}</span>
@@ -25,8 +25,9 @@ export function NoticeSummary({ notice, onOpen }: { notice: Notice; onOpen?: () 
         </dl>
       )}
       {notice.source === 'example' && <p className="notice-summary-note">화면 확인을 위해 미리 작성한 예시입니다. 실제 AI 분석 결과가 아닙니다.</p>}
+      {reviewHref && <a href={reviewHref} className="button primary">변경사항 검토<Icon name="arrow" size={14} /></a>}
       {onOpen && (
-        <a href={`#/notices/${notice.id}`} className="button primary" onClick={onOpen}>
+        <a href={`#/notices/${notice.id}`} className={`button ${reviewHref ? 'secondary' : 'primary'}`} onClick={onOpen}>
           원문·요약 보기<Icon name="arrow" size={14} />
         </a>
       )}

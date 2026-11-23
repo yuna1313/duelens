@@ -7,9 +7,13 @@ import { PasteNoticeDialog } from '@/features/notices/components/PasteNoticeDial
 import { createManualNotice, filterNotices, noticeTabs, noticeTimestamp } from '@/features/notices/model'
 import type { Notice, NoticeTab } from '@/features/notices/model'
 import { createPreviewNotices } from '@/mocks/notices'
+import { reviewRoutes } from '@/mocks/reviews'
 import { seoulDateKey } from '@/utils/date'
 import { NoticeDocument } from './NoticeDocument'
 import './NoticesPage.css'
+
+const reviewHref = (notice: Notice) => notice.source === 'example' && reviewRoutes[notice.id]
+  ? `#/reviews/${reviewRoutes[notice.id]}` : undefined
 
 function NoticeRow({ notice, onOpen }: { notice: Notice; onOpen: () => void }) {
   return (
@@ -57,7 +61,7 @@ export function NoticesPage({ noticeId }: { noticeId: string | null }) {
   return (
     <WorkspaceLayout semester={semester} activePage="notices" pageTitle={noticeId ? '공지 원문' : '공지함'}>
       {noticeId ? selected ? (
-        <NoticeDocument notice={selected} onToggleRead={() => {
+        <NoticeDocument notice={selected} reviewHref={reviewHref(selected)} onToggleRead={() => {
           setNotices(previous => previous.map(notice => notice.id === selected.id ? { ...notice, isRead: !notice.isRead } : notice))
           setMessage(selected.isRead ? '이 공지를 읽지 않음으로 표시했습니다.' : '이 공지를 읽음으로 표시했습니다.')
         }} />
@@ -115,7 +119,7 @@ export function NoticesPage({ noticeId }: { noticeId: string | null }) {
                 </button>
               </section>
             )}
-            {preview && <aside className="notice-inbox-aside"><NoticeSummary notice={preview} onOpen={() => markRead(preview.id)} /></aside>}
+            {preview && <aside className="notice-inbox-aside"><NoticeSummary notice={preview} reviewHref={reviewHref(preview)} onOpen={() => markRead(preview.id)} /></aside>}
           </div>
         </>
       )}
