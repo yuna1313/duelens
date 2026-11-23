@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { currentWeek, filterTasks, offsetDate, seoulDateKey, taskGroup } from '../src/features/tasks/model.ts'
+import { filterTasks, taskGroup } from '../src/features/tasks/model.ts'
+import { currentWeek, offsetDate, seoulDateKey } from '../src/utils/date.ts'
 import type { TaskPreview } from '../src/features/tasks/model.ts'
 
 const task: TaskPreview = {

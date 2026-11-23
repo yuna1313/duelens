@@ -1,5 +1,5 @@
-import { offsetDate } from './model'
-import type { TaskPreview } from './model'
+import { offsetDate } from '@/utils/date'
+import type { TaskPreview } from '@/features/tasks/model'
 
 // UI 확인용 데이터입니다. 학교에서 수집한 자료나 사용자가 저장한 과목과 연결되지 않습니다.
 export function createPreviewTasks(today: string): TaskPreview[] {

@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
-import { dateLabel, statusLabels } from '../model'
+import { dateLabel } from '@/utils/date'
+import { statusLabels } from '../model'
 import type { TaskPreview, TaskStatus } from '../model'
 import './TaskDetails.css'
 
