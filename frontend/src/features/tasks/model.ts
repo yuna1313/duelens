@@ -5,6 +5,7 @@ export type TaskGroup = 'overdue' | 'today' | 'upcoming' | 'unknown' | 'submitte
 
 export interface TaskPreview {
   id: string
+  courseId?: string
   title: string
   course: string
   section: string
@@ -20,6 +21,7 @@ export interface TaskPreview {
 }
 
 export interface TaskDraft {
+  courseId?: string
   title: string
   course: string
   section: string
@@ -33,6 +35,7 @@ export interface TaskDraft {
 }
 
 export type TaskErrors = Partial<Record<keyof TaskDraft, string>>
+export interface TaskCourseOption { id: string; name: string; section: string; label: string }
 export type SaveTaskResult = { ok: true; task: TaskPreview } | { ok: false; message: string; fields: TaskErrors }
 
 export class TaskError extends Error {
@@ -69,7 +72,7 @@ export function emptyTaskDraft(): TaskDraft {
 
 export function taskDraft(task: TaskPreview): TaskDraft {
   return {
-    title: task.title, course: task.course, section: task.section,
+    courseId: task.courseId, title: task.title, course: task.course, section: task.section,
     dueDate: task.dueDate ?? '', dueTime: task.dueTime ?? '', status: task.status,
     submissionFormat: task.submissionFormat, quantity: task.quantity,
     submissionUrl: task.submissionUrl, description: task.description,
@@ -107,7 +110,7 @@ export function upsertTask(tasks: TaskPreview[], draft: TaskDraft, id: string): 
   if (Object.keys(errors).length) throw new TaskError('입력 내용을 확인해 주세요.', errors)
   const existing = tasks.find(task => task.id === id)
   const task: TaskPreview = {
-    id, title: draft.title.trim(), course: draft.course.trim(), section: draft.section.trim(),
+    id, courseId: draft.courseId || undefined, title: draft.title.trim(), course: draft.course.trim(), section: draft.section.trim(),
     dueDate: draft.dueDate || null, dueTime: draft.dueTime || null, status: draft.status,
     submissionFormat: draft.submissionFormat.trim(), quantity: draft.quantity.trim(),
     submissionUrl: draft.submissionUrl.trim() ? safeSubmissionUrl(draft.submissionUrl)! : '',

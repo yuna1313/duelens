@@ -1,4 +1,9 @@
 export interface HistoryValues {
+  title?: string
+  course?: string
+  description?: string
+  submissionUrl?: string
+  courseLink?: string
   dueDate: string | null
   dueTime: string | null
   submissionFormat: string
@@ -31,6 +36,7 @@ export interface HistoryRecord {
 }
 
 export const historyFieldLabels: Record<HistoryField, string> = {
+  title: '과제명', course: '과목·분반', courseLink: '과목 연결', description: '메모', submissionUrl: '제출 링크',
   dueDate: '마감 날짜', dueTime: '마감 시각', submissionFormat: '제출 형식', quantity: '분량', progress: '진행 상태',
 }
 
@@ -40,10 +46,10 @@ export const historyKindLabels: Record<HistoryKind, string> = {
 
 export function historyChanges(record: HistoryRecord): HistoryField[] {
   return (Object.keys(historyFieldLabels) as HistoryField[])
-    .filter(field => !record.before || record.before[field] !== record.after[field])
+    .filter(field => record.after[field] !== undefined && (!record.before || record.before[field] !== record.after[field]))
 }
 
-export function historyValue(field: HistoryField, value: string | null): string {
+export function historyValue(field: HistoryField, value: string | null | undefined): string {
   return value || (field === 'dueDate' ? '날짜 미정' : field === 'dueTime' ? '시각 미정' : '미정')
 }
 
