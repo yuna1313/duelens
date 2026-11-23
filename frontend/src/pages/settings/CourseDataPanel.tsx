@@ -13,7 +13,7 @@ function loadCourses(): { snapshot: CourseSnapshot | null; error: string } {
   catch (error) { return { snapshot: null, error: error instanceof Error ? error.message : '과목 정보를 읽을 수 없습니다.' } }
 }
 
-export function CourseDataPanel() {
+export function CourseDataPanel({ onCoursesChanged }: { onCoursesChanged: () => void }) {
   const [source, setSource] = useState(loadCourses)
   const [review, setReview] = useState<CourseDataReview | null>(null)
   const [reviewError, setReviewError] = useState('')
@@ -63,6 +63,7 @@ export function CourseDataPanel() {
       setSource({ snapshot, error: '' }); setError(''); setReviewError('')
       setMessage(review.kind === 'restore' ? `과목 ${snapshot.data.courses.length}개와 선택 학기를 복원했습니다.` : '이 브라우저에 저장한 과목과 선택 학기 정보를 삭제했습니다.')
       focusAfterConfirm.current = true; setReview(null)
+      onCoursesChanged()
     } catch (problem) { setReviewError(problem instanceof Error ? problem.message : '과목 데이터를 변경하지 못했습니다.') }
   }
   return (

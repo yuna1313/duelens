@@ -1,18 +1,19 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { emptyTaskDraft, statusLabels, taskDraft, validateTaskDraft } from '../model'
-import type { SaveTaskResult, TaskDraft, TaskErrors, TaskPreview, TaskStatus } from '../model'
+import type { SaveTaskResult, TaskCourseOption, TaskDraft, TaskErrors, TaskPreview, TaskStatus } from '../model'
 import './TaskFormDialog.css'
 
 interface Props {
   task?: TaskPreview
   courses: string[]
+  courseOptions?: TaskCourseOption[]
   onCancel: () => void
   onSave: (draft: TaskDraft, id?: string) => SaveTaskResult
   onSaved: (task: TaskPreview) => void
 }
 
-export function TaskFormDialog({ task, courses, onCancel, onSave, onSaved }: Props) {
+export function TaskFormDialog({ task, courses, courseOptions = [], onCancel, onSave, onSaved }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const prefix = useId()
   const [draft, setDraft] = useState(() => task ? taskDraft(task) : emptyTaskDraft())
@@ -61,17 +62,27 @@ export function TaskFormDialog({ task, courses, onCancel, onSave, onSaved }: Pro
         else { setErrors(result.fields); setMessage(result.message) }
       }}>
         <div className="task-editor-body">
-          <p className="task-editor-help">화면 미리보기용 입력입니다. 내용은 현재 내 과제 화면에서만 유지되며 서버로 전송하거나 학교에 제출하지 않습니다.</p>
+          <p className="task-editor-help">등록한 과제는 메뉴를 이동해도 유지되며 새로고침하면 초기화됩니다. 서버 전송·학교 제출은 수행하지 않습니다.</p>
+          <div className="task-editor-field">
+            <label htmlFor={`${prefix}-courseId`}>등록한 과목 연결</label>
+            <select id={`${prefix}-courseId`} name="courseId" value={draft.courseId ?? ''} aria-invalid={Boolean(errors.courseId)} onChange={event => {
+              const option = courseOptions.find(item => item.id === event.target.value)
+              setDraft(previous => ({ ...previous, courseId: option?.id, course: option?.name ?? previous.course, section: option?.section ?? previous.section }))
+              setErrors(previous => ({ ...previous, courseId: undefined })); setMessage('')
+            }}><option value="">과목명·분반 직접 입력</option>{draft.courseId && !courseOptions.some(item => item.id === draft.courseId) && <option value={draft.courseId}>연결한 과목을 찾을 수 없음</option>}{courseOptions.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}</select>
+            {error('courseId')}
+            <small>등록한 과목을 선택하면 해당 과목과 분반을 연결합니다.</small>
+          </div>
           <div className="task-editor-grid task-editor-course-grid">
             <div className="task-editor-field">
               <label htmlFor={`${prefix}-course`}>과목명 <span>*</span></label>
-              <input id={`${prefix}-course`} name="course" list={`${prefix}-courses`} value={draft.course} required maxLength={100} placeholder="과목 선택 또는 직접 입력" onChange={event => update('course', event.target.value)} aria-invalid={Boolean(errors.course)} aria-describedby={describedBy('course')} />
+              <input id={`${prefix}-course`} name="course" list={`${prefix}-courses`} value={draft.course} disabled={Boolean(draft.courseId)} required maxLength={100} placeholder="과목 선택 또는 직접 입력" onChange={event => update('course', event.target.value)} aria-invalid={Boolean(errors.course)} aria-describedby={describedBy('course')} />
               <datalist id={`${prefix}-courses`}>{courses.map(course => <option key={course} value={course} />)}</datalist>
               {error('course')}
             </div>
             <div className="task-editor-field">
               <label htmlFor={`${prefix}-section`}>분반 <span>*</span></label>
-              <input id={`${prefix}-section`} name="section" value={draft.section} required maxLength={30} placeholder="예: 001" onChange={event => update('section', event.target.value)} aria-invalid={Boolean(errors.section)} aria-describedby={describedBy('section')} />
+              <input id={`${prefix}-section`} name="section" value={draft.section} disabled={Boolean(draft.courseId)} required maxLength={30} placeholder="예: 001" onChange={event => update('section', event.target.value)} aria-invalid={Boolean(errors.section)} aria-describedby={describedBy('section')} />
               {error('section')}
             </div>
           </div>

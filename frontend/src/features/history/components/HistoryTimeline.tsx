@@ -43,7 +43,7 @@ export function HistoryTimeline({ records, sourceLinks }: { records: HistoryReco
                 </div>
               ) : <p className="history-no-source"><Icon name="edit" size={12} />{record.kind === 'created' ? '직접 등록한 과제에는' : '직접 수정한 기록에는'} 근거 공지가 없습니다.</p>}
               <details className="history-snapshot"><summary>이 버전의 전체 값 보기</summary>
-                <dl>{(Object.keys(historyFieldLabels) as HistoryField[]).map(field => <div key={field}><dt>{historyFieldLabels[field]}</dt><dd>{historyValue(field, record.after[field])}</dd></div>)}</dl>
+                <dl>{(Object.keys(historyFieldLabels) as HistoryField[]).filter(field => record.after[field] !== undefined).map(field => <div key={field}><dt>{historyFieldLabels[field]}</dt><dd>{historyValue(field, record.after[field])}</dd></div>)}</dl>
               </details>
             </article>
           </li>

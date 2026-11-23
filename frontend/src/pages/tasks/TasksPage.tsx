@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
-import { createPreviewTasks } from '@/mocks/tasks'
-import { createPreviewHistory } from '@/mocks/history'
-import { currentWeek, dateLabel, seoulDateKey } from '@/utils/date'
-import { filterTasks, statusLabels, taskDraft, TaskError, taskGroup, taskGroups, upsertTask } from '@/features/tasks/model'
+import { currentWeek, dateLabel } from '@/utils/date'
+import { filterTasks, statusLabels, taskDraft, taskGroup, taskGroups } from '@/features/tasks/model'
 import { TaskFormDialog } from '@/features/tasks/components/TaskFormDialog'
-import type { SaveTaskResult, TaskDraft, TaskPreview, TaskStatus } from '@/features/tasks/model'
+import type { SaveTaskResult, TaskCourseOption, TaskDraft, TaskPreview, TaskStatus } from '@/features/tasks/model'
+import type { HistoryRecord } from '@/features/history/model'
 import { TaskDetail } from './TaskDetail'
 import { TaskHistory } from './TaskHistory'
 import './TasksPage.css'
@@ -58,12 +57,13 @@ function WeekCard({ today, tasks }: { today: string; tasks: TaskPreview[] }) {
   )
 }
 
-interface Props { taskId: string | null; mode: 'list' | 'create' | 'detail' | 'edit' | 'history' }
+interface Props {
+  taskId: string | null; mode: 'list' | 'create' | 'detail' | 'edit' | 'history'
+  today: string; tasks: TaskPreview[]; history: HistoryRecord[]; courseOptions: TaskCourseOption[]
+  onSave: (draft: TaskDraft, id?: string) => SaveTaskResult
+}
 
-export function TasksPage({ taskId, mode }: Props) {
-  const [today] = useState(seoulDateKey)
-  const [tasks, setTasks] = useState(() => createPreviewTasks(today))
-  const [history] = useState(() => createPreviewHistory(today))
+export function TasksPage({ taskId, mode, today, tasks, history, courseOptions, onSave: saveTask }: Props) {
   const [showPreview, setShowPreview] = useState(true)
   const [query, setQuery] = useState('')
   const [course, setCourse] = useState('all')
@@ -83,17 +83,6 @@ export function TasksPage({ taskId, mode }: Props) {
 
   function resetFilters() { setQuery(''); setCourse('all'); setStatus('all') }
 
-  function saveTask(draft: TaskDraft, id?: string): SaveTaskResult {
-    try {
-      const result = upsertTask(tasks, draft, id ?? crypto.randomUUID())
-      setTasks(result.tasks)
-      return { ok: true, task: result.task }
-    } catch (error) {
-      const problem = error instanceof TaskError ? error : new TaskError('과제를 적용하지 못했습니다. 입력 내용은 이 창에 남아 있습니다.')
-      return { ok: false, fields: problem.fields, message: problem.message }
-    }
-  }
-
   const pageTitle = { list: '내 과제', create: '과제 등록', detail: '과제 상세', edit: '과제 수정', history: '변경 이력' }[mode]
   return (
     <WorkspaceLayout semester={semester} activePage="tasks" pageTitle={pageTitle}>
@@ -108,7 +97,7 @@ export function TasksPage({ taskId, mode }: Props) {
       ) : (
         <section className="panel task-empty">
           <span><Icon name="book" size={28} /></span><h1>이 과제를 찾을 수 없어요.</h1>
-          <p>직접 입력한 과제는 내 과제를 벗어나거나 새로고침하면 초기화됩니다.</p>
+          <p>주소를 확인해 주세요. 이 탭의 과제는 새로고침하면 초기화됩니다.</p>
           <a className="button secondary" href="#/tasks">내 과제 목록으로</a>
         </section>
       ) : <>
@@ -122,7 +111,7 @@ export function TasksPage({ taskId, mode }: Props) {
       </div>
       <section className="task-preview-banner" aria-label="화면 미리보기 안내">
         <span className="task-preview-icon"><Icon name="info" size={19} /></span>
-        <div><strong>과제 화면 미리보기</strong><p>예시 과제를 살펴보거나 직접 추가할 수 있습니다. 입력·변경 내용은 현재 내 과제 화면에서만 유지됩니다.</p></div>
+        <div><strong>프론트 흐름 미리보기</strong><p>공지 검토·과제·이력이 연결됩니다. 메뉴를 이동해도 입력을 유지하며 새로고침하면 초기화됩니다.</p></div>
         <button type="button" className="button secondary" onClick={() => {
           setShowPreview(value => !value); resetFilters(); setNotice(''); setFailure('')
         }}>{showPreview ? '예시 숨기기' : '예시 보기'}</button>
@@ -190,17 +179,19 @@ export function TasksPage({ taskId, mode }: Props) {
       </>}
       {notice && <p className="task-save-notice" role="status"><Icon name="check" size={15} />{notice}</p>}
       {failure && <p className="task-operation-error" role="alert">{failure}</p>}
-      <p className="task-footer-note"><Icon name="clock" size={14} />한국 표준시 (UTC+9) · 내 과제를 벗어나거나 새로고침하면 입력·변경 내용이 초기화됩니다. 학교 제출·서버 저장은 수행하지 않습니다.</p>
+      {selected?.courseId && !courseOptions.some(option => option.id === selected.courseId) && <p className="task-operation-error">연결한 과목이 현재 목록에 없습니다. 과제는 입력 당시 과목명·분반을 보관합니다. 수정에서 과목을 다시 연결할 수 있습니다.</p>}
+      <p className="task-footer-note"><Icon name="clock" size={14} />한국 표준시 (UTC+9) · 이 탭에서 메뉴 이동 중 유지되며 새로고침하면 초기화됩니다. 학교 제출·서버 저장은 수행하지 않습니다.</p>
       {(mode === 'create' || (mode === 'edit' && selected)) && (
         <TaskFormDialog
           key={selected?.id ?? 'new'} task={mode === 'edit' ? selected : undefined}
           courses={[...new Set(tasks.map(task => task.course))]}
+          courseOptions={courseOptions}
           onCancel={() => { window.location.hash = mode === 'edit' && selected ? `/tasks/${selected.id}` : '/tasks' }}
           onSave={saveTask}
           onSaved={task => {
             resetFilters()
             setFailure('')
-            setNotice(mode === 'edit' ? '변경 내용을 과제 화면에 적용했습니다. 서버에 저장되지는 않습니다.' : '과제를 추가했습니다. 현재 내 과제 화면에서만 유지됩니다.')
+            setNotice(mode === 'edit' ? '변경 내용을 과제와 이력에 반영했습니다. 서버에 저장되지는 않습니다.' : '과제와 최초 등록 이력을 추가했습니다. 이 탭에서 유지됩니다.')
             window.location.hash = `/tasks/${task.id}`
           }}
         />

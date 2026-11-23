@@ -4,20 +4,20 @@ import { Icon } from '@/components/ui/Icon'
 import { BrowserNotificationNotice } from '@/features/notifications/components/BrowserNotificationNotice'
 import { NotificationList } from '@/features/notifications/components/NotificationList'
 import { PlannedNotificationList } from '@/features/notifications/components/PlannedNotificationList'
-import { filterNotifications, markAllNotificationsRead, setNotificationRead } from '@/features/notifications/model'
-import type { NotificationTab } from '@/features/notifications/model'
-import { createPreviewNotifications } from '@/mocks/notifications'
-import { seoulDateKey } from '@/utils/date'
+import { filterNotifications } from '@/features/notifications/model'
+import type { NotificationItem, NotificationTab, PlannedNotification } from '@/features/notifications/model'
 import './NotificationsPage.css'
 
-export function NotificationsPage() {
-  const [today] = useState(seoulDateKey)
-  const [preview, setPreview] = useState(() => createPreviewNotifications(today))
+interface Props {
+  today: string; notifications: NotificationItem[]; reminders: PlannedNotification[]; exampleTaskIds: string[]
+  preferenceError: string | null; onRead: (id: string, isRead: boolean) => void; onReadAll: (ids: string[]) => void
+}
+export function NotificationsPage({ today, notifications, reminders, exampleTaskIds, preferenceError, onRead, onReadAll }: Props) {
   const [showExamples, setShowExamples] = useState(true)
   const [tab, setTab] = useState<NotificationTab>('all')
   const [message, setMessage] = useState('')
-  const items = showExamples ? preview.items : []
-  const planned = showExamples ? preview.planned : []
+  const items = notifications.filter(item => showExamples || item.source !== 'example')
+  const planned = reminders.filter(item => showExamples || !exampleTaskIds.includes(item.taskId))
   const unread = items.filter(item => !item.isRead).length
   const filtered = tab === 'scheduled' ? [] : filterNotifications(items, tab)
   const targetLinks = Object.fromEntries(items.map(item => [item.id, item.target.type === 'review' ? `#/reviews/${item.target.id}` : `#/tasks/${item.target.id}`]))
@@ -35,15 +35,16 @@ export function NotificationsPage() {
       <div className="page-heading notifications-page-heading">
         <div><h1>알림</h1><p>마감과 바뀐 내용을 한 번 더 확인하세요.</p></div>
         <button type="button" className="button secondary" disabled={tab === 'scheduled' || !unread} onClick={() => {
-          setPreview(previous => ({ ...previous, items: markAllNotificationsRead(previous.items) }))
-          setMessage('모든 예시 알림을 읽음으로 표시했습니다. 발송 상태는 바뀌지 않습니다.')
+          onReadAll(items.map(item => item.id))
+          setMessage('표시된 알림을 모두 읽음으로 표시했습니다. 발송 상태는 바뀌지 않습니다.')
         }}><Icon name="check" size={14} />모두 읽음으로 표시</button>
       </div>
       <section className="notifications-preview-banner" aria-label="알림 화면 미리보기 안내">
-        <Icon name="info" size={18} /><div><strong>예시 데이터로 보는 알림센터</strong><p>알림과 발송 상태는 화면 확인용 예시입니다. 실제 과제 상태·공지 검토·알림 발송과 연결되지 않았습니다.</p></div>
+        <Icon name="info" size={18} /><div><strong>이 탭의 알림센터 미리보기</strong><p>처음 제공한 발송 상태 예시와 검토 완료 알림을 표시합니다. 예정 시각은 과제·알림 설정에 따라 계산하며 실제 발송은 하지 않습니다.</p></div>
         <button type="button" className="button secondary" onClick={() => { setShowExamples(value => !value); setMessage('') }}>{showExamples ? '예시 숨기기' : '예시 보기'}</button>
       </section>
       <BrowserNotificationNotice />
+      {preferenceError && <p className="notifications-message" role="alert">알림 설정을 읽지 못해 예정 계산을 중단했습니다. <a href="#/settings">설정에서 확인해 주세요.</a></p>}
       <div className="notifications-tabs" role="group" aria-label="알림 보기">
         {tabs.map(item => <button type="button" key={item.id} className={tab === item.id ? 'active' : ''} aria-pressed={tab === item.id} onClick={() => showTab(item.id)}>{item.label}<span>{item.count}</span></button>)}
       </div>
@@ -52,7 +53,7 @@ export function NotificationsPage() {
         <section className="panel notifications-empty"><span><Icon name="clock" size={28} /></span><h2>발송 예정 알림이 없어요.</h2><p>마감 날짜와 시각이 정해진 과제의 알림 예정 시각을 확인하는 화면입니다. 현재는 실제 알림을 예약하지 않습니다.</p><button type="button" className="button secondary" onClick={() => setShowExamples(true)}>예시 보기</button></section>
       ) : filtered.length ? (
         <NotificationList items={filtered} targetLinks={targetLinks} onReadChange={(id, isRead) => {
-          setPreview(previous => ({ ...previous, items: setNotificationRead(previous.items, id, isRead) }))
+          onRead(id, isRead)
           setMessage(isRead ? '이 알림을 읽음으로 표시했습니다.' : '이 알림을 읽지 않음으로 표시했습니다.')
         }} />
       ) : (
@@ -60,7 +61,7 @@ export function NotificationsPage() {
       )}
       {message && <p className="notifications-message" role="status"><Icon name="check" size={14} />{message}</p>}
       {tab !== 'scheduled' && planned.length > 0 && <PlannedNotificationList items={planned} targetLinks={plannedLinks} title="다음 알림" />}
-      <p className="notifications-footer-note"><Icon name="shield" size={14} />읽음 상태는 이 화면에서만 유지됩니다. 다른 메뉴로 나가거나 새로고침하면 초기화됩니다.</p>
+      <p className="notifications-footer-note"><Icon name="shield" size={14} />읽음 상태는 메뉴 이동 중 유지됩니다. 새로고침하면 초기화되며 실제 알림은 예약·발송하지 않습니다.</p>
     </WorkspaceLayout>
   )
 }

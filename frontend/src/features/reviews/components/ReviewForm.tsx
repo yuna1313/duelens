@@ -1,17 +1,17 @@
 import { useId, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import {
-  applyReview, conflictFields, eligibleTargets, initialReviewDraft, proposedValues,
+  conflictFields, eligibleTargets, initialReviewDraft, proposedValues,
   resolvedValues, ReviewError, reviewFieldLabels, reviewFields, validateReview,
 } from '../model'
-import type { ReviewCandidate, ReviewChoice, ReviewDraft, ReviewField, ReviewResult, ReviewTask } from '../model'
+import type { ReviewCandidate, ReviewChoice, ReviewDraft, ReviewField, ReviewTask } from '../model'
 import './ReviewForm.css'
 
 interface Props {
   candidate: ReviewCandidate
   tasks: ReviewTask[]
   source: { title: string; paragraphs: string[]; timestamp: string }
-  onComplete: (result: ReviewResult) => void
+  onComplete: (draft: ReviewDraft) => void
 }
 
 const displayValue = (field: ReviewField, value: string | null | undefined) => value
@@ -43,8 +43,8 @@ export function ReviewForm({ candidate, tasks, source, onComplete }: Props) {
   return (
     <form className="review-form" noValidate onSubmit={event => {
       event.preventDefault()
-      try { onComplete(applyReview(candidate, tasks, draft)) }
-      catch (error) { setMessage(error instanceof ReviewError ? error.message : '검토 결과를 만들지 못했습니다. 입력 내용을 확인해 주세요.') }
+      try { onComplete(draft) }
+      catch (error) { setMessage(error instanceof ReviewError ? Object.values(error.fields).join(' ') : '검토 결과를 반영하지 못했습니다. 입력 내용을 확인해 주세요.') }
     }}>
       {conflicts.length > 0 && (
         <div className="review-attention" role="status">
@@ -60,7 +60,7 @@ export function ReviewForm({ candidate, tasks, source, onComplete }: Props) {
           setMessage('')
         }}>
           <option value="">과제를 선택해 주세요</option>
-          {candidate.allowNew && <option value="new">새 과제로 등록하는 결과 만들기</option>}
+          {candidate.allowNew && <option value="new">새 과제로 등록</option>}
           {targets.map(item => <option key={item.id} value={item.id}>{item.title} · {item.section}분반</option>)}
         </select>
         <p>{candidate.course} · {candidate.section}분반{target ? ` · ${target.title}` : ''}</p>
@@ -114,11 +114,11 @@ export function ReviewForm({ candidate, tasks, source, onComplete }: Props) {
       </section>
       <footer className="review-footer">
         <div>
-          <p><strong>{changedCount}개 항목</strong>이 검토 결과에서 바뀝니다.</p>
+          <p><strong>{changedCount}개 항목</strong>을 이 탭의 과제에 반영합니다.</p>
           {Object.keys(pending).length > 0 && <ul aria-live="polite">{[...new Set(Object.values(pending))].map(problem => <li key={problem}>{problem}</li>)}</ul>}
           {message && <p className="review-error" role="alert">{message}</p>}
         </div>
-        <button type="submit" className="button primary" disabled={Object.keys(pending).length > 0}><Icon name="check" size={15} />{changedCount ? '검토 결과 확인' : '현재 값 유지하고 완료'}</button>
+        <button type="submit" className="button primary" disabled={Object.keys(pending).length > 0}><Icon name="check" size={15} />{changedCount ? '선택한 내용 반영' : '현재 값 유지하고 완료'}</button>
       </footer>
     </form>
   )

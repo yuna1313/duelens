@@ -25,7 +25,7 @@ export function NoticeSummary({ notice, onOpen, reviewHref }: { notice: Notice; 
         </dl>
       )}
       {notice.source === 'example' && <p className="notice-summary-note">화면 확인을 위해 미리 작성한 예시입니다. 실제 AI 분석 결과가 아닙니다.</p>}
-      {reviewHref && <a href={reviewHref} className="button primary">변경사항 검토<Icon name="arrow" size={14} /></a>}
+      {reviewHref && <a href={reviewHref} className="button primary">{notice.status === 'applied' ? '검토 결과 보기' : '변경사항 검토'}<Icon name="arrow" size={14} /></a>}
       {onOpen && (
         <a href={`#/notices/${notice.id}`} className={`button ${reviewHref ? 'secondary' : 'primary'}`} onClick={onOpen}>
           원문·요약 보기<Icon name="arrow" size={14} />

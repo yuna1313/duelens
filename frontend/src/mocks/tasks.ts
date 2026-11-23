@@ -1,5 +1,5 @@
-import { offsetDate } from '@/utils/date'
-import type { TaskPreview } from '@/features/tasks/model'
+import { offsetDate } from '../utils/date.ts'
+import type { TaskPreview } from '../features/tasks/model.ts'
 
 // UI 확인용 데이터입니다. 학교에서 수집한 자료나 사용자가 저장한 과목과 연결되지 않습니다.
 export function createPreviewTasks(today: string): TaskPreview[] {
@@ -28,9 +28,9 @@ export function createPreviewTasks(today: string): TaskPreview[] {
     {
       id: 'preview-report', title: '중간보고서',
       course: '프로그래밍 기초', section: '001', tone: 'green',
-      dueDate: offsetDate(today, 5), dueTime: null, status: 'in-progress',
-      source: 'example', submissionFormat: 'PDF', quantity: '5쪽 이내', submissionUrl: '',
-      description: '마감 날짜만 정해지고 시각은 아직 확인되지 않은 과제의 화면 예시입니다.',
+      dueDate: offsetDate(today, 4), dueTime: '18:00', status: 'in-progress',
+      source: 'example', submissionFormat: 'HWP', quantity: '5쪽 이내', submissionUrl: '',
+      description: '공지 검토 전의 마감과 제출 형식을 사용하는 과제 예시입니다.',
     },
     {
       id: 'preview-prototype', title: '프로토타입 개선안',

@@ -1,5 +1,5 @@
-import type { HistoryRecord, HistoryValues } from '@/features/history/model'
-import { offsetDate } from '@/utils/date'
+import type { HistoryRecord, HistoryValues } from '../features/history/model.ts'
+import { offsetDate } from '../utils/date.ts'
 
 // 기록 당시의 값과 원문을 보관한 UI 예시입니다. 과제 수정·검토 결과에서 생성한 실제 이력이 아닙니다.
 export function createPreviewHistory(today: string): HistoryRecord[] {
