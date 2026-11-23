@@ -12,6 +12,10 @@ const paths = {
   search: 'M20 20l-5-5 M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14',
   arrow: 'M4 12h16 m-6-6 6 6-6 6',
   clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18 M12 7v5l3 2',
+  inbox: 'M4 4h16l2 12v4H2v-4L4 4z M2 15h6l2 3h4l2-3h6',
+  file: 'M14 2H4v20h16V8l-6-6z M14 2v6h6 M8 13h8 M8 17h5',
+  refresh: 'M20 7a8 8 0 1 0 0 10 M20 2v5h-5',
+  back: 'M20 12H4 m6-6-6 6 6 6',
 } as const
 
 export function Icon({ name, size = 18 }: { name: keyof typeof paths; size?: number }) {
