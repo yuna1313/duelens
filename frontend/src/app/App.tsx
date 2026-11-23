@@ -14,15 +14,19 @@ function App() {
   const hash = useSyncExternalStore(subscribe, currentHash)
   const page = hash === '#/courses' ? 'courses' : hash === '#/notices' || hash.startsWith('#/notices/') ? 'notices' : 'tasks'
   const noticeId = hash.startsWith('#/notices/') ? hash.slice('#/notices/'.length) : null
-  const title = page === 'notices' && noticeId ? '공지 원문' : { courses: '과목·수업', notices: '공지함', tasks: '내 과제' }[page]
+  const taskPath = hash.startsWith('#/tasks/') ? hash.slice('#/tasks/'.length) : ''
+  const taskMode = taskPath ? 'detail' : 'list'
+  const taskId = taskPath || null
+  const taskTitle = { list: '내 과제', detail: '과제 상세' }[taskMode]
+  const title = page === 'tasks' ? taskTitle : page === 'notices' && noticeId ? '공지 원문' : { courses: '과목·수업', notices: '공지함' }[page]
   useEffect(() => {
     document.title = `${title} — DueLens`
     window.scrollTo(0, 0)
     document.getElementById('main')?.focus({ preventScroll: true })
-  }, [title, noticeId])
+  }, [title, noticeId, taskId])
   if (page === 'courses') return <CoursesPage />
   if (page === 'notices') return <NoticesPage noticeId={noticeId} />
-  return <TasksPage />
+  return <TasksPage taskId={taskId} mode={taskMode} />
 }
 
 export default App
