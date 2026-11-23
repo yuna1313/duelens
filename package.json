@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "npm run dev --workspace @duelens/frontend --",
     "build": "npm run build --workspace @duelens/frontend --",
+    "lint": "npm run lint --workspace @duelens/frontend --",
     "preview": "npm run preview --workspace @duelens/frontend --",
     "typecheck": "npm run typecheck --workspace @duelens/frontend --"
   },
