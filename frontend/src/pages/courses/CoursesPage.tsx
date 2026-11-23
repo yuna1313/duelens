@@ -3,7 +3,7 @@ import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
 import { CourseForm } from '@/features/courses/components/CourseForm'
 import { currentTerm, scheduleLabel, termLabel } from '@/features/courses/model'
-import { useCourses } from '@/features/courses/hooks/useCourses'
+import type { useCourses } from '@/features/courses/hooks/useCourses'
 import type { Course, CourseDraft } from '@/features/courses/model'
 import type { SaveResult } from '@/features/courses/hooks/useCourses'
 import './CoursesPage.css'
@@ -52,8 +52,8 @@ function termOptions(courses: Course[], selected: string): string[] {
   return [...new Set([...defaults, selected, ...courses.map(course => course.term)])].sort().reverse()
 }
 
-export function CoursesPage() {
-  const { data, error, save, selectTerm, reload } = useCourses()
+export function CoursesPage({ controller }: { controller: ReturnType<typeof useCourses> }) {
+  const { data, error, save, selectTerm, reload } = controller
   const [adding, setAdding] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editorVersion, setEditorVersion] = useState(0)

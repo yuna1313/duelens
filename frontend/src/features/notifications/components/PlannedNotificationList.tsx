@@ -6,8 +6,8 @@ import './PlannedNotificationList.css'
 export function PlannedNotificationList({ items, targetLinks, title }: { items: PlannedNotification[]; targetLinks: Record<string, string>; title: string }) {
   return (
     <section className="panel planned-notifications" aria-label={title}>
-      <header><h2>{title}</h2><span>발송 예정 · 예시</span></header>
-      <p className="planned-preview-note">아래 시각은 화면 확인용 예시입니다. 실제 알림은 예약되지 않았습니다.</p>
+      <header><h2>{title}</h2><span>예정 시각 미리보기</span></header>
+      <p className="planned-preview-note">현재 과제와 알림 옵션으로 계산한 미래 시각입니다. 실제 알림은 예약되지 않았습니다.</p>
       <ul>{sortPlannedNotifications(items).map(item => (
         <li key={item.id}>
           <span className="planned-notification-icon"><Icon name="clock" size={17} /></span>

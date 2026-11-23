@@ -4,16 +4,10 @@ import { Icon } from '@/components/ui/Icon'
 import { NoticeStatusBadge } from '@/features/notices/components/NoticeStatusBadge'
 import { NoticeSummary } from '@/features/notices/components/NoticeSummary'
 import { PasteNoticeDialog } from '@/features/notices/components/PasteNoticeDialog'
-import { createManualNotice, filterNotices, noticeTabs, noticeTimestamp } from '@/features/notices/model'
-import type { Notice, NoticeTab } from '@/features/notices/model'
-import { createPreviewNotices } from '@/mocks/notices'
-import { reviewRoutes } from '@/mocks/reviews'
-import { seoulDateKey } from '@/utils/date'
+import { filterNotices, noticeTabs, noticeTimestamp } from '@/features/notices/model'
+import type { Notice, NoticeDraft, NoticeTab } from '@/features/notices/model'
 import { NoticeDocument } from './NoticeDocument'
 import './NoticesPage.css'
-
-const reviewHref = (notice: Notice) => notice.source === 'example' && reviewRoutes[notice.id]
-  ? `#/reviews/${reviewRoutes[notice.id]}` : undefined
 
 function NoticeRow({ notice, onOpen }: { notice: Notice; onOpen: () => void }) {
   return (
@@ -34,9 +28,12 @@ function NoticeRow({ notice, onOpen }: { notice: Notice; onOpen: () => void }) {
   )
 }
 
-export function NoticesPage({ noticeId }: { noticeId: string | null }) {
-  const [today] = useState(seoulDateKey)
-  const [notices, setNotices] = useState(() => createPreviewNotices(today).map(notice => notice.id === noticeId ? { ...notice, isRead: true } : notice))
+interface Props {
+  noticeId: string | null; today: string; notices: Notice[]; reviewLinks: Record<string, string>
+  onRead: (id: string, isRead: boolean) => void; onCreate: (draft: NoticeDraft) => Notice
+}
+export function NoticesPage({ noticeId, today, notices, reviewLinks, onRead, onCreate }: Props) {
+  const reviewHref = (notice: Notice) => reviewLinks[notice.id]
   const [showExamples, setShowExamples] = useState(true)
   const [query, setQuery] = useState('')
   const [course, setCourse] = useState('all')
@@ -45,14 +42,14 @@ export function NoticesPage({ noticeId }: { noticeId: string | null }) {
   const [message, setMessage] = useState('')
   const source = notices.filter(notice => showExamples || notice.source === 'manual')
   const filtered = filterNotices(source, query, course, tab)
-  const selected = source.find(notice => notice.id === noticeId)
+  const selected = notices.find(notice => notice.id === noticeId)
   const preview = filtered.find(notice => notice.summary) ?? filtered[0]
   const courses = [...new Set(source.map(notice => notice.course))].sort((a, b) => a.localeCompare(b, 'ko'))
   const [year, month] = today.split('-').map(Number)
   const semester = `${month < 3 ? year - 1 : year}년 ${month >= 3 && month <= 8 ? 1 : 2}학기`
 
   function markRead(id: string) {
-    setNotices(previous => previous.map(notice => notice.id === id ? { ...notice, isRead: true } : notice))
+    onRead(id, true)
     setMessage('')
   }
 
@@ -62,13 +59,13 @@ export function NoticesPage({ noticeId }: { noticeId: string | null }) {
     <WorkspaceLayout semester={semester} activePage="notices" pageTitle={noticeId ? '공지 원문' : '공지함'}>
       {noticeId ? selected ? (
         <NoticeDocument notice={selected} reviewHref={reviewHref(selected)} onToggleRead={() => {
-          setNotices(previous => previous.map(notice => notice.id === selected.id ? { ...notice, isRead: !notice.isRead } : notice))
+          onRead(selected.id, !selected.isRead)
           setMessage(selected.isRead ? '이 공지를 읽지 않음으로 표시했습니다.' : '이 공지를 읽음으로 표시했습니다.')
         }} />
       ) : (
         <section className="panel notice-empty">
           <Icon name="file" size={30} /><h1>이 공지를 찾을 수 없어요.</h1>
-          <p>직접 입력한 공지는 공지함을 벗어나거나 새로고침하면 초기화됩니다.</p>
+          <p>주소를 확인해 주세요. 이 탭의 공지는 새로고침하면 초기화됩니다.</p>
           <a href="#/notices" className="button secondary">공지 목록으로</a>
         </section>
       ) : (
@@ -124,13 +121,12 @@ export function NoticesPage({ noticeId }: { noticeId: string | null }) {
         </>
       )}
       {message && <p className="notice-message" role="status"><Icon name="check" size={15} />{message}</p>}
-      <p className="notice-footer-note"><Icon name="shield" size={14} />학교 미연결 · 공지함을 벗어나거나 새로고침하면 입력·읽음 상태가 초기화됩니다.</p>
+      <p className="notice-footer-note"><Icon name="shield" size={14} />학교 미연결 · 입력·읽음·검토 상태는 메뉴 이동 중 유지되며 새로고침하면 초기화됩니다.</p>
       {pasting && <PasteNoticeDialog onClose={() => setPasting(false)} onCreate={draft => {
-        const notice = createManualNotice(draft, crypto.randomUUID())
-        setNotices(previous => [{ ...notice, isRead: true }, ...previous])
+        const notice = onCreate(draft)
         setPasting(false)
         resetFilters()
-        setMessage('원문 미리보기를 열었습니다. 입력 내용은 저장하거나 전송하지 않았습니다.')
+        setMessage('원문을 이 탭에 추가했습니다. 새로고침하면 초기화되며 서버 전송·AI 분석은 수행하지 않았습니다.')
         window.location.hash = `/notices/${notice.id}`
       }} />}
     </WorkspaceLayout>
