@@ -7,6 +7,7 @@ import type { TaskPreview } from '../src/features/tasks/model.ts'
 const task: TaskPreview = {
   id: 'preview', title: '중간보고서', course: '프로그래밍 기초', section: '001', tone: 'green',
   dueDate: '2026-11-23', dueTime: null, status: 'written', description: '',
+  source: 'example', submissionFormat: '', quantity: '', submissionUrl: '',
 }
 
 test('한국 자정과 연말을 기준으로 오늘과 날짜 이동을 계산한다', () => {
