@@ -4,6 +4,7 @@ import { Icon } from '@/components/ui/Icon'
 import { currentWeek, dateLabel } from '@/utils/date'
 import { filterTasks, statusLabels, taskDraft, taskGroup, taskGroups } from '@/features/tasks/model'
 import { TaskFormDialog } from '@/features/tasks/components/TaskFormDialog'
+import { WeekPicker, WeekSchedule } from '@/features/tasks/components/WeekSchedule'
 import type { SaveTaskResult, TaskCourseOption, TaskDraft, TaskPreview, TaskStatus } from '@/features/tasks/model'
 import type { HistoryRecord } from '@/features/history/model'
 import { filterTaskPeriod, taskPeriods, taskPeriodRange, taskSummary } from '@/features/tasks/period'
@@ -38,28 +39,6 @@ function TaskRow({ task, today }: { task: TaskPreview; today: string }) {
   )
 }
 
-function WeekCard({ today, tasks }: { today: string; tasks: TaskPreview[] }) {
-  const week = currentWeek(today)
-  const days = ['월', '화', '수', '목', '금', '토', '일']
-  return (
-    <section className="panel task-week-card" aria-label="이번 주 마감 일정">
-      <header><h2>이번 주 일정</h2><Icon name="calendar" size={16} /></header>
-      <ol className="task-week">
-        {week.map((date, index) => {
-          const due = tasks.filter(task => task.dueDate === date && task.status !== 'submitted').length
-          return (
-            <li key={date} className={date === today ? 'is-today' : ''} aria-current={date === today ? 'date' : undefined}>
-              <span>{days[index]}</span><b>{Number(date.slice(-2))}</b>
-              <span className={`week-marker ${due ? 'has-deadline' : ''}`} aria-label={due ? `미제출 과제 ${due}개` : '마감 없음'} />
-            </li>
-          )
-        })}
-      </ol>
-      <p>현재 조회 조건 중 미제출 과제의<br />이번 주 마감일을 표시합니다.</p>
-    </section>
-  )
-}
-
 interface Props {
   taskId: string | null; mode: 'list' | 'create' | 'detail' | 'edit' | 'history'
   today: string; activeTerm: string; tasks: TaskPreview[]; history: HistoryRecord[]; courseOptions: TaskCourseOption[]
@@ -72,19 +51,27 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
   const [course, setCourse] = useState('all')
   const [status, setStatus] = useState<TaskStatus | 'all'>('all')
   const [period, setPeriod] = useState<TaskPeriod>('all')
+  const [selectedWeekDate, setSelectedWeekDate] = useState<string | null>(null)
+  const [weekPickerOpen, setWeekPickerOpen] = useState(false)
   const [notice, setNotice] = useState('')
   const [failure, setFailure] = useState('')
   const source = tasks.filter(task => showPreview || task.source === 'manual')
   const selected = tasks.find(task => task.id === taskId)
   const courses = [...new Set(source.map(task => task.course))].sort((a, b) => a.localeCompare(b, 'ko'))
   const selectedCourse = courses.includes(course) ? course : 'all'
-  const filtered = filterTasks(filterTaskPeriod(source, period, today), query, selectedCourse, status)
+  const weekDate = period === 'selected-week' ? selectedWeekDate ?? today : today
+  const filtered = filterTasks(filterTaskPeriod(source, period, today, weekDate), query, selectedCourse, status)
   const summary = taskSummary(filtered)
-  const range = taskPeriodRange(period, today)
+  const range = taskPeriodRange(period, today, weekDate)
+  const periods = period === 'selected-week' ? [...taskPeriods, { id: 'selected-week' as const, label: '선택한 주' }] : taskPeriods
   const unknownCount = source.filter(task => !task.dueDate).length
   const semester = termLabel(activeTerm)
 
   function resetFilters() { setQuery(''); setCourse('all'); setStatus('all'); setPeriod('all') }
+  function selectWeek(date: string) {
+    setSelectedWeekDate(date)
+    setPeriod(currentWeek(date)[0] === currentWeek(today)[0] ? 'week' : 'selected-week')
+  }
 
   const pageTitle = { list: '내 과제', create: '과제 등록', detail: '과제 상세', edit: '과제 수정', history: '변경 이력' }[mode]
   return (
@@ -120,8 +107,11 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
         }}>{showPreview ? '예시 숨기기' : '예시 보기'}</button>
       </section>
       <section className="task-period-panel" aria-label="과제 조회 기간">
-        <div className="task-period-tabs" role="group" aria-label="조회 기간">{taskPeriods.map(item => <button key={item.id} type="button" aria-pressed={period === item.id} className={period === item.id ? 'active' : ''} onClick={() => setPeriod(item.id)}>{item.label}</button>)}</div>
-        <p className="task-period-range">{range ? `${range.start} ~ ${range.end} · ${period === 'week' ? '월요일~일요일' : '1일~말일'}` : period === 'undated' ? '마감 날짜가 정해지지 않은 과제' : '선택한 학기의 모든 마감일'} · 마감일 기준 · 한국 표준시</p>
+        <div className="task-period-toolbar">
+          <div className="task-period-tabs" role="group" aria-label="조회 기간">{periods.map(item => <button key={item.id} type="button" aria-pressed={period === item.id} className={period === item.id ? 'active' : ''} onClick={() => setPeriod(item.id)}>{item.label}</button>)}</div>
+          <button type="button" className="button secondary task-week-picker-trigger" aria-haspopup="dialog" aria-expanded={weekPickerOpen} onClick={() => setWeekPickerOpen(true)}><Icon name="calendar" size={15} />주 선택</button>
+        </div>
+        <p className="task-period-range">{range ? `${range.start} ~ ${range.end} · ${period === 'week' || period === 'selected-week' ? '월요일~일요일' : '1일~말일'}` : period === 'undated' ? '마감 날짜가 정해지지 않은 과제' : '선택한 학기의 모든 마감일'} · 마감일 기준 · 한국 표준시</p>
         <p className="task-count-guide">아래 집계와 목록에는 같은 학기·기간·검색·필터를 적용합니다. 남은 과제는 제출 완료로 표시하지 않은 과제이며, 작성 완료·기한이 지난 미제출도 포함합니다. 제출 완료 건수도 제출 시각이 아닌 과제 마감일로 조회합니다.</p>
         {range && unknownCount > 0 && <p className="task-period-unknown">마감 미정 {unknownCount}개는 기간 조회에서 제외했습니다. <button type="button" onClick={() => setPeriod('undated')}>마감 미정 보기</button></p>}
       </section>
@@ -172,7 +162,7 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
           )}
         </div>
         <aside className="task-aside">
-          <WeekCard today={today} tasks={filtered} />
+          <WeekSchedule today={today} date={weekDate} tasks={filtered} onSelectWeek={selectWeek} onOpenPicker={() => setWeekPickerOpen(true)} pickerOpen={weekPickerOpen} />
           <section className="panel task-study-card">
             <span className="study-check"><Icon name="check" size={20} /></span>
             <h2>작성 완료, 제출도 하셨나요?</h2>
@@ -184,6 +174,7 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
         </aside>
       </div>
       </>}
+      {weekPickerOpen && <WeekPicker date={weekDate} today={today} onClose={() => setWeekPickerOpen(false)} onSelect={date => { selectWeek(date); setWeekPickerOpen(false) }} />}
       {notice && <p className="task-save-notice" role="status"><Icon name="check" size={15} />{notice}</p>}
       {failure && <p className="task-operation-error" role="alert">{failure}</p>}
       {selected?.courseId && !courseOptions.some(option => option.id === selected.courseId) && <p className="task-operation-error">연결한 과목이 현재 목록에 없습니다. 과제는 입력 당시 과목명·분반을 보관합니다. 수정에서 과목을 다시 연결할 수 있습니다.</p>}
