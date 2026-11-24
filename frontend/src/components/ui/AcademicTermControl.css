@@ -1,4 +1,5 @@
 .semester-switch { width: 100%; text-align: left; background: white; }.semester-switch > span { flex: 1; }.semester-switch > svg { flex-shrink: 0; }.semester-switch > svg:last-child { transform: rotate(90deg); }.semester-switch:hover { border-color: #a8c9bf; color: var(--brand); }
+.academic-term-dialog:focus, .academic-term-dialog:focus-visible { outline: none; }
 .academic-term-inputs input, .academic-term-inputs select { height: 48px; line-height: 1.5; }
 .academic-term-select { position: relative; }
 .academic-term-inputs .academic-term-select select { display: block; appearance: none; padding-right: 42px; }
