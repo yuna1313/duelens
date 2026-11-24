@@ -4,7 +4,7 @@
 .review-target-panel > header, .review-comparison > header { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 20px; }
 .review-target-panel > header svg { color: #8aa89e; }
 .review-target-panel h2 { margin-top: 6px; }
-.review-form input[type="date"], .review-form input[type="time"] { width: 100%; min-width: 0; border: 1px solid #dfe5e8; border-radius: 8px; background: white; color: var(--secondary); padding: 11px 12px; font-size: var(--font-body); }
+.review-form input[type="date"], .review-form input[type="time"] { width: 100%; min-width: 0; border: 1px solid #dfe5e8; border-radius: var(--control-radius); background: white; color: var(--secondary); padding: 11px 12px; font-size: var(--font-body); }
 .review-target-panel > p, .review-date-panel > p { color: var(--muted); font-size: var(--font-body); line-height: 1.9; margin: 13px 0; overflow-wrap: anywhere; }
 .review-check { display: flex; align-items: flex-start; gap: 8px; font-size: var(--font-body); line-height: 1.8; color: var(--secondary); margin-top: 13px; }
 .review-check input, .review-choices input { accent-color: var(--brand); margin: 3px 0 0; flex-shrink: 0; }

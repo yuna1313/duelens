@@ -6,7 +6,7 @@
 .paste-notice-field { display: flex; flex-direction: column; gap: 9px; margin-bottom: 19px; }
 .paste-notice-field label { font-size: var(--font-body); color: var(--secondary); }
 .paste-notice-field label span { color: var(--brand); }
-.paste-notice-field input, .paste-notice-field textarea { width: 100%; border: 1px solid #dfe5e8; border-radius: 8px; color: var(--text); padding: 11px 12px; background: white; font-size: var(--font-body); }
+.paste-notice-field input, .paste-notice-field textarea { width: 100%; border: 1px solid #dfe5e8; border-radius: var(--control-radius); color: var(--text); padding: 11px 12px; background: white; font-size: var(--font-body); }
 .paste-notice-field input::placeholder, .paste-notice-field textarea::placeholder { color: #98a4ae; font-size: var(--font-body); }
 .paste-notice-field textarea { min-height: 180px; resize: vertical; line-height: 1.8; }
 .paste-notice-field [aria-invalid="true"] { border-color: #c87474; }

@@ -3,7 +3,7 @@
 .task-week-card > header h2 { font-size: var(--font-body); color: var(--text); margin: 0; }
 .task-week { list-style: none; display: grid; grid-template-columns: repeat(7, 1fr); margin: 24px 0 15px; padding: 0; gap: 3px; }
 .task-week li { min-width: 0; }
-.task-week-day { display: flex; flex-direction: column; align-items: center; width: 100%; min-height: 76px; padding: 5px 0; border: 0; border-radius: 8px; background: none; font-size: var(--font-small); color: var(--secondary); }
+.task-week-day { display: flex; flex-direction: column; align-items: center; width: 100%; min-height: 76px; padding: 5px 0; border: 0; border-radius: var(--control-radius); background: none; font-size: var(--font-small); color: var(--secondary); }
 .task-week-day:not(.is-selected):hover b { background: #f1f4f3; }
 .task-week-day:focus-visible { outline: none; }
 .task-week-day:focus-visible b { outline: 2px solid var(--text); outline-offset: 3px; }
@@ -25,11 +25,11 @@
 .task-day-preview { border-top: 1px solid var(--border); padding-top: 16px; margin-bottom: 17px; }
 .schedule-preview-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; }
 .task-day-preview h3 { display: flex; align-items: center; gap: 7px; font-size: var(--font-body); font-weight: 600; margin: 0; color: var(--secondary); }
-.schedule-preview-heading > button { flex-shrink: 0; margin-left: auto; border: 1px solid var(--border); border-radius: 5px; padding: 4px 6px; font-size: var(--font-small); color: var(--secondary); background: white; }
+.schedule-preview-heading > button { flex-shrink: 0; margin-left: auto; border: 1px solid var(--border); border-radius: var(--control-radius); padding: 4px 6px; font-size: var(--font-small); color: var(--secondary); background: white; }
 .schedule-preview-heading > button[aria-pressed='true'] { color: var(--brand); background: var(--brand-soft); border-color: #b8d7cd; }
 .task-day-preview h3 > span { flex-shrink: 0; font-size: var(--font-small); font-weight: 400; color: var(--muted); }
 .task-day-preview ul { list-style: none; display: grid; gap: 7px; margin: 0; padding: 0; max-height: 360px; overflow-y: auto; }
-.task-day-preview a { display: block; padding: 10px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); text-decoration: none; background: #fafcfb; }
+.task-day-preview a { display: block; padding: 10px; border: 1px solid var(--border); border-radius: var(--control-radius); color: var(--text); text-decoration: none; background: #fafcfb; }
 .task-day-preview a:hover { border-color: #b8d7cd; background: var(--brand-soft); }
 .task-day-preview strong { display: block; font-size: var(--font-body); font-weight: 500; line-height: 1.7; overflow-wrap: anywhere; }
 .task-day-preview time { display: block; margin-top: 4px; color: var(--muted); font-size: var(--font-small); }
@@ -43,7 +43,7 @@
 .week-picker-month strong { font-size: var(--font-lead); }
 .week-picker-weekdays, .week-picker-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
 .week-picker-weekdays { text-align: center; font-size: var(--font-body); color: var(--muted); margin-bottom: 7px; }
-.week-picker-days button { min-height: 37px; padding: 0; border: 1px solid transparent; border-radius: 7px; font-size: var(--font-body); color: var(--secondary); background: white; }
+.week-picker-days button { min-height: 37px; padding: 0; border: 1px solid transparent; border-radius: var(--control-radius); font-size: var(--font-body); color: var(--secondary); background: white; }
 .week-picker-days .outside-month { color: #a5afb6; }
 .week-picker-days .selected-week { background: var(--brand-soft); color: var(--brand); }
 .week-picker-days button[aria-current='date'] { border-color: var(--brand); font-weight: 700; }

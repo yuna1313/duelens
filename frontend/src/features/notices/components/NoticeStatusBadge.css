@@ -1,4 +1,4 @@
-.notice-status-badge { display: inline-block; padding: 3px 7px; border-radius: 5px; color: #7c8991; background: #f1f4f5; font-size: var(--font-small); font-weight: 500; white-space: nowrap; }
+.notice-status-badge { display: inline-block; padding: 3px 7px; border-radius: var(--control-radius); color: #7c8991; background: #f1f4f5; font-size: var(--font-small); font-weight: 500; white-space: nowrap; }
 .notice-status-badge.review { color: #498273; background: #eaf5ef; }
 .notice-status-badge.date-check { color: #9d7a39; background: #fff6e4; }
 .notice-status-badge.new-task { color: #6686aa; background: #eef3fa; }

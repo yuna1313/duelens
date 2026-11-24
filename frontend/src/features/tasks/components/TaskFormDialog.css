@@ -9,7 +9,7 @@
 .task-editor-field { min-width: 0; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
 .task-editor-field label { color: var(--secondary); font-size: var(--font-body); }
 .task-editor-field label > span { color: var(--brand); }
-.task-editor-field input, .task-editor-field textarea { width: 100%; min-width: 0; padding: 11px 12px; border: 1px solid #dfe5e8; border-radius: 8px; background: white; color: var(--text); font-size: var(--font-body); }
+.task-editor-field input, .task-editor-field textarea { width: 100%; min-width: 0; padding: 11px 12px; border: 1px solid #dfe5e8; border-radius: var(--control-radius); background: white; color: var(--text); font-size: var(--font-body); }
 .task-editor-field input::placeholder, .task-editor-field textarea::placeholder { color: #98a4ae; font-size: var(--font-body); }
 .task-editor-field input:disabled { background: #f5f7f8; color: var(--muted); }
 .task-editor-field [aria-invalid="true"] { border-color: #c87474; }

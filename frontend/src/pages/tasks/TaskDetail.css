@@ -26,8 +26,8 @@
 .task-description-panel p { color: var(--secondary); font-size: var(--font-body); line-height: 2; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
 .task-status-panel { padding: 25px 22px; }
 .task-status-panel h2 { margin: 0 0 18px; font-size: var(--font-body); }
-.task-status-control { display: grid; grid-template-columns: repeat(4, 1fr); padding: 4px; gap: 3px; background: #f5f7f8; border-radius: 9px; }
-.task-status-control button { border: 0; background: transparent; color: var(--muted); padding: 10px 2px; font-size: var(--font-small); border-radius: 6px; white-space: nowrap; }
+.task-status-control { display: grid; grid-template-columns: repeat(4, 1fr); padding: 4px; gap: 3px; background: #f5f7f8; border-radius: var(--control-radius); }
+.task-status-control button { border: 0; background: transparent; color: var(--muted); padding: 10px 2px; font-size: var(--font-small); border-radius: var(--control-radius); white-space: nowrap; }
 .task-status-control .active { color: var(--brand); background: white; box-shadow: 0 1px 5px #183c2c0a; }
 .task-status-panel > p { font-size: var(--font-body); line-height: 1.9; color: var(--muted); margin: 17px 0; }
 .task-status-panel > .button { width: 100%; font-size: var(--font-body); }
