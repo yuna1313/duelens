@@ -26,7 +26,7 @@ export function ReviewPage({ reviewId, today, candidates, tasks, sources, result
     <WorkspaceLayout semester={semester} activePage="notices" pageTitle="변경 검토">
       <a className="review-back-link" href="#/notices"><Icon name="back" size={14} />공지함으로</a>
       {!candidate || !source ? (
-        <section className="panel review-not-found"><Icon name="file" size={30} /><h1>이 검토 예시를 찾을 수 없어요.</h1><p>공지함에서 검토할 공지를 다시 선택해 주세요.</p><a className="button secondary" href="#/notices">공지함으로</a></section>
+        <section className="panel review-not-found"><Icon name="file" size={30} /><h1>{candidates.length ? '이 검토를 찾을 수 없어요.' : '선택한 학기에 검토할 공지가 없어요.'}</h1><p>학기를 확인하거나 공지함에서 검토할 공지를 다시 선택해 주세요.</p><a className="button secondary" href="#/notices">공지함으로</a></section>
       ) : (
         <>
           <div className="page-heading review-page-heading"><div><h1>{result ? '검토 결과를 확인해 주세요.' : '바뀐 내용을 확인해 주세요.'}</h1><p>공지의 조건을 비교하고 과제에 사용할 값을 선택하세요.</p></div></div>

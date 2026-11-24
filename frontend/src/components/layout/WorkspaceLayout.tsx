@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import type { ReactNode } from 'react'
 import { Icon } from '../ui/Icon'
 import { Brand } from '../ui/Brand'
+import { AcademicTermControl } from '../ui/AcademicTermControl'
 import './WorkspaceLayout.css'
 
 const pages = [
@@ -44,7 +45,7 @@ export function WorkspaceLayout({ children, semester, activePage = 'courses', pa
       >본문으로 건너뛰기</a>
       <aside className="sidebar">
         <Brand />
-        <div className="semester-label"><Icon name="calendar" size={15} />{semester}</div>
+        <AcademicTermControl fallback={semester} />
         <p className="nav-label">WORKSPACE</p>
         <nav aria-label="주 메뉴">{pages.map(navigationItem)}</nav>
         <div className="sidebar-bottom">
@@ -66,7 +67,7 @@ export function WorkspaceLayout({ children, semester, activePage = 'courses', pa
           <div className="header-right"><span>{today}</span><span className="avatar">나</span></div>
         </header>
         <header className="mobile-top">
-          <Brand /><span className="device-label"><Icon name="shield" size={14} />{storageLabel}</span>
+          <Brand /><AcademicTermControl fallback={semester} />
         </header>
         <main id="main" className="page" tabIndex={-1}>{children}</main>
         <nav className="mobile-navigation" aria-label="모바일 주 메뉴">

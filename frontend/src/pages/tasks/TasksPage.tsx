@@ -8,6 +8,7 @@ import type { SaveTaskResult, TaskCourseOption, TaskDraft, TaskPreview, TaskStat
 import type { HistoryRecord } from '@/features/history/model'
 import { TaskDetail } from './TaskDetail'
 import { TaskHistory } from './TaskHistory'
+import { termLabel } from '@/domain/academicTerm'
 import './TasksPage.css'
 
 function TaskRow({ task, today }: { task: TaskPreview; today: string }) {
@@ -59,11 +60,11 @@ function WeekCard({ today, tasks }: { today: string; tasks: TaskPreview[] }) {
 
 interface Props {
   taskId: string | null; mode: 'list' | 'create' | 'detail' | 'edit' | 'history'
-  today: string; tasks: TaskPreview[]; history: HistoryRecord[]; courseOptions: TaskCourseOption[]
+  today: string; activeTerm: string; tasks: TaskPreview[]; history: HistoryRecord[]; courseOptions: TaskCourseOption[]
   onSave: (draft: TaskDraft, id?: string) => SaveTaskResult
 }
 
-export function TasksPage({ taskId, mode, today, tasks, history, courseOptions, onSave: saveTask }: Props) {
+export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, courseOptions, onSave: saveTask }: Props) {
   const [showPreview, setShowPreview] = useState(true)
   const [query, setQuery] = useState('')
   const [course, setCourse] = useState('all')
@@ -71,15 +72,15 @@ export function TasksPage({ taskId, mode, today, tasks, history, courseOptions, 
   const [notice, setNotice] = useState('')
   const [failure, setFailure] = useState('')
   const source = tasks.filter(task => showPreview || task.source === 'manual')
-  const filtered = filterTasks(source, query, course, status)
   const selected = tasks.find(task => task.id === taskId)
   const courses = [...new Set(source.map(task => task.course))].sort((a, b) => a.localeCompare(b, 'ko'))
+  const selectedCourse = courses.includes(course) ? course : 'all'
+  const filtered = filterTasks(source, query, selectedCourse, status)
   const pending = source.filter(task => task.status !== 'submitted')
   const week = currentWeek(today)
   const dueToday = pending.filter(task => task.dueDate === today).length
   const written = pending.filter(task => task.status === 'written').length
-  const [year, month] = today.split('-').map(Number)
-  const semester = `${month < 3 ? year - 1 : year}년 ${month >= 3 && month <= 8 ? 1 : 2}학기`
+  const semester = termLabel(activeTerm)
 
   function resetFilters() { setQuery(''); setCourse('all'); setStatus('all') }
 
@@ -97,7 +98,7 @@ export function TasksPage({ taskId, mode, today, tasks, history, courseOptions, 
       ) : (
         <section className="panel task-empty">
           <span><Icon name="book" size={28} /></span><h1>이 과제를 찾을 수 없어요.</h1>
-          <p>주소를 확인해 주세요. 이 탭의 과제는 새로고침하면 초기화됩니다.</p>
+          <p>선택한 학기와 주소를 확인해 주세요. 이 탭의 과제는 새로고침하면 초기화됩니다.</p>
           <a className="button secondary" href="#/tasks">내 과제 목록으로</a>
         </section>
       ) : <>
@@ -105,7 +106,7 @@ export function TasksPage({ taskId, mode, today, tasks, history, courseOptions, 
         <div>
           <span className="eyebrow">A LITTLE MORE ORGANIZED</span>
           <h1>내 과제</h1>
-          <p>{dueToday ? `오늘 마감 ${dueToday}개, 제출까지 잊지 말고 확인하세요.` : '할 일을 한곳에 모으고 차근차근 시작하세요.'}</p>
+          <p>{semester}의 과제를 마감일과 진행 상태로 확인하세요.</p>
         </div>
         <a href="#/tasks/new" className="button primary task-add-link"><Icon name="plus" size={16} />과제 추가</a>
       </div>
@@ -132,7 +133,7 @@ export function TasksPage({ taskId, mode, today, tasks, history, courseOptions, 
             <input id="task-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="과제명이나 과목을 검색하세요" />
           </div>
           <label className="sr-only" htmlFor="task-course-filter">과목 필터</label>
-          <select id="task-course-filter" value={course} onChange={event => setCourse(event.target.value)}>
+          <select id="task-course-filter" value={selectedCourse} onChange={event => setCourse(event.target.value)}>
             <option value="all">모든 과목</option>
             {courses.map(name => <option key={name} value={name}>{name}</option>)}
           </select>
@@ -145,7 +146,7 @@ export function TasksPage({ taskId, mode, today, tasks, history, courseOptions, 
       )}
       <div className="task-content-grid">
         <div className="task-list-area" aria-label="과제 목록">
-          <p className="task-result-count" role="status">{filtered.length}개 과제{query || course !== 'all' || status !== 'all' ? ' · 필터 적용 중' : ''}</p>
+          <p className="task-result-count" role="status">{filtered.length}개 과제{query || selectedCourse !== 'all' || status !== 'all' ? ' · 필터 적용 중' : ''}</p>
           {filtered.length > 0 ? taskGroups.map(group => {
             const items = filtered.filter(task => taskGroup(task, today) === group.id)
             return items.length > 0 && (
@@ -186,6 +187,7 @@ export function TasksPage({ taskId, mode, today, tasks, history, courseOptions, 
           key={selected?.id ?? 'new'} task={mode === 'edit' ? selected : undefined}
           courses={[...new Set(tasks.map(task => task.course))]}
           courseOptions={courseOptions}
+          term={activeTerm}
           onCancel={() => { window.location.hash = mode === 'edit' && selected ? `/tasks/${selected.id}` : '/tasks' }}
           onSave={saveTask}
           onSaved={task => {
