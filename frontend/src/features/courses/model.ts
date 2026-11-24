@@ -1,4 +1,5 @@
-export type Semester = '1' | '2'
+import { isSemester, isTerm } from '../../domain/academicTerm.ts'
+import type { Semester } from '../../domain/academicTerm.ts'
 export type CourseErrors = Partial<Record<keyof CourseDraft, string>>
 
 export interface CourseDraft {
@@ -21,21 +22,6 @@ export interface Course {
 }
 
 export const weekdays = ['월', '화', '수', '목', '금', '토', '일'] as const
-export const isTerm = (value: unknown): value is string =>
-  typeof value === 'string' && /^[1-9]\d{3}-[12]$/.test(value)
-
-export function currentTerm(now = new Date()): string {
-  const seoul = new Date(now.getTime() + 9 * 60 * 60 * 1000)
-  const year = seoul.getUTCFullYear()
-  const month = seoul.getUTCMonth() + 1
-  return `${month < 3 ? year - 1 : year}-${month >= 3 && month <= 8 ? '1' : '2'}`
-}
-
-export function termLabel(term: string): string {
-  const [year, semester] = term.split('-')
-  return `${year}년 ${semester}학기`
-}
-
 export function emptyDraft(term: string): CourseDraft {
   const [year, semester] = term.split('-')
   return { year, semester: semester as Semester, name: '', section: '', days: [], startTime: '' }
@@ -58,7 +44,7 @@ export class CourseError extends Error {
 export function validateDraft(draft: CourseDraft): CourseErrors {
   const errors: CourseErrors = {}
   if (!/^[1-9]\d{3}$/.test(draft.year)) errors.year = '연도는 네 자리 숫자로 입력해 주세요.'
-  if (draft.semester !== '1' && draft.semester !== '2') errors.semester = '학기를 선택해 주세요.'
+  if (!isSemester(draft.semester)) errors.semester = '학기를 선택해 주세요.'
   if (!draft.name.trim() || draft.name.trim().length > 100) errors.name = '과목명은 1~100자로 입력해 주세요.'
   if (!draft.section.trim() || draft.section.trim().length > 30) errors.section = '분반은 1~30자로 입력해 주세요.'
   if (!Array.isArray(draft.days) || draft.days.some(day => !Number.isInteger(day) || day < 1 || day > 7) || new Set(draft.days).size !== draft.days.length) {

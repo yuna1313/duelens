@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
-import { termLabel } from '@/features/courses/model'
+import { termLabel } from '@/domain/academicTerm'
 import type { CourseBackup, CourseSnapshot } from './courseBackup'
 import './CourseDataDialog.css'
 

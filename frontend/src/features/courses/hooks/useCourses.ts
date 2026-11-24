@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { CourseError, isTerm } from '../model'
+import { CourseError } from '../model'
+import { isTerm } from '@/domain/academicTerm'
 import type { Course, CourseDraft, CourseErrors } from '../model'
 import { readCourses, saveCourse, storageKey, writeCourses } from '../storage'
 import type { CourseState } from '../storage'
@@ -43,13 +44,15 @@ export function useCourses() {
   }
 
   function selectTerm(term: string) {
-    if (!isTerm(term)) return
+    if (!isTerm(term)) return false
     try {
       const next = { ...readCourses(window.localStorage), selectedTerm: term }
       writeCourses(window.localStorage, next)
       setSnapshot({ data: next, error: null })
+      return true
     } catch (error) {
       setSnapshot(previous => ({ ...previous, error: error instanceof CourseError ? error.message : '선택한 학기를 저장하지 못했습니다.' }))
+      return false
     }
   }
 

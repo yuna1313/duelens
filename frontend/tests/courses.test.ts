@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { CourseError, currentTerm, emptyDraft, upsertCourse, validateDraft } from '../src/features/courses/model.ts'
+import { CourseError, emptyDraft, upsertCourse, validateDraft } from '../src/features/courses/model.ts'
+import { currentTerm } from '../src/domain/academicTerm.ts'
 import { readCourses, saveCourse } from '../src/features/courses/storage.ts'
 import type { CourseDraft } from '../src/features/courses/model.ts'
 
@@ -68,4 +69,17 @@ test('저장 공간 오류는 성공으로 처리하지 않고 기존 데이터�
 test('기본 학기는 한국 날짜를 기준으로 정한다', () => {
   assert.equal(currentTerm(new Date('2026-08-31T15:00:00Z')), '2026-2')
   assert.equal(currentTerm(new Date('2026-02-15T00:00:00Z')), '2025-2')
+})
+
+test('기존 정규학기 저장 형식을 유지하며 계절학기 과목을 함께 복원한다', () => {
+  const storage = new MemoryStorage()
+  saveCourse(storage, draft(), id)
+  const before = readCourses(storage).courses[0]
+  saveCourse(storage, draft({ semester: 'summer' }), secondId)
+  const restored = readCourses(storage)
+  assert.equal(restored.version, 1)
+  assert.equal(restored.selectedTerm, '2026-summer')
+  assert.deepEqual(restored.courses[0], before)
+  assert.equal(restored.courses[1].term, '2026-summer')
+  assert.deepEqual(validateDraft(draft({ semester: 'winter' })), {})
 })

@@ -1,6 +1,6 @@
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
-import { currentTerm, termLabel } from '@/features/courses/model'
+import { currentTerm, termLabel } from '@/domain/academicTerm'
 import './NotFoundPage.css'
 
 export function NotFoundPage() {

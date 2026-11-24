@@ -1,7 +1,7 @@
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
 import { Toggle } from '@/components/ui/Toggle'
-import { currentTerm, termLabel } from '@/features/courses/model'
+import { currentTerm, termLabel } from '@/domain/academicTerm'
 import { BrowserNotificationNotice } from '@/features/notifications/components/BrowserNotificationNotice'
 import { ReminderSettings } from '@/features/settings/components/ReminderSettings'
 import type { useReminderPreferences } from '@/features/settings/hooks/useReminderPreferences'
