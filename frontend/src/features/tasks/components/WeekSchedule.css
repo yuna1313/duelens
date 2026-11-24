@@ -4,9 +4,11 @@
 .task-week { list-style: none; display: grid; grid-template-columns: repeat(7, 1fr); margin: 24px 0 15px; padding: 0; gap: 3px; }
 .task-week li { min-width: 0; }
 .task-week-day { display: flex; flex-direction: column; align-items: center; width: 100%; min-height: 66px; padding: 5px 0; border: 0; border-radius: 8px; background: none; font-size: 9px; color: #8d9aa2; }
-.task-week-day:hover, .task-week-day.is-selected { background: var(--brand-soft); color: var(--brand); }
+.task-week-day:not(.is-selected):hover b { background: #f1f4f3; }
+.task-week-day:focus-visible { outline: none; }
+.task-week-day:focus-visible b { outline: 2px solid var(--text); outline-offset: 3px; }
 .task-week b { display: grid; place-items: center; width: 27px; height: 32px; margin-top: 7px; border: 1px solid transparent; color: #536172; font-size: 11px; font-weight: 500; border-radius: 7px; }
-.task-week .is-today b { border-color: var(--brand); color: var(--brand); }
+.task-week .is-today b { font-weight: 700; }
 .task-week .is-selected b { background: var(--brand); color: white; }
 .week-marker { display: block; width: 4px; height: 4px; margin-top: 7px; border-radius: 50%; }
 .week-marker.has-deadline { background: #86a799; }
