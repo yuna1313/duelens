@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { adjacentMonth, monthCalendar, scheduleTasks } from '../src/features/tasks/weekCalendar.ts'
+import { adjacentMonth, monthCalendar, scheduleReferenceDate, scheduleTasks } from '../src/features/tasks/weekCalendar.ts'
 import { emptyTaskDraft, upsertTask } from '../src/features/tasks/model.ts'
 import type { TaskStatus } from '../src/features/tasks/model.ts'
 
@@ -44,4 +44,27 @@ test('일정에서 날짜를 선택하면 해당 주의 그날 과제만 표시�
   assert.deepEqual(scheduleTasks(tasks, '2027-01-01', '2026-12-28').map(item => item.id), ['월'])
   assert.deepEqual(scheduleTasks(tasks, '2027-01-01', '2026-12-29'), [])
   assert.deepEqual(scheduleTasks(tasks, '2027-01-01', '2027-01-04'), [])
+})
+
+test('다른 학기의 빈 일정은 오늘 대신 해당 학기 시작 월을 보여주고 겨울 학기의 연도 경계를 구분한다', () => {
+  assert.equal(scheduleReferenceDate('2026-1', '2026-11-24', []), '2026-03-02')
+  assert.equal(scheduleReferenceDate('2027-summer', '2026-11-24', []), '2027-06-07')
+  assert.equal(scheduleReferenceDate('2025-2', '2026-11-24', []), '2025-09-01')
+  assert.equal(scheduleReferenceDate('2026-winter', '2026-11-24', []), '2026-12-07')
+  assert.equal(scheduleReferenceDate('2026-winter', '2027-01-03', []), '2027-01-03')
+  assert.equal(scheduleReferenceDate('2026-2', '2026-11-24', []), '2026-11-24')
+})
+
+test('지난 학기는 실제 미제출 마감일을 우선 표시하며 학기 밖 날짜도 숨기거나 다른 학기로 옮기지 않는다', () => {
+  const tasks = [
+    { ...task('이른마감', '2026-04-03'), term: '2026-1' },
+    { ...task('마지막미제출', '2026-06-12'), term: '2026-1' },
+    { ...task('제출완료', '2026-07-01', 'submitted'), term: '2026-1' },
+    task('다른학기', '2026-11-30'),
+  ]
+  assert.equal(scheduleReferenceDate('2026-1', '2026-11-24', tasks), '2026-06-12')
+  assert.equal(scheduleReferenceDate('2026-1', '2026-11-24', [tasks[2]]), '2026-07-01')
+  const outsideMonth = { ...task('학기밖마감', '2026-12-01'), term: '2026-1' }
+  assert.equal(scheduleReferenceDate('2026-1', '2026-11-24', [...tasks, outsideMonth]), '2026-12-01')
+  assert.deepEqual(scheduleTasks([outsideMonth], '2026-12-01'), [outsideMonth])
 })

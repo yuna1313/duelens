@@ -57,3 +57,4 @@
   .is-expanded .schedule-disclosure { margin-right: 10px; }
   .task-week-card:not(.is-expanded) .schedule-content, .task-week-card:not(.is-expanded) .schedule-picker-trigger { display: none; }
 }
+.schedule-term { margin: 10px 0 0; font-size: var(--font-small); color: var(--muted); }

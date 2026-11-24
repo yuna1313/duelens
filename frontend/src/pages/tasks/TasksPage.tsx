@@ -136,7 +136,7 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
       )}
       <div className="task-content-grid">
         <aside className="task-aside" aria-label="일정 미리보기">
-          <WeekSchedule key={activeTerm} today={today} tasks={source} />
+          <WeekSchedule key={activeTerm} today={today} term={activeTerm} tasks={source} />
           <section className="panel task-study-card">
             <span className="study-check"><Icon name="check" size={20} /></span>
             <h2>작성 완료, 제출도 하셨나요?</h2>
