@@ -63,4 +63,13 @@ npm run build:backend
 `SERVER_PORT`, `SERVER_ADDRESS` 등 Spring 환경 변수로 값을 덮어쓸 수 있습니다.
 포트를 변경하면 프론트엔드 `vite.config.ts`의 개발 프록시 대상도 맞춰야 합니다.
 
-과목·과제 API와 데이터베이스·인증은 다음 기능 구현에서 추가합니다.
+## API·DB 설계
+
+PostgreSQL을 사용해 학기·과목·수동 과제·변경 이력을 저장할 계획입니다. 가입 없는 게스트 세션의 소유권을 먼저 구현하고, 학교 로그인·공지 수집·AI 분석은 후속으로 진행합니다.
+
+- [저장 모델·소유권·트랜잭션 규칙](../docs/backend/data-model.md)
+- [PostgreSQL 테이블 설계안](../docs/backend/schema.sql)
+- [API 명세 설명](../docs/backend/api.md)
+- [OpenAPI 3.1.1 계약](../docs/backend/openapi.json)
+
+위 파일은 설계 산출물입니다. DB·세션·업무 API는 아직 연결하지 않았으며 `/api/health`만 실제 제공됩니다. 바로 다음 단계는 지원 버전·보안 공지 확인 후 DB 연결·마이그레이션과 게스트 세션·소유권 검증을 구현하는 작업입니다. 프론트엔드에 연결하기 전 저장 위치·복구 범위를 안내하고 로컬 데이터의 서버 가져오기는 사용자 선택으로 처리합니다.
