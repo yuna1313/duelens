@@ -30,7 +30,7 @@ export function WorkspaceLayout({ children, semester, activePage = 'courses', pa
   const storageLabel = activePage === 'courses' || activePage === 'settings' ? '이 기기에 저장' : '화면 미리보기'
   const parent = activePage === 'tasks' && title !== '내 과제' ? { label: '내 과제', href: '#/tasks' }
     : activePage === 'notices' && title !== '공지함' ? { label: '공지함', href: '#/notices' } : null
-  const breadcrumb = <><a href="#/tasks" title="메인 과제 화면으로">내 워크스페이스</a><Icon name="chevron" size={13} />{parent && <><a href={parent.href}>{parent.label}</a><Icon name="chevron" size={13} /></>}<span aria-current="page">{title}</span></>
+  const breadcrumb = <>{parent && <><a href={parent.href}>{parent.label}</a><Icon name="chevron" size={13} /></>}<span aria-current="page">{title}</span></>
   const navigationItem = (page: typeof pages[number]) => (
     <a
       key={page.id} href={`#/${page.id}`}
