@@ -29,3 +29,14 @@ test('조회 집계에서 작성 완료와 기한이 지난 미제출은 남은 
   assert.deepEqual(taskSummary(filterTaskPeriod(tasks, 'week', '2026-11-24')), { total: 2, remaining: 1, submitted: 1, unknown: 0 })
   assert.deepEqual(taskSummary([]), { total: 0, remaining: 0, submitted: 0, unknown: 0 })
 })
+
+test('달력으로 선택한 주의 연말 범위로 목록·집계를 조회하고 이번 주 복귀는 오늘을 따른다', () => {
+  const today = '2026-11-24'
+  const selected = '2027-01-01'
+  assert.deepEqual(taskPeriodRange('selected-week', today, selected), { start: '2026-12-28', end: '2027-01-03' })
+  assert.deepEqual(taskPeriodRange('week', today, selected), { start: '2026-11-23', end: '2026-11-29' })
+  const tasks = [task('이전주', '2026-12-27'), task('월', '2026-12-28'), task('일제출', '2027-01-03', 'submitted'), task('다음주', '2027-01-04'), task('미정', '')]
+  const result = filterTaskPeriod(tasks, 'selected-week', today, selected)
+  assert.deepEqual(result.map(item => item.id), ['월', '일제출'])
+  assert.deepEqual(taskSummary(result), { total: 2, remaining: 1, submitted: 1, unknown: 0 })
+})
