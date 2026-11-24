@@ -19,7 +19,7 @@
 .task-search input::placeholder { color: #98a4ae; }
 .task-filters select { width: 100%; min-width: 0; border: 1px solid #dfe5e8; border-radius: 9px; color: var(--secondary); background: white; font-size: 12px; padding: 11px 12px; }
 .task-content-grid { display: grid; grid-template-columns: minmax(0, 1fr) 255px; gap: 25px; align-items: start; }
-.task-list-area { min-width: 0; }
+.task-list-area { min-width: 0; grid-column: 1; grid-row: 1; }
 .task-result-count { margin: 0 0 19px; font-size: 11px; color: var(--muted); }
 .task-group { margin-bottom: 28px; }
 .task-group > header { display: flex; align-items: center; gap: 9px; margin: 0 0 13px; }
@@ -46,7 +46,7 @@
 .task-due.today strong, .task-due.overdue strong { color: #a27439; }
 .task-due.unknown strong { color: var(--muted); }
 .is-submitted .task-title { color: #7c8d88; }
-.task-aside { display: grid; gap: 20px; padding-top: 33px; }
+.task-aside { display: grid; grid-column: 2; grid-row: 1; gap: 20px; padding-top: 33px; }
 .task-study-card { padding: 23px; }
 .study-check { display: grid; place-items: center; border-radius: 11px; width: 35px; height: 35px; color: #9c9875; background: #f6f4ed; margin-bottom: 17px; }
 .task-study-card h2 { font-size: 13px; font-weight: 650; margin: 0 0 10px; }
@@ -62,12 +62,11 @@
 .task-save-notice { display: flex; align-items: flex-start; gap: 7px; border-radius: 8px; background: var(--brand-soft); padding: 12px; font-size: 11px; color: var(--brand); }
 .task-save-notice svg { flex-shrink: 0; margin-top: 2px; }
 .task-operation-error { border-radius: 9px; background: #fff4f1; border: 1px solid #efd2cc; color: var(--error); padding: 12px 15px; font-size: 12px; }
-.task-period-toolbar { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-.task-period-toolbar .task-week-picker-trigger { display: none; min-height: 36px; font-size: 11px; padding: 9px 12px; }
 @media (max-width: 1150px) {
   .task-content-grid { grid-template-columns: minmax(0, 1fr); }
-  .task-aside { display: none; }
-  .task-period-toolbar .task-week-picker-trigger { display: inline-flex; }
+  .task-aside { grid-column: 1; grid-row: 1; padding-top: 0; }
+  .task-list-area { grid-column: 1; grid-row: 2; }
+  .task-study-card { display: none; }
 }
 @media (max-width: 700px) {
   .task-preview-banner { gap: 8px; padding: 13px; align-items: flex-start; flex-wrap: wrap; }

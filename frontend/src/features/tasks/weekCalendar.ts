@@ -1,4 +1,11 @@
-import { isCalendarDate } from '../../utils/date.ts'
+import { currentWeek, isCalendarDate } from '../../utils/date.ts'
+import type { TaskPreview } from './model.ts'
+
+export function scheduleTasks(tasks: TaskPreview[], date: string, selectedDay: string | null = null): TaskPreview[] {
+  const week = currentWeek(date)
+  return tasks.filter(task => task.status !== 'submitted' && task.dueDate && week.includes(task.dueDate) && (!selectedDay || task.dueDate === selectedDay))
+    .sort((a, b) => a.dueDate!.localeCompare(b.dueDate!) || (a.dueTime ?? '99:99').localeCompare(b.dueTime ?? '99:99'))
+}
 
 export function adjacentMonth(date: string, direction: -1 | 1): string | null {
   const first = new Date(`${date.slice(0, 7)}-01T00:00:00Z`)

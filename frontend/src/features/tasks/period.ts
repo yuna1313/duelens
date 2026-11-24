@@ -5,11 +5,11 @@ export const taskPeriods = [
   { id: 'all', label: '전체 기간' }, { id: 'week', label: '이번 주' },
   { id: 'month', label: '이번 달' }, { id: 'undated', label: '마감 미정' },
 ] as const
-export type TaskPeriod = typeof taskPeriods[number]['id'] | 'selected-week'
+export type TaskPeriod = typeof taskPeriods[number]['id']
 
-export function taskPeriodRange(period: TaskPeriod, today: string, selectedDate = today): { start: string; end: string } | null {
-  if (period === 'week' || period === 'selected-week') {
-    const week = currentWeek(period === 'week' ? today : selectedDate)
+export function taskPeriodRange(period: TaskPeriod, today: string): { start: string; end: string } | null {
+  if (period === 'week') {
+    const week = currentWeek(today)
     return { start: week[0], end: week[6] }
   }
   if (period === 'month') {
@@ -21,9 +21,9 @@ export function taskPeriodRange(period: TaskPeriod, today: string, selectedDate 
   return null
 }
 
-export function filterTaskPeriod(tasks: TaskPreview[], period: TaskPeriod, today: string, selectedDate = today): TaskPreview[] {
+export function filterTaskPeriod(tasks: TaskPreview[], period: TaskPeriod, today: string): TaskPreview[] {
   if (period === 'undated') return tasks.filter(task => !task.dueDate)
-  const range = taskPeriodRange(period, today, selectedDate)
+  const range = taskPeriodRange(period, today)
   return range ? tasks.filter(task => task.dueDate && task.dueDate >= range.start && task.dueDate <= range.end) : tasks
 }
 
