@@ -71,14 +71,14 @@ export function CourseForm({ term, course, onSave, onSaved, onCancel }: Props) {
         </div>
         <div className="form-field">
           <label htmlFor={`${prefix}-semester`}>학기 <span className="required-mark">*</span></label>
-          <select
+          <div className="course-semester-select"><select
             id={`${prefix}-semester`} name="semester" value={draft.semester} required
             onChange={event => update('semester', event.target.value as Semester)}
             aria-invalid={Boolean(errors.semester)} aria-describedby={describedBy('semester')}
           >
             <option value="" disabled>학기 선택</option>
             {semesters.map(semester => <option key={semester.value} value={semester.value}>{semester.label}</option>)}
-          </select>
+          </select><Icon name="chevron" size={16} /></div>
           {error('semester')}
         </div>
         <div className="form-field">

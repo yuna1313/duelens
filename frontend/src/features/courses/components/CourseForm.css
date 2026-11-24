@@ -1,7 +1,10 @@
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .form-field { display: flex; flex-direction: column; gap: 8px; }
 .form-field label, .days-field legend { color: var(--secondary); font-size: var(--font-body); }
-.form-field input, .form-field select { border: 1px solid #dfe5e8; border-radius: 8px; background: white; color: var(--text); padding: 11px 12px; min-height: 43px; width: 100%; }
+.form-field input, .form-field select { border: 1px solid #dfe5e8; border-radius: 8px; background: white; color: var(--text); padding: 11px 12px; height: 48px; line-height: 1.5; width: 100%; }
+.course-semester-select { position: relative; }
+.form-field .course-semester-select select { display: block; appearance: none; padding-right: 42px; }
+.course-semester-select > svg { position: absolute; top: 50%; right: 14px; transform: translateY(-50%) rotate(90deg); pointer-events: none; color: var(--secondary); }
 .form-field input::placeholder { color: #a5afb8; font-size: var(--font-body); }
 .form-field input[aria-invalid="true"] { border-color: #c87474; }
 .required-mark { color: #79988e; }
