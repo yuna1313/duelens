@@ -3,6 +3,8 @@ import type { FormEvent } from 'react'
 import { courseDraft, emptyDraft, validateDraft, weekdays } from '../model'
 import type { Course, CourseDraft, CourseErrors } from '../model'
 import type { SaveResult } from '../hooks/useCourses'
+import { semesters } from '@/domain/academicTerm'
+import type { Semester } from '@/domain/academicTerm'
 import { Icon } from '@/components/ui/Icon'
 import './CourseForm.css'
 
@@ -70,11 +72,10 @@ export function CourseForm({ term, course, onSave, onSaved, onCancel }: Props) {
           <label htmlFor={`${prefix}-semester`}>학기 <span className="required-mark">*</span></label>
           <select
             id={`${prefix}-semester`} value={draft.semester} required
-            onChange={event => update('semester', event.target.value as '1' | '2')}
+            onChange={event => update('semester', event.target.value as Semester)}
             aria-invalid={Boolean(errors.semester)} aria-describedby={describedBy('semester')}
           >
-            <option value="1">1학기</option>
-            <option value="2">2학기</option>
+            {semesters.map(semester => <option key={semester.value} value={semester.value}>{semester.label}</option>)}
           </select>
           {error('semester')}
         </div>

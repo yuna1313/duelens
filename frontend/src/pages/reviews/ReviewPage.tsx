@@ -23,10 +23,10 @@ export function ReviewPage({ reviewId, today, candidates, tasks, sources, result
   useEffect(() => { if (result) resultHeading.current?.focus({ preventScroll: true }) }, [result])
 
   return (
-    <WorkspaceLayout semester={semester} activePage="notices" pageTitle="변경 검토">
+    <WorkspaceLayout semester={semester} activePage="notices">
       <a className="review-back-link" href="#/notices"><Icon name="back" size={14} />공지함으로</a>
       {!candidate || !source ? (
-        <section className="panel review-not-found"><Icon name="file" size={30} /><h1>이 검토 예시를 찾을 수 없어요.</h1><p>공지함에서 검토할 공지를 다시 선택해 주세요.</p><a className="button secondary" href="#/notices">공지함으로</a></section>
+        <section className="panel review-not-found"><Icon name="file" size={30} /><h1>{candidates.length ? '이 검토를 찾을 수 없어요.' : '선택한 학기에 검토할 공지가 없어요.'}</h1><p>학기를 확인하거나 공지함에서 검토할 공지를 다시 선택해 주세요.</p><a className="button secondary" href="#/notices">공지함으로</a></section>
       ) : (
         <>
           <div className="page-heading review-page-heading"><div><h1>{result ? '검토 결과를 확인해 주세요.' : '바뀐 내용을 확인해 주세요.'}</h1><p>공지의 조건을 비교하고 과제에 사용할 값을 선택하세요.</p></div></div>
@@ -35,7 +35,7 @@ export function ReviewPage({ reviewId, today, candidates, tasks, sources, result
             <li className={result ? 'done' : 'active'} aria-current={!result ? 'step' : undefined}><span>{result ? <Icon name="check" size={12} /> : '2'}</span>변경 검토</li>
             <li className={result ? 'active' : ''} aria-current={result ? 'step' : undefined}><span>3</span>반영 결과</li>
           </ol>
-          <div className="review-preview-note"><Icon name="info" size={17} /><p><strong>프론트 흐름 미리보기</strong>확인한 값을 이 탭의 과제·공지 상태·변경 이력·앱 내 알림에 반영합니다. 실제 AI 분석·학교 제출·서버 저장은 수행하지 않습니다.</p></div>
+          {import.meta.env.DEV && <div className="review-preview-note"><Icon name="info" size={17} /><p><strong>프론트 흐름 미리보기</strong>확인한 값을 이 탭의 과제·공지 상태·변경 이력·앱 내 알림에 반영합니다. 실제 AI 분석·학교 제출·서버 저장은 수행하지 않습니다.</p></div>}
           <div className="review-page-layout">
             <nav className="review-candidates" aria-label="검토 상황 예시">
               <div><span className="eyebrow">REVIEW CASES</span><h2>검토할 변경 <span>{candidates.length}</span></h2></div>

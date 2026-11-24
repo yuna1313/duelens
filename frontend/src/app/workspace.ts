@@ -8,6 +8,7 @@ import { createManualNotice } from '../features/notices/model.ts'
 import type { HistoryRecord, HistoryValues } from '../features/history/model.ts'
 import { markAllNotificationsRead, setNotificationRead } from '../features/notifications/model.ts'
 import type { NotificationItem } from '../features/notifications/model.ts'
+import { termLabel } from '../domain/academicTerm.ts'
 
 export interface WorkspaceState {
   tasks: TaskPreview[]
@@ -19,13 +20,13 @@ export interface WorkspaceState {
 }
 
 export function historyValues(task: TaskPreview): HistoryValues {
-  return { title: task.title, course: `${task.course} · ${task.section}분반`, courseLink: task.courseId ? '등록한 과목 연결' : '직접 입력 또는 예시',
+  return { term: task.term ? termLabel(task.term) : undefined, title: task.title, course: `${task.course} · ${task.section}분반`, courseLink: task.courseId ? '등록한 과목 연결' : '직접 입력 또는 예시',
     dueDate: task.dueDate, dueTime: task.dueTime, submissionFormat: task.submissionFormat, quantity: task.quantity,
     progress: statusLabels[task.status], description: task.description, submissionUrl: task.submissionUrl }
 }
 
 export const reviewTasks = (tasks: TaskPreview[]): ReviewTask[] => tasks.map(task => ({
-  id: task.id, title: task.title, course: task.course, section: task.section,
+  id: task.id, term: task.term, title: task.title, course: task.course, section: task.section,
   values: { dueDate: task.dueDate, dueTime: task.dueTime, submissionFormat: task.submissionFormat, quantity: task.quantity },
 }))
 
@@ -41,7 +42,7 @@ export function saveWorkspaceTask(state: WorkspaceState, draft: TaskDraft, id: s
   const linked = draft.courseId ? courses.find(course => course.id === draft.courseId) : undefined
   const preservedLink = before?.courseId === draft.courseId && before?.course === draft.course && before?.section === draft.section
   if (draft.courseId && !linked && !preservedLink) throw new TaskError('연결한 과목을 찾을 수 없습니다. 과목을 다시 선택하거나 직접 입력으로 변경해 주세요.', { courseId: '과목 연결을 확인해 주세요.' })
-  const input = linked ? { ...draft, course: linked.name, section: linked.section } : draft
+  const input = linked ? { ...draft, term: linked.term, course: linked.name, section: linked.section } : draft
   const saved = upsertTask(state.tasks, input, id)
   if (before && (Object.keys(saved.task) as (keyof TaskPreview)[]).every(key => before[key] === saved.task[key])) return { state, result: before }
   const record = recordChange(state, saved.task, before, before ? 'manual-edit' : 'created', now)
@@ -50,7 +51,7 @@ export function saveWorkspaceTask(state: WorkspaceState, draft: TaskDraft, id: s
 
 export const resolveTaskCourses = (tasks: TaskPreview[], courses: Course[]): TaskPreview[] => tasks.map(task => {
   const linked = courses.find(course => course.id === task.courseId)
-  return linked ? { ...task, course: linked.name, section: linked.section } : task
+  return linked ? { ...task, term: linked.term, course: linked.name, section: linked.section } : task
 })
 
 export function applyWorkspaceReview(state: WorkspaceState, candidateId: string, draft: ReviewDraft, newTaskId: string, now: string): { state: WorkspaceState; result: ReviewResult } {
@@ -64,7 +65,7 @@ export function applyWorkspaceReview(state: WorkspaceState, candidateId: string,
   const id = before?.id ?? newTaskId
   if (!before && state.tasks.some(task => task.id === id)) throw new ReviewError({ target: '새 과제 ID가 중복되었습니다. 다시 시도해 주세요.' })
   const input: TaskDraft = before ? taskDraft(before) : {
-    title: result.title, course: result.course, section: result.section, status: 'todo',
+    term: result.term, title: result.title, course: result.course, section: result.section, status: 'todo',
     dueDate: '', dueTime: '', submissionFormat: '', quantity: '', submissionUrl: '', description: '',
   }
   const saved = upsertTask(state.tasks, { ...input, ...result.values, dueDate: result.values.dueDate ?? '', dueTime: result.values.dueTime ?? '' }, id)
@@ -75,7 +76,7 @@ export function applyWorkspaceReview(state: WorkspaceState, candidateId: string,
     evidence: candidate.evidence, paragraphs: [...notice.paragraphs],
   })
   const notification: NotificationItem = {
-    id: `review-complete-${candidate.id}`, source: 'session', title: `${task.title} 검토를 완료했어요.`,
+    id: `review-complete-${candidate.id}`, term: task.term, source: 'session', title: `${task.title} 검토를 완료했어요.`,
     description: result.isNew ? '새 과제를 등록했습니다.' : result.changedFields.length ? `${result.changedFields.length}개 항목을 반영했습니다.` : '현재 과제 값을 유지했습니다.',
     course: task.course, occurredAt: now, category: 'task', delivery: 'in-app', failureReason: null, isRead: false, target: { type: 'task', id },
   }

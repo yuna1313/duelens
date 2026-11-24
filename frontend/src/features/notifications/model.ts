@@ -4,6 +4,7 @@ export type NotificationTab = 'all' | 'unread' | 'scheduled'
 
 export interface NotificationItem {
   id: string
+  term?: string
   source?: 'example' | 'session'
   title: string
   description: string

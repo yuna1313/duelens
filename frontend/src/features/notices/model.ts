@@ -1,8 +1,11 @@
+import { isTerm } from '../../domain/academicTerm.ts'
+
 export type NoticeStatus = 'review' | 'date-check' | 'new-task' | 'applied' | 'no-task' | 'unreviewed'
 export type NoticeTab = 'all' | 'review' | 'applied'
 
 export interface Notice {
   id: string
+  term?: string
   course: string
   title: string
   excerpt: string
@@ -18,7 +21,7 @@ export interface Notice {
   }
 }
 
-export interface NoticeDraft { course: string; title: string; body: string }
+export interface NoticeDraft { course: string; title: string; body: string; term?: string }
 export type NoticeErrors = Partial<Record<keyof NoticeDraft, string>>
 
 export const noticeStatusLabels: Record<NoticeStatus, string> = {
@@ -56,6 +59,7 @@ export function noticeTimestamp(value: string): string {
 
 export function validateNoticeDraft(draft: NoticeDraft): NoticeErrors {
   const errors: NoticeErrors = {}
+  if (draft.term !== undefined && !isTerm(draft.term)) errors.term = '학기 정보를 확인해 주세요.'
   if (!draft.course.trim() || draft.course.trim().length > 100) errors.course = '과목명은 1~100자로 입력해 주세요.'
   if (!draft.title.trim() || draft.title.trim().length > 150) errors.title = '공지 제목은 1~150자로 입력해 주세요.'
   if (!draft.body.trim() || draft.body.length > 20_000) errors.body = '공지 원문은 1~20,000자로 입력해 주세요.'
@@ -66,7 +70,7 @@ export function createManualNotice(draft: NoticeDraft, id: string, now = new Dat
   if (Object.keys(validateNoticeDraft(draft)).length) throw new Error('입력 내용을 확인해 주세요.')
   const body = draft.body.trim()
   return {
-    id, course: draft.course.trim(), title: draft.title.trim(),
+    id, term: draft.term, course: draft.course.trim(), title: draft.title.trim(),
     excerpt: body.replace(/\s+/g, ' ').slice(0, 120),
     paragraphs: body.split(/\n\s*\n/), publishedAt: now.toISOString(),
     status: 'unreviewed', isRead: false, source: 'manual',

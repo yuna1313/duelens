@@ -2,7 +2,8 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
 import { CourseForm } from '@/features/courses/components/CourseForm'
-import { currentTerm, scheduleLabel, termLabel } from '@/features/courses/model'
+import { scheduleLabel } from '@/features/courses/model'
+import { currentTerm, termLabel, termOptions } from '@/domain/academicTerm'
 import type { useCourses } from '@/features/courses/hooks/useCourses'
 import type { Course, CourseDraft } from '@/features/courses/model'
 import type { SaveResult } from '@/features/courses/hooks/useCourses'
@@ -44,12 +45,6 @@ function CourseDialog({ term, onClose, onSave, onSaved }: CourseDialogProps) {
       </div>
     </dialog>
   )
-}
-
-function termOptions(courses: Course[], selected: string): string[] {
-  const year = Number(currentTerm().split('-')[0])
-  const defaults = [year - 1, year, year + 1].flatMap(value => [`${value}-1`, `${value}-2`])
-  return [...new Set([...defaults, selected, ...courses.map(course => course.term)])].sort().reverse()
 }
 
 export function CoursesPage({ controller }: { controller: ReturnType<typeof useCourses> }) {
@@ -98,7 +93,7 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
           id="term-filter" value={term} disabled={!data}
           onChange={event => { selectTerm(event.target.value); setEditingId(null); setNotice('') }}
         >
-          {termOptions(courses, term).map(option => (
+          {termOptions(term, courses.map(course => course.term)).map(option => (
             <option key={option} value={option}>{termLabel(option)}</option>
           ))}
         </select>

@@ -1,4 +1,5 @@
-import { CourseError, currentTerm, isCourse, isTerm, upsertCourse } from './model.ts'
+import { CourseError, isCourse, upsertCourse } from './model.ts'
+import { currentTerm, isTerm } from '../../domain/academicTerm.ts'
 import type { Course, CourseDraft } from './model.ts'
 
 export const storageKey = 'duelens.courses.v1'

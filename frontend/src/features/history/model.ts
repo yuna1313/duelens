@@ -1,4 +1,5 @@
 export interface HistoryValues {
+  term?: string
   title?: string
   course?: string
   description?: string
@@ -36,6 +37,7 @@ export interface HistoryRecord {
 }
 
 export const historyFieldLabels: Record<HistoryField, string> = {
+  term: '소속 학기',
   title: '과제명', course: '과목·분반', courseLink: '과목 연결', description: '메모', submissionUrl: '제출 링크',
   dueDate: '마감 날짜', dueTime: '마감 시각', submissionFormat: '제출 형식', quantity: '분량', progress: '진행 상태',
 }

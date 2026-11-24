@@ -31,7 +31,7 @@ export function NotificationsPage({ today, notifications, reminders, exampleTask
   function showTab(value: NotificationTab) { setTab(value); setMessage('') }
 
   return (
-    <WorkspaceLayout semester={semester} activePage="notifications" pageTitle="알림센터">
+    <WorkspaceLayout semester={semester} activePage="notifications">
       <div className="page-heading notifications-page-heading">
         <div><h1>알림</h1><p>마감과 바뀐 내용을 한 번 더 확인하세요.</p></div>
         <button type="button" className="button secondary" disabled={tab === 'scheduled' || !unread} onClick={() => {

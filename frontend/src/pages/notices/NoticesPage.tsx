@@ -56,7 +56,7 @@ export function NoticesPage({ noticeId, today, notices, reviewLinks, onRead, onC
   function resetFilters() { setQuery(''); setCourse('all'); setTab('all') }
 
   return (
-    <WorkspaceLayout semester={semester} activePage="notices" pageTitle={noticeId ? '공지 원문' : '공지함'}>
+    <WorkspaceLayout semester={semester} activePage="notices">
       {noticeId ? selected ? (
         <NoticeDocument notice={selected} reviewHref={reviewHref(selected)} onToggleRead={() => {
           onRead(selected.id, !selected.isRead)
@@ -65,7 +65,7 @@ export function NoticesPage({ noticeId, today, notices, reviewLinks, onRead, onC
       ) : (
         <section className="panel notice-empty">
           <Icon name="file" size={30} /><h1>이 공지를 찾을 수 없어요.</h1>
-          <p>주소를 확인해 주세요. 이 탭의 공지는 새로고침하면 초기화됩니다.</p>
+          <p>선택한 학기와 주소를 확인해 주세요. 이 탭의 공지는 새로고침하면 초기화됩니다.</p>
           <a href="#/notices" className="button secondary">공지 목록으로</a>
         </section>
       ) : (

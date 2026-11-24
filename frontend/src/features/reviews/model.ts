@@ -10,6 +10,7 @@ export type ReviewField = keyof ReviewValues
 export type ReviewChoice = 'proposal' | 'current'
 export interface ReviewTask {
   id: string
+  term?: string
   title: string
   course: string
   section: string
@@ -17,6 +18,7 @@ export interface ReviewTask {
 }
 export interface ReviewCandidate {
   id: string
+  term?: string
   noticeId: string
   title: string
   course: string
@@ -42,6 +44,7 @@ export interface ReviewDraft {
 }
 export interface ReviewResult {
   candidateId: string
+  term?: string
   targetId: string | null
   title: string
   course: string
@@ -60,7 +63,7 @@ export const reviewFields = (candidate: ReviewCandidate): ReviewField[] =>
   (Object.keys(reviewFieldLabels) as ReviewField[]).filter(field => Object.hasOwn(candidate.proposal, field))
 
 export function eligibleTargets(candidate: ReviewCandidate, tasks: ReviewTask[]): ReviewTask[] {
-  return tasks.filter(task => task.course === candidate.course && task.section === candidate.section)
+  return tasks.filter(task => task.course === candidate.course && task.section === candidate.section && (!candidate.term || task.term === candidate.term))
 }
 
 export function conflictFields(candidate: ReviewCandidate, target?: ReviewTask): ReviewField[] {
@@ -139,7 +142,7 @@ export function applyReview(candidate: ReviewCandidate, tasks: ReviewTask[], dra
   const before = target?.values ?? emptyReviewValues()
   const values = resolvedValues(candidate, tasks, draft)
   return {
-    candidateId: candidate.id, targetId: target?.id ?? null, title: target?.title ?? candidate.title,
+    candidateId: candidate.id, term: target?.term ?? candidate.term, targetId: target?.id ?? null, title: target?.title ?? candidate.title,
     course: candidate.course, section: candidate.section, isNew: draft.targetId === 'new', values,
     changedFields: (Object.keys(reviewFieldLabels) as ReviewField[]).filter(field => values[field] !== before[field]),
   }

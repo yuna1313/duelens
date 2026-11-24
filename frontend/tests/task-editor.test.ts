@@ -2,6 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { emptyTaskDraft, safeSubmissionUrl, taskDraft, upsertTask, validateTaskDraft } from '../src/features/tasks/model.ts'
 import type { TaskDraft } from '../src/features/tasks/model.ts'
+import { changeDeadlineMode } from '../src/features/tasks/deadline.ts'
 
 const draft = (changes: Partial<TaskDraft> = {}): TaskDraft => ({ ...emptyTaskDraft(), title: '보고서', course: '프로그래밍 기초', ...changes })
 
@@ -39,4 +40,22 @@ test('필수 값과 입력 크기를 검사하고 같은 이름의 다른 과제
   assert.ok(errors.title && errors.course && errors.section && errors.description)
   const first = upsertTask([], draft(), 'first')
   assert.equal(upsertTask(first.tasks, draft(), 'second').tasks.length, 2)
+})
+
+test('마감 미정을 켰다가 끄면 수정 중이던 날짜와 시각을 복원하고 원본을 보존한다', () => {
+  const original = draft({ dueDate: '2026-11-24', dueTime: '23:59' })
+  const unknown = changeDeadlineMode(original, true, { dueDate: '', dueTime: '' })
+  assert.equal(unknown.draft.dueDate, '')
+  assert.equal(unknown.draft.dueTime, '')
+  const restored = changeDeadlineMode(unknown.draft, false, unknown.remembered)
+  assert.deepEqual(restored.draft, original)
+  const edited = { ...restored.draft, dueDate: '2026-12-01', dueTime: '' }
+  const again = changeDeadlineMode(edited, true, restored.remembered)
+  assert.deepEqual(changeDeadlineMode(again.draft, false, again.remembered).draft, edited)
+  assert.equal(original.dueDate, '2026-11-24')
+})
+
+test('마감 미정인 새 과제에 날짜를 임의로 넣지 않는다', () => {
+  const empty = draft()
+  assert.deepEqual(changeDeadlineMode(empty, false, { dueDate: '', dueTime: '' }).draft, empty)
 })

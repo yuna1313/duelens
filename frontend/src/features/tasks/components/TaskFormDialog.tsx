@@ -2,22 +2,26 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { emptyTaskDraft, statusLabels, taskDraft, validateTaskDraft } from '../model'
 import type { SaveTaskResult, TaskCourseOption, TaskDraft, TaskErrors, TaskPreview, TaskStatus } from '../model'
+import { changeDeadlineMode } from '../deadline'
+import { termLabel } from '@/domain/academicTerm'
 import './TaskFormDialog.css'
 
 interface Props {
   task?: TaskPreview
   courses: string[]
   courseOptions?: TaskCourseOption[]
+  term?: string
   onCancel: () => void
   onSave: (draft: TaskDraft, id?: string) => SaveTaskResult
   onSaved: (task: TaskPreview) => void
 }
 
-export function TaskFormDialog({ task, courses, courseOptions = [], onCancel, onSave, onSaved }: Props) {
+export function TaskFormDialog({ task, courses, courseOptions = [], term, onCancel, onSave, onSaved }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const prefix = useId()
-  const [draft, setDraft] = useState(() => task ? taskDraft(task) : emptyTaskDraft())
+  const [draft, setDraft] = useState(() => task ? taskDraft(task) : emptyTaskDraft(term))
   const [unknownDate, setUnknownDate] = useState(task ? !task.dueDate : false)
+  const [remembered, setRemembered] = useState(() => ({ dueDate: task?.dueDate ?? '', dueTime: task?.dueTime ?? '' }))
   const [errors, setErrors] = useState<TaskErrors>({})
   const [message, setMessage] = useState('')
 
@@ -32,6 +36,12 @@ export function TaskFormDialog({ task, courses, courseOptions = [], onCancel, on
     setDraft(previous => ({ ...previous, [field]: value }))
     setErrors(previous => ({ ...previous, [field]: undefined }))
     setMessage('')
+  }
+
+  function setDeadlineMode(unknown: boolean) {
+    const next = changeDeadlineMode(draft, unknown, remembered)
+    setDraft(next.draft); setRemembered(next.remembered); setUnknownDate(unknown)
+    setErrors(previous => ({ ...previous, dueDate: undefined, dueTime: undefined })); setMessage('')
   }
 
   const describedBy = (field: keyof TaskDraft) => errors[field] ? `${prefix}-${field}-error` : undefined
@@ -63,11 +73,12 @@ export function TaskFormDialog({ task, courses, courseOptions = [], onCancel, on
       }}>
         <div className="task-editor-body">
           <p className="task-editor-help">등록한 과제는 메뉴를 이동해도 유지되며 새로고침하면 초기화됩니다. 서버 전송·학교 제출은 수행하지 않습니다.</p>
+          {draft.term && <p className="task-editor-term">소속 학기 · {termLabel(draft.term)}</p>}
           <div className="task-editor-field">
             <label htmlFor={`${prefix}-courseId`}>등록한 과목 연결</label>
             <select id={`${prefix}-courseId`} name="courseId" value={draft.courseId ?? ''} aria-invalid={Boolean(errors.courseId)} onChange={event => {
               const option = courseOptions.find(item => item.id === event.target.value)
-              setDraft(previous => ({ ...previous, courseId: option?.id, course: option?.name ?? previous.course, section: option?.section ?? previous.section }))
+              setDraft(previous => ({ ...previous, courseId: option?.id, term: option?.term ?? previous.term, course: option?.name ?? previous.course, section: option?.section ?? previous.section }))
               setErrors(previous => ({ ...previous, courseId: undefined })); setMessage('')
             }}><option value="">과목명·분반 직접 입력</option>{draft.courseId && !courseOptions.some(item => item.id === draft.courseId) && <option value={draft.courseId}>연결한 과목을 찾을 수 없음</option>}{courseOptions.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}</select>
             {error('courseId')}
@@ -104,16 +115,9 @@ export function TaskFormDialog({ task, courses, courseOptions = [], onCancel, on
             </div>
           </div>
           <label className="task-editor-unknown">
-            <input type="checkbox" checked={unknownDate} onChange={event => {
-              const checked = event.target.checked
-              setUnknownDate(checked)
-              if (checked) {
-                setDraft(previous => ({ ...previous, dueDate: '', dueTime: '' }))
-                setErrors(previous => ({ ...previous, dueDate: undefined, dueTime: undefined }))
-                setMessage('')
-              }
-            }} />마감 날짜를 아직 몰라요
+            <input type="checkbox" checked={unknownDate} onChange={event => setDeadlineMode(event.target.checked)} />마감 날짜를 아직 몰라요
           </label>
+          {unknownDate && <p className="task-editor-deadline-mode" role="status">마감 미정을 선택해 날짜·시각 입력이 꺼져 있습니다. <button type="button" onClick={() => setDeadlineMode(false)}>날짜 지정으로 전환</button></p>}
           <p className="task-editor-time-help">한국 표준시 (UTC+9) · 시각을 비우면 ‘시각 미정’으로 표시합니다.</p>
           <div className="task-editor-grid">
             {([
