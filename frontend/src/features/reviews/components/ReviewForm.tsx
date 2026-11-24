@@ -1,3 +1,4 @@
+import { Select } from '@/components/ui/Select'
 import { useId, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import {
@@ -55,14 +56,14 @@ export function ReviewForm({ candidate, tasks, source, onComplete }: Props) {
       <section className="panel review-target-panel">
         <header><div><span className="eyebrow">TARGET TASK</span><h2>연결할 과제</h2></div><Icon name="file" size={21} /></header>
         <label className="sr-only" htmlFor={`${prefix}-target`}>연결할 과제 선택</label>
-        <select id={`${prefix}-target`} value={draft.targetId} onChange={event => {
+        <Select id={`${prefix}-target`} value={draft.targetId} onChange={event => {
           setDraft(initialReviewDraft(candidate, tasks, event.target.value))
           setMessage('')
         }}>
           <option value="">과제를 선택해 주세요</option>
           {candidate.allowNew && <option value="new">새 과제로 등록</option>}
           {targets.map(item => <option key={item.id} value={item.id}>{item.title} · {item.section}분반</option>)}
-        </select>
+        </Select>
         <p>{candidate.course} · {candidate.section}분반{target ? ` · ${target.title}` : ''}</p>
         <label className="review-check">
           <input type="checkbox" checked={draft.targetConfirmed} disabled={!draft.targetId} onChange={event => update('targetConfirmed', event.target.checked)} />

@@ -4,7 +4,7 @@
 .review-target-panel > header, .review-comparison > header { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 20px; }
 .review-target-panel > header svg { color: #8aa89e; }
 .review-target-panel h2 { margin-top: 6px; }
-.review-form select, .review-form input[type="date"], .review-form input[type="time"] { width: 100%; min-width: 0; border: 1px solid #dfe5e8; border-radius: 8px; background: white; color: var(--secondary); padding: 11px 12px; font-size: var(--font-body); }
+.review-form input[type="date"], .review-form input[type="time"] { width: 100%; min-width: 0; border: 1px solid #dfe5e8; border-radius: 8px; background: white; color: var(--secondary); padding: 11px 12px; font-size: var(--font-body); }
 .review-target-panel > p, .review-date-panel > p { color: var(--muted); font-size: var(--font-body); line-height: 1.9; margin: 13px 0; overflow-wrap: anywhere; }
 .review-check { display: flex; align-items: flex-start; gap: 8px; font-size: var(--font-body); line-height: 1.8; color: var(--secondary); margin-top: 13px; }
 .review-check input, .review-choices input { accent-color: var(--brand); margin: 3px 0 0; flex-shrink: 0; }
@@ -34,7 +34,7 @@
 .review-footer .review-error { color: var(--error); margin-top: 12px; }
 @media (max-width: 700px) {
   .review-target-panel, .review-date-panel, .review-comparison, .review-evidence { padding: 21px 18px; }
-  .review-form h2 { font-size: var(--font-lead); }.review-form select, .review-form input[type="date"], .review-form input[type="time"] { padding: 10px; font-size: var(--font-body); }
+  .review-form h2 { font-size: var(--font-lead); }.review-form input[type="date"], .review-form input[type="time"] { padding: 10px; font-size: var(--font-body); }
   .review-value-grid { gap: 8px; }.review-value-grid > div { padding: 11px; }.review-value-grid p { font-size: var(--font-body); }.review-date-inputs { gap: 11px; }
   .review-attention { padding: 15px; }.review-attention p { font-size: var(--font-small); }.review-evidence blockquote { padding: 13px; font-size: var(--font-body); }.review-evidence details p { font-size: var(--font-body); }
   .review-footer { flex-direction: column; gap: 17px; }.review-footer > .button { width: 100%; }.review-choices label, .review-check { font-size: var(--font-small); }

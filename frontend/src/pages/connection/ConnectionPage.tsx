@@ -1,3 +1,4 @@
+import { Select } from '@/components/ui/Select'
 import { useEffect, useRef, useState } from 'react'
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
@@ -55,7 +56,7 @@ export function ConnectionPage() {
     <WorkspaceLayout semester={semester} activePage="connection">
       <div className="page-heading"><div><h1>학교 연결</h1><p>연결 상태와 과목별 수집 결과를 확인하세요.</p></div><a className="button secondary connection-start-link" href="#/start">시작 안내</a></div>
       <section className="connection-preview-banner" aria-label="학교 연결 미리보기 안내"><Icon name="info" size={18} /><div><strong>학교 연결 화면 미리보기</strong><p>실제 학교는 연결되지 않았습니다. 아래 연결·수집 결과는 예시이며, 등록한 과목·과제와 별도로 표시됩니다. 학기 정보도 가져오거나 자동으로 선택하지 않습니다. 실제 연동에서 확인되지 않는 학기는 직접 선택할 수 있도록 준비합니다.</p></div></section>
-      <div className="connection-example-controls"><label htmlFor="connection-scenario">상황 예시</label><select id="connection-scenario" value={scenario} onChange={event => chooseScenario(event.target.value as ConnectionScenario)}>{(Object.entries(connectionScenarioLabels) as [ConnectionScenario, string][]).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select><button type="button" onClick={() => chooseScenario('disconnected')}>예시 초기화</button></div>
+      <div className="connection-example-controls"><label htmlFor="connection-scenario">상황 예시</label><Select id="connection-scenario" value={scenario} onChange={event => chooseScenario(event.target.value as ConnectionScenario)}>{(Object.entries(connectionScenarioLabels) as [ConnectionScenario, string][]).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</Select><button type="button" onClick={() => chooseScenario('disconnected')}>예시 초기화</button></div>
       <section className="panel connection-school-card" aria-label="학교 연결 예시 상태">
         <span className="connection-school-icon"><Icon name="book" size={26} /></span>
         <div className="connection-school-info"><h2>인하대학교 I-Class</h2><p>learn.inha.ac.kr</p></div>

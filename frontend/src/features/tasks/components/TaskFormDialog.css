@@ -9,7 +9,7 @@
 .task-editor-field { min-width: 0; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
 .task-editor-field label { color: var(--secondary); font-size: var(--font-body); }
 .task-editor-field label > span { color: var(--brand); }
-.task-editor-field input, .task-editor-field select, .task-editor-field textarea { width: 100%; min-width: 0; padding: 11px 12px; border: 1px solid #dfe5e8; border-radius: 8px; background: white; color: var(--text); font-size: var(--font-body); }
+.task-editor-field input, .task-editor-field textarea { width: 100%; min-width: 0; padding: 11px 12px; border: 1px solid #dfe5e8; border-radius: 8px; background: white; color: var(--text); font-size: var(--font-body); }
 .task-editor-field input::placeholder, .task-editor-field textarea::placeholder { color: #98a4ae; font-size: var(--font-body); }
 .task-editor-field input:disabled { background: #f5f7f8; color: var(--muted); }
 .task-editor-field [aria-invalid="true"] { border-color: #c87474; }
@@ -19,5 +19,5 @@
 .task-editor-time-help { color: var(--muted); font-size: var(--font-small); line-height: 1.7; margin: 0 0 22px; }
 .task-editor-error { color: var(--error); font-size: var(--font-body); margin: 0; line-height: 1.7; }
 .task-editor-footer { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 8px; padding: 18px 27px; border-top: 1px solid var(--border); background: white; }
-@media (max-width: 700px) { .task-editor-heading { padding: 21px 19px; }.task-editor-body { padding: 21px 19px; }.task-editor-heading h2 { font-size: var(--font-title); }.task-editor-grid { gap: 12px; }.task-editor-field input, .task-editor-field select, .task-editor-field textarea { font-size: var(--font-body); padding: 10px; }.task-editor-field label { font-size: var(--font-body); }.task-editor-footer { padding: 16px 19px; } }
+@media (max-width: 700px) { .task-editor-heading { padding: 21px 19px; }.task-editor-body { padding: 21px 19px; }.task-editor-heading h2 { font-size: var(--font-title); }.task-editor-grid { gap: 12px; }.task-editor-field input, .task-editor-field textarea { font-size: var(--font-body); padding: 10px; }.task-editor-field label { font-size: var(--font-body); }.task-editor-footer { padding: 16px 19px; } }
 .task-editor-term { font-size: var(--font-body); color: var(--brand); margin: 0 0 20px; }.task-editor-deadline-mode { font-size: var(--font-body); line-height: 1.9; background: #f0f6f3; color: #648572; border-radius: 8px; padding: 12px; }.task-editor-deadline-mode button { border: 0; background: none; color: var(--brand); padding: 2px 0; text-decoration: underline; text-underline-offset: 3px; font-size: inherit; }

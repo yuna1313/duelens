@@ -1,3 +1,4 @@
+import { Select } from '@/components/ui/Select'
 import { useEffect, useId, useRef, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { emptyTaskDraft, statusLabels, taskDraft, validateTaskDraft } from '../model'
@@ -76,11 +77,11 @@ export function TaskFormDialog({ task, courses, courseOptions = [], term, onCanc
           {draft.term && <p className="task-editor-term">소속 학기 · {termLabel(draft.term)}</p>}
           <div className="task-editor-field">
             <label htmlFor={`${prefix}-courseId`}>등록한 과목 연결</label>
-            <select id={`${prefix}-courseId`} name="courseId" value={draft.courseId ?? ''} aria-invalid={Boolean(errors.courseId)} onChange={event => {
+            <Select id={`${prefix}-courseId`} name="courseId" value={draft.courseId ?? ''} aria-invalid={Boolean(errors.courseId)} onChange={event => {
               const option = courseOptions.find(item => item.id === event.target.value)
               setDraft(previous => ({ ...previous, courseId: option?.id, term: option?.term ?? previous.term, course: option?.name ?? previous.course, section: option?.section ?? previous.section }))
               setErrors(previous => ({ ...previous, courseId: undefined })); setMessage('')
-            }}><option value="">과목명·분반 직접 입력</option>{draft.courseId && !courseOptions.some(item => item.id === draft.courseId) && <option value={draft.courseId}>연결한 과목을 찾을 수 없음</option>}{courseOptions.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}</select>
+            }}><option value="">과목명·분반 직접 입력</option>{draft.courseId && !courseOptions.some(item => item.id === draft.courseId) && <option value={draft.courseId}>연결한 과목을 찾을 수 없음</option>}{courseOptions.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}</Select>
             {error('courseId')}
             <small>등록한 과목을 선택하면 해당 과목과 분반을 연결합니다.</small>
           </div>
@@ -143,9 +144,9 @@ export function TaskFormDialog({ task, courses, courseOptions = [], term, onCanc
           </div>
           <div className="task-editor-field">
             <label htmlFor={`${prefix}-status`}>진행 상태</label>
-            <select id={`${prefix}-status`} name="status" value={draft.status} onChange={event => update('status', event.target.value as TaskStatus)} aria-invalid={Boolean(errors.status)} aria-describedby={describedBy('status')}>
+            <Select id={`${prefix}-status`} name="status" value={draft.status} onChange={event => update('status', event.target.value as TaskStatus)} aria-invalid={Boolean(errors.status)} aria-describedby={describedBy('status')}>
               {(Object.entries(statusLabels) as [TaskStatus, string][]).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-            </select>
+            </Select>
             {error('status')}
           </div>
           {message && <p className="task-editor-error" role="alert">{message}</p>}

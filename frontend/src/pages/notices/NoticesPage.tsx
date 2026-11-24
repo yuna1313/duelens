@@ -1,3 +1,4 @@
+import { Select } from '@/components/ui/Select'
 import { useState } from 'react'
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
@@ -88,9 +89,9 @@ export function NoticesPage({ noticeId, today, notices, reviewLinks, onRead, onC
                 <input id="notice-search" type="search" placeholder="공지 제목이나 내용을 검색하세요" maxLength={200} value={query} onChange={event => setQuery(event.target.value)} />
               </div>
               <label className="sr-only" htmlFor="notice-course-filter">공지 과목 필터</label>
-              <select id="notice-course-filter" value={course} onChange={event => setCourse(event.target.value)}>
+              <Select id="notice-course-filter" value={course} onChange={event => setCourse(event.target.value)}>
                 <option value="all">모든 과목</option>{courses.map(name => <option key={name} value={name}>{name}</option>)}
-              </select>
+              </Select>
             </div>
           )}
           <div className="notice-filter-tabs" role="group" aria-label="공지 처리 상태">

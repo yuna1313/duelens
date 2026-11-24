@@ -1,5 +1,5 @@
 .course-filter { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
-.course-filter select { border: 1px solid #dfe5e8; border-radius: 9px; background: var(--surface); color: var(--secondary); padding: 10px 12px; font-size: var(--font-body); }
+.course-filter .select-control { width: 220px; max-width: 100%; }
 .course-filter > span { color: var(--muted); font-size: var(--font-body); }
 .course-filter .storage-caption { display: flex; align-items: center; gap: 5px; margin-left: auto; }
 .courses-panel { overflow: hidden; }
@@ -55,7 +55,6 @@
 @media (max-width: 700px) {
   .course-filter { gap: 10px; }
   .course-filter .storage-caption { display: none; }
-  .course-filter select { font-size: var(--font-body); }
   .course-table .connection-cell { display: none; }
   .course-table th:first-child { width: 52%; }
   .course-table th:nth-child(2) { width: 35%; }

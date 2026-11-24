@@ -1,3 +1,4 @@
+import { Select } from '@/components/ui/Select'
 import { useEffect, useId, useRef, useState } from 'react'
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
@@ -89,7 +90,7 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
       {notice && <div className="save-notice" role="status"><Icon name="check" size={16} />{notice}</div>}
       <div className="course-filter">
         <label className="sr-only" htmlFor="term-filter">학기 선택</label>
-        <select
+        <Select
           id="term-filter" value={term ?? ''} disabled={!data}
           onChange={event => { selectTerm(event.target.value); setEditingId(null); setNotice('') }}
         >
@@ -97,7 +98,7 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
           {termOptions(term, courses.map(course => course.term)).map(option => (
             <option key={option} value={option}>{termLabel(option)}</option>
           ))}
-        </select>
+        </Select>
         <span>{visible.length}개 과목</span>
         <span className="storage-caption"><Icon name="shield" size={14} />이 기기에 저장</span>
       </div>

@@ -1,3 +1,4 @@
+import { Select } from '@/components/ui/Select'
 import { useId, useState } from 'react'
 import type { FormEvent } from 'react'
 import { courseDraft, emptyDraft, validateDraft, weekdays } from '../model'
@@ -71,14 +72,14 @@ export function CourseForm({ term, course, onSave, onSaved, onCancel }: Props) {
         </div>
         <div className="form-field">
           <label htmlFor={`${prefix}-semester`}>학기 <span className="required-mark">*</span></label>
-          <div className="course-semester-select"><select
+          <Select
             id={`${prefix}-semester`} name="semester" value={draft.semester} required
             onChange={event => update('semester', event.target.value as Semester)}
             aria-invalid={Boolean(errors.semester)} aria-describedby={describedBy('semester')}
           >
             <option value="" disabled>학기 선택</option>
             {semesters.map(semester => <option key={semester.value} value={semester.value}>{semester.label}</option>)}
-          </select><Icon name="chevron" size={16} /></div>
+          </Select>
           {error('semester')}
         </div>
         <div className="form-field">
