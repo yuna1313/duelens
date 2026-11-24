@@ -23,7 +23,7 @@ export function ReviewPage({ reviewId, today, candidates, tasks, sources, result
   useEffect(() => { if (result) resultHeading.current?.focus({ preventScroll: true }) }, [result])
 
   return (
-    <WorkspaceLayout semester={semester} activePage="notices" pageTitle="변경 검토">
+    <WorkspaceLayout semester={semester} activePage="notices">
       <a className="review-back-link" href="#/notices"><Icon name="back" size={14} />공지함으로</a>
       {!candidate || !source ? (
         <section className="panel review-not-found"><Icon name="file" size={30} /><h1>{candidates.length ? '이 검토를 찾을 수 없어요.' : '선택한 학기에 검토할 공지가 없어요.'}</h1><p>학기를 확인하거나 공지함에서 검토할 공지를 다시 선택해 주세요.</p><a className="button secondary" href="#/notices">공지함으로</a></section>

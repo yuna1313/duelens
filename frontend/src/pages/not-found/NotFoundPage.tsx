@@ -5,7 +5,7 @@ import './NotFoundPage.css'
 
 export function NotFoundPage() {
   return (
-    <WorkspaceLayout semester={termLabel(currentTerm())} activePage={null} pageTitle="페이지를 찾을 수 없음">
+    <WorkspaceLayout semester={termLabel(currentTerm())} activePage={null}>
       <section className="panel not-found-page">
         <span className="not-found-icon"><Icon name="search" size={30} /></span>
         <p className="eyebrow">PAGE NOT FOUND</p><h1>이 페이지를 찾을 수 없어요.</h1>

@@ -17,7 +17,7 @@ const sections = [
 
 export function SettingsPage({ tab, preferences, onCoursesChanged }: { tab: SettingsTab; preferences: ReturnType<typeof useReminderPreferences>; onCoursesChanged: () => void }) {
   return (
-    <WorkspaceLayout semester={termLabel(currentTerm())} activePage="settings" pageTitle="설정·데이터 관리">
+    <WorkspaceLayout semester={termLabel(currentTerm())} activePage="settings">
       <div className="page-heading"><div><h1>설정</h1><p>알림 옵션과 이 브라우저에 보관한 데이터를 관리하세요.</p></div></div>
       <section className="settings-storage-notice" aria-label="설정 저장 범위"><Icon name="info" size={18} /><div><strong>이 브라우저의 설정과 과목을 관리합니다.</strong><p>과목 정보와 알림 옵션은 이 기기에 저장합니다. 학교 연결·AI 분석·실제 알림 발송은 후속 단계에서 제공할 예정입니다.</p></div></section>
       <div className="settings-grid">

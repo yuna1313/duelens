@@ -56,7 +56,7 @@ export function NoticesPage({ noticeId, today, notices, reviewLinks, onRead, onC
   function resetFilters() { setQuery(''); setCourse('all'); setTab('all') }
 
   return (
-    <WorkspaceLayout semester={semester} activePage="notices" pageTitle={noticeId ? '공지 원문' : '공지함'}>
+    <WorkspaceLayout semester={semester} activePage="notices">
       {noticeId ? selected ? (
         <NoticeDocument notice={selected} reviewHref={reviewHref(selected)} onToggleRead={() => {
           onRead(selected.id, !selected.isRead)

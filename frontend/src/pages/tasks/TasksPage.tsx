@@ -73,9 +73,8 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
     setPeriod(currentWeek(date)[0] === currentWeek(today)[0] ? 'week' : 'selected-week')
   }
 
-  const pageTitle = { list: '내 과제', create: '과제 등록', detail: '과제 상세', edit: '과제 수정', history: '변경 이력' }[mode]
   return (
-    <WorkspaceLayout semester={semester} activePage="tasks" pageTitle={pageTitle}>
+    <WorkspaceLayout semester={semester} activePage="tasks">
       {mode === 'detail' || mode === 'edit' || mode === 'history' ? selected ? (
         mode === 'history' ? <TaskHistory key={selected.id} task={selected} records={history} /> : <TaskDetail task={selected} onStatusChange={nextStatus => {
           const result = saveTask({ ...taskDraft(selected), status: nextStatus }, selected.id)

@@ -18,19 +18,11 @@ interface Props {
   children: ReactNode
   semester: string
   activePage?: typeof pages[number]['id'] | null
-  pageTitle?: string
 }
 
-export function WorkspaceLayout({ children, semester, activePage = 'courses', pageTitle }: Props) {
+export function WorkspaceLayout({ children, semester, activePage = 'courses' }: Props) {
   const moreRef = useRef<HTMLDetailsElement>(null)
-  const today = new Intl.DateTimeFormat('ko-KR', {
-    timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'long',
-  }).format(new Date())
-  const title = pageTitle ?? pages.find(page => page.id === activePage)?.label
   const storageLabel = activePage === 'courses' || activePage === 'settings' ? '이 기기에 저장' : '화면 미리보기'
-  const parent = activePage === 'tasks' && title !== '내 과제' ? { label: '내 과제', href: '#/tasks' }
-    : activePage === 'notices' && title !== '공지함' ? { label: '공지함', href: '#/notices' } : null
-  const breadcrumb = <>{parent && <><a href={parent.href}>{parent.label}</a><Icon name="chevron" size={13} /></>}<span aria-current="page">{title}</span></>
   const navigationItem = (page: typeof pages[number]) => (
     <a
       key={page.id} href={`#/${page.id}`}
@@ -63,14 +55,9 @@ export function WorkspaceLayout({ children, semester, activePage = 'courses', pa
         </div>
       </aside>
       <div className="workspace-content">
-        <header className="topbar">
-          <nav className="breadcrumb" aria-label="현재 위치">{breadcrumb}</nav>
-          <div className="header-right"><span>{today}</span><span className="avatar">나</span></div>
-        </header>
         <header className="mobile-top">
           <Brand /><AcademicTermControl fallback={semester} />
         </header>
-        <nav className="breadcrumb mobile-breadcrumb" aria-label="현재 위치">{breadcrumb}</nav>
         <main id="main" className="page" tabIndex={-1}>{children}</main>
         <nav className="mobile-navigation" aria-label="모바일 주 메뉴">
           {pages.slice(0, 3).map(navigationItem)}
