@@ -1,16 +1,16 @@
 .paste-notice-dialog { width: min(640px, calc(100% - 28px)); max-height: calc(100svh - 32px); overflow-y: auto; padding: 27px; border: 1px solid var(--border); border-radius: 16px; background: white; color: var(--text); box-shadow: 0 20px 100px #163b3530; }
 .paste-notice-dialog::backdrop { background: #192e2b70; }
 .paste-notice-dialog > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; }
-.paste-notice-dialog h2 { font-size: 23px; letter-spacing: -.6px; margin: 8px 0 0; }
-.paste-notice-help { font-size: 11px; color: var(--muted); line-height: 1.9; margin: 18px 0 23px; }
+.paste-notice-dialog h2 { font-size: var(--font-title); letter-spacing: -.6px; margin: 8px 0 0; }
+.paste-notice-help { font-size: var(--font-body); color: var(--muted); line-height: 1.9; margin: 18px 0 23px; }
 .paste-notice-field { display: flex; flex-direction: column; gap: 9px; margin-bottom: 19px; }
-.paste-notice-field label { font-size: 12px; color: var(--secondary); }
+.paste-notice-field label { font-size: var(--font-body); color: var(--secondary); }
 .paste-notice-field label span { color: var(--brand); }
-.paste-notice-field input, .paste-notice-field textarea { width: 100%; border: 1px solid #dfe5e8; border-radius: 8px; color: var(--text); padding: 11px 12px; background: white; font-size: 13px; }
-.paste-notice-field input::placeholder, .paste-notice-field textarea::placeholder { color: #98a4ae; font-size: 12px; }
+.paste-notice-field input, .paste-notice-field textarea { width: 100%; border: 1px solid #dfe5e8; border-radius: 8px; color: var(--text); padding: 11px 12px; background: white; font-size: var(--font-body); }
+.paste-notice-field input::placeholder, .paste-notice-field textarea::placeholder { color: #98a4ae; font-size: var(--font-body); }
 .paste-notice-field textarea { min-height: 180px; resize: vertical; line-height: 1.8; }
 .paste-notice-field [aria-invalid="true"] { border-color: #c87474; }
-.paste-notice-field small { font-size: 10px; color: var(--muted); line-height: 1.7; }
-.paste-notice-error { font-size: 11px; color: var(--error); margin: 0; }
+.paste-notice-field small { font-size: var(--font-small); color: var(--muted); line-height: 1.7; }
+.paste-notice-error { font-size: var(--font-body); color: var(--error); margin: 0; }
 .paste-notice-dialog footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 25px; }
-@media (max-width: 700px) { .paste-notice-dialog { padding: 23px 19px; }.paste-notice-dialog h2 { font-size: 20px; } }
+@media (max-width: 700px) { .paste-notice-dialog { padding: 23px 19px; }.paste-notice-dialog h2 { font-size: var(--font-title); } }

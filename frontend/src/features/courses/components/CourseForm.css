@@ -1,39 +1,39 @@
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .form-field { display: flex; flex-direction: column; gap: 8px; }
-.form-field label, .days-field legend { color: var(--secondary); font-size: 12px; }
+.form-field label, .days-field legend { color: var(--secondary); font-size: var(--font-body); }
 .form-field input, .form-field select { border: 1px solid #dfe5e8; border-radius: 8px; background: white; color: var(--text); padding: 11px 12px; min-height: 43px; width: 100%; }
-.form-field input::placeholder { color: #a5afb8; font-size: 12px; }
+.form-field input::placeholder { color: #a5afb8; font-size: var(--font-body); }
 .form-field input[aria-invalid="true"] { border-color: #c87474; }
 .required-mark { color: #79988e; }
-.field-error { color: var(--error); font-size: 11px; margin: 0; }
+.field-error { color: var(--error); font-size: var(--font-body); margin: 0; }
 .schedule-section { border-top: 1px solid var(--border); margin-top: 25px; padding-top: 23px; }
 .schedule-heading { display: flex; align-items: center; gap: 10px; }
-.schedule-heading h3 { font-size: 13px; margin: 0; }
-.schedule-heading > span { color: var(--muted); font-size: 10px; }
-.form-help { color: var(--muted); font-size: 11px; margin: 7px 0 18px; }
+.schedule-heading h3 { font-size: var(--font-body); margin: 0; }
+.schedule-heading > span { color: var(--muted); font-size: var(--font-small); }
+.form-help { color: var(--muted); font-size: var(--font-body); margin: 7px 0 18px; }
 .days-field { border: 0; margin: 0; padding: 0; min-width: 0; }
 .days-field legend { padding: 0; margin-bottom: 8px; }
 .day-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
-.day-button { width: 35px; height: 38px; border-radius: 8px; border: 1px solid #dfe5e8; background: white; font-size: 12px; color: var(--secondary); }
+.day-button { width: 35px; height: 38px; border-radius: 8px; border: 1px solid #dfe5e8; background: white; font-size: var(--font-body); color: var(--secondary); }
 .day-button.selected { color: white; background: var(--brand); border-color: var(--brand); }
 .days-field .field-error { margin-top: 8px; }
 .form-footer { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding-top: 25px; }
-.timezone { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 10px; }
+.timezone { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: var(--font-small); }
 .form-actions { display: flex; gap: 8px; }
-.form-alert { background: #fff4f1; border: 1px solid #efd2cc; border-radius: 10px; padding: 15px 17px; color: #984a3d; font-size: 12px; }
+.form-alert { background: #fff4f1; border: 1px solid #efd2cc; border-radius: 10px; padding: 15px 17px; color: #984a3d; font-size: var(--font-body); }
 @media (max-width: 1050px) {
   .schedule-grid { grid-template-columns: 1fr; gap: 18px; }
 }
 @media (max-width: 700px) {
   .form-grid { gap: 17px 12px; }
-  .form-field label, .days-field legend { font-size: 11px; }
-  .form-field input, .form-field select { font-size: 13px; padding: 10px; }
-  .form-field input::placeholder { font-size: 11px; }
+  .form-field label, .days-field legend { font-size: var(--font-body); }
+  .form-field input, .form-field select { font-size: var(--font-body); padding: 10px; }
+  .form-field input::placeholder { font-size: var(--font-body); }
   .schedule-grid { grid-template-columns: 1fr; }
   .day-buttons { gap: 5px; }
   .day-button { width: 34px; }
   .form-footer { flex-wrap: wrap; }
   .form-actions { margin-left: auto; }
-  .form-actions .button { font-size: 11px; padding: 10px 12px; }
-  .timezone { font-size: 9px; }
+  .form-actions .button { font-size: var(--font-body); padding: 10px 12px; }
+  .timezone { font-size: var(--font-small); }
 }
