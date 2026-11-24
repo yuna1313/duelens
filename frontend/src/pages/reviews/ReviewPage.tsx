@@ -35,7 +35,7 @@ export function ReviewPage({ reviewId, today, candidates, tasks, sources, result
             <li className={result ? 'done' : 'active'} aria-current={!result ? 'step' : undefined}><span>{result ? <Icon name="check" size={12} /> : '2'}</span>변경 검토</li>
             <li className={result ? 'active' : ''} aria-current={result ? 'step' : undefined}><span>3</span>반영 결과</li>
           </ol>
-          <div className="review-preview-note"><Icon name="info" size={17} /><p><strong>프론트 흐름 미리보기</strong>확인한 값을 이 탭의 과제·공지 상태·변경 이력·앱 내 알림에 반영합니다. 실제 AI 분석·학교 제출·서버 저장은 수행하지 않습니다.</p></div>
+          {import.meta.env.DEV && <div className="review-preview-note"><Icon name="info" size={17} /><p><strong>프론트 흐름 미리보기</strong>확인한 값을 이 탭의 과제·공지 상태·변경 이력·앱 내 알림에 반영합니다. 실제 AI 분석·학교 제출·서버 저장은 수행하지 않습니다.</p></div>}
           <div className="review-page-layout">
             <nav className="review-candidates" aria-label="검토 상황 예시">
               <div><span className="eyebrow">REVIEW CASES</span><h2>검토할 변경 <span>{candidates.length}</span></h2></div>

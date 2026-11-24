@@ -99,13 +99,13 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
         </div>
         <a href="#/tasks/new" className="button primary task-add-link"><Icon name="plus" size={16} />과제 추가</a>
       </div>
-      <section className="task-preview-banner" aria-label="화면 미리보기 안내">
+      {import.meta.env.DEV && <section className="task-preview-banner" aria-label="화면 미리보기 안내">
         <span className="task-preview-icon"><Icon name="info" size={19} /></span>
         <div><strong>프론트 흐름 미리보기</strong><p>공지 검토·과제·이력이 연결됩니다. 메뉴를 이동해도 입력을 유지하며 새로고침하면 초기화됩니다.</p></div>
         <button type="button" className="button secondary" onClick={() => {
           setShowPreview(value => !value); resetFilters(); setNotice(''); setFailure('')
         }}>{showPreview ? '예시 숨기기' : '예시 보기'}</button>
-      </section>
+      </section>}
       <section className="task-period-panel" aria-label="과제 조회 기간">
         <div className="task-period-toolbar">
           <div className="task-period-tabs" role="group" aria-label="조회 기간">{periods.map(item => <button key={item.id} type="button" aria-pressed={period === item.id} className={period === item.id ? 'active' : ''} onClick={() => setPeriod(item.id)}>{item.label}</button>)}</div>
