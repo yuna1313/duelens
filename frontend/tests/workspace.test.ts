@@ -106,11 +106,25 @@ test('과목은 ID로 연결하고 이름 변경·과목 삭제 후에도 과제
   const created = saveWorkspaceTask(initial, { ...emptyTaskDraft(), courseId: course.id, course: '조작 이름', section: '999', title: '연결 과제' }, 'linked', now, [course])
   assert.equal(created.result.course, course.name)
   assert.equal(created.result.section, '002')
+  assert.equal(created.result.term, course.term)
   const resolved = resolveTaskCourses(created.state.tasks, [{ ...course, name: '변경한 과목', revision: 2 }])
   assert.equal(resolved.find(task => task.id === 'linked')?.course, '변경한 과목')
   assert.equal(resolveTaskCourses(created.state.tasks, []).find(task => task.id === 'linked')?.course, '연결 과목')
   assert.equal(saveWorkspaceTask(created.state, { ...taskDraft(created.result), status: 'submitted' }, 'linked', now, []).result.status, 'submitted')
   assert.throws(() => saveWorkspaceTask(initial, { ...emptyTaskDraft(), courseId: 'missing', course: '과목', title: '실패' }, 'bad', now, []))
+})
+
+test('새 과제와 공지·검토 완료 알림은 소속 학기를 보존하며 다른 학기 기록을 유지한다', () => {
+  const initial = preview()
+  const created = saveWorkspaceTask(initial, { ...emptyTaskDraft('2026-summer'), course: '여름 과목', title: '계절학기 과제' }, 'summer-task', now)
+  assert.equal(created.result.term, '2026-summer')
+  assert.equal(created.state.tasks.filter(task => task.term === '2026-2').length, initial.tasks.length)
+  const candidate = initial.candidates[0]
+  const applied = applyWorkspaceReview(initial, candidate.id, initialReviewDraft(candidate, reviewTasks(initial.tasks)), 'unused', now)
+  assert.equal(applied.state.notifications.at(-1)?.term, candidate.term)
+  const store = createWorkspaceStore(created.state)
+  store.addNotice({ term: '2026-summer', title: '여름 공지', course: '여름 과목', body: '원문' }, 'summer-notice', new Date(now))
+  assert.equal(store.getSnapshot().notices[0].term, '2026-summer')
 })
 
 test('구독자는 통합된 결과만 보고 공지·알림 읽음과 직접 입력은 같은 탭 상태에 남는다', () => {

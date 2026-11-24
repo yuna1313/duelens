@@ -69,3 +69,11 @@ test('검토 시작 후 바뀐 과제는 기존 선택으로 덮어쓰지 않는
   assert.ok(validateReview(candidate, [changed], draft).stale)
   assert.throws(() => applyReview(candidate, [changed], draft))
 })
+
+test('과목과 분반이 같아도 다른 학기의 과제에는 공지 변경을 적용하지 않는다', () => {
+  const seasonal = { ...candidate, term: '2026-summer' }
+  const otherTerm = { ...task, term: '2026-2' }
+  assert.ok(validateReview(seasonal, [otherTerm], initialReviewDraft(seasonal, [otherTerm])).target)
+  const sameTerm = { ...task, term: '2026-summer' }
+  assert.equal(applyReview(seasonal, [sameTerm], initialReviewDraft(seasonal, [sameTerm])).term, '2026-summer')
+})
