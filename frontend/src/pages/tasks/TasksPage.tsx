@@ -162,7 +162,7 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
           )}
         </div>
         <aside className="task-aside">
-          <WeekSchedule today={today} date={weekDate} tasks={filtered} onSelectWeek={selectWeek} onOpenPicker={() => setWeekPickerOpen(true)} pickerOpen={weekPickerOpen} />
+          <WeekSchedule key={activeTerm} today={today} date={weekDate} tasks={filtered} onSelectWeek={selectWeek} onOpenPicker={() => setWeekPickerOpen(true)} pickerOpen={weekPickerOpen} />
           <section className="panel task-study-card">
             <span className="study-check"><Icon name="check" size={20} /></span>
             <h2>작성 완료, 제출도 하셨나요?</h2>
