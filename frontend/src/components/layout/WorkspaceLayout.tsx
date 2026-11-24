@@ -28,6 +28,9 @@ export function WorkspaceLayout({ children, semester, activePage = 'courses', pa
   }).format(new Date())
   const title = pageTitle ?? pages.find(page => page.id === activePage)?.label
   const storageLabel = activePage === 'courses' || activePage === 'settings' ? '이 기기에 저장' : '화면 미리보기'
+  const parent = activePage === 'tasks' && title !== '내 과제' ? { label: '내 과제', href: '#/tasks' }
+    : activePage === 'notices' && title !== '공지함' ? { label: '공지함', href: '#/notices' } : null
+  const breadcrumb = <><a href="#/tasks" title="메인 과제 화면으로">내 워크스페이스</a><Icon name="chevron" size={13} />{parent && <><a href={parent.href}>{parent.label}</a><Icon name="chevron" size={13} /></>}<span aria-current="page">{title}</span></>
   const navigationItem = (page: typeof pages[number]) => (
     <a
       key={page.id} href={`#/${page.id}`}
@@ -61,14 +64,13 @@ export function WorkspaceLayout({ children, semester, activePage = 'courses', pa
       </aside>
       <div className="workspace-content">
         <header className="topbar">
-          <div className="breadcrumb">
-            <span>내 워크스페이스</span><Icon name="chevron" size={13} /><span>{title}</span>
-          </div>
+          <nav className="breadcrumb" aria-label="현재 위치">{breadcrumb}</nav>
           <div className="header-right"><span>{today}</span><span className="avatar">나</span></div>
         </header>
         <header className="mobile-top">
           <Brand /><AcademicTermControl fallback={semester} />
         </header>
+        <nav className="breadcrumb mobile-breadcrumb" aria-label="현재 위치">{breadcrumb}</nav>
         <main id="main" className="page" tabIndex={-1}>{children}</main>
         <nav className="mobile-navigation" aria-label="모바일 주 메뉴">
           {pages.slice(0, 3).map(navigationItem)}
