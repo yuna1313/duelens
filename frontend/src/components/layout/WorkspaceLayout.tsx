@@ -16,7 +16,7 @@ const pages = [
 interface Props {
   children: ReactNode
   semester: string
-  activePage?: typeof pages[number]['id']
+  activePage?: typeof pages[number]['id'] | null
   pageTitle?: string
 }
 
