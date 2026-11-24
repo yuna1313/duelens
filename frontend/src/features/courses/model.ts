@@ -1,10 +1,10 @@
-import { isSemester, isTerm } from '../../domain/academicTerm.ts'
+import { currentTerm, isSemester, isTerm } from '../../domain/academicTerm.ts'
 import type { Semester } from '../../domain/academicTerm.ts'
 export type CourseErrors = Partial<Record<keyof CourseDraft, string>>
 
 export interface CourseDraft {
   year: string
-  semester: Semester
+  semester: Semester | ''
   name: string
   section: string
   days: number[]
@@ -22,9 +22,10 @@ export interface Course {
 }
 
 export const weekdays = ['월', '화', '수', '목', '금', '토', '일'] as const
-export function emptyDraft(term: string): CourseDraft {
-  const [year, semester] = term.split('-')
-  return { year, semester: semester as Semester, name: '', section: '', days: [], startTime: '' }
+export function emptyDraft(term: string | null): CourseDraft {
+  const [year] = (term ?? currentTerm()).split('-')
+  const semester = term ? term.split('-')[1] as Semester : ''
+  return { year, semester, name: '', section: '', days: [], startTime: '' }
 }
 
 export function courseDraft(course: Course): CourseDraft {

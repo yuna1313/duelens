@@ -3,14 +3,14 @@ import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
 import { CourseForm } from '@/features/courses/components/CourseForm'
 import { scheduleLabel } from '@/features/courses/model'
-import { currentTerm, termLabel, termOptions } from '@/domain/academicTerm'
+import { termLabel, termOptions } from '@/domain/academicTerm'
 import type { useCourses } from '@/features/courses/hooks/useCourses'
 import type { Course, CourseDraft } from '@/features/courses/model'
 import type { SaveResult } from '@/features/courses/hooks/useCourses'
 import './CoursesPage.css'
 
 interface CourseDialogProps {
-  term: string
+  term: string | null
   onClose: () => void
   onSave: (draft: CourseDraft, id?: string, revision?: number) => SaveResult
   onSaved: (course: Course) => void
@@ -22,9 +22,9 @@ function CourseDialog({ term, onClose, onSave, onSaved }: CourseDialogProps) {
   useEffect(() => {
     const dialog = dialogRef.current
     dialog?.showModal()
-    dialog?.querySelector<HTMLInputElement>('input[name="name"]')?.focus()
+    dialog?.querySelector<HTMLElement>(term ? 'input[name="name"]' : 'select[name="semester"]')?.focus()
     return () => dialog?.close()
-  }, [])
+  }, [term])
   return (
     <dialog
       className="course-dialog" ref={dialogRef} aria-labelledby={titleId}
@@ -34,7 +34,7 @@ function CourseDialog({ term, onClose, onSave, onSaved }: CourseDialogProps) {
         <div>
           <span className="eyebrow">NEW COURSE</span>
           <h2 id={titleId}>새 과목 등록</h2>
-          <p>과목을 등록하고 이번 학기를 정리해 보세요.</p>
+          <p>{term ? '과목을 등록하고 이번 학기를 정리해 보세요.' : '연도와 학기를 선택해 첫 과목을 등록해 주세요.'}</p>
         </div>
         <button className="icon-button" type="button" onClick={onClose} aria-label="등록 창 닫기">
           <Icon name="close" size={21} />
@@ -54,7 +54,7 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
   const [editorVersion, setEditorVersion] = useState(0)
   const [notice, setNotice] = useState('')
   const editorRef = useRef<HTMLElement>(null)
-  const term = data?.selectedTerm ?? currentTerm()
+  const term = data?.selectedTerm ?? null
   const courses = data?.courses ?? []
   const visible = courses
     .filter(course => course.term === term)
@@ -90,9 +90,10 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
       <div className="course-filter">
         <label className="sr-only" htmlFor="term-filter">학기 선택</label>
         <select
-          id="term-filter" value={term} disabled={!data}
+          id="term-filter" value={term ?? ''} disabled={!data}
           onChange={event => { selectTerm(event.target.value); setEditingId(null); setNotice('') }}
         >
+          <option value="" disabled>학기를 선택해 주세요</option>
           {termOptions(term, courses.map(course => course.term)).map(option => (
             <option key={option} value={option}>{termLabel(option)}</option>
           ))}
@@ -145,8 +146,8 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
         ) : (
           <div className="courses-empty">
             <span className="empty-symbol"><Icon name="book" size={28} /></span>
-            <h2>{courses.length ? '이 학기에는 등록된 과목이 없어요.' : '이번 학기, 첫 과목을 등록해 보세요.'}</h2>
-            <p>{courses.length ? '다른 학기를 선택하거나 새 과목을 추가해 주세요.' : '학교 연결 없이 과목과 수업 시간을 직접 관리할 수 있어요.'}</p>
+            <h2>{term === null ? '첫 과목과 사용할 학기를 함께 정해 주세요.' : courses.length ? '이 학기에는 등록된 과목이 없어요.' : '이번 학기, 첫 과목을 등록해 보세요.'}</h2>
+            <p>{term === null ? '위에서 학기만 먼저 선택하거나, 과목 등록에서 연도와 학기를 함께 선택할 수 있어요.' : courses.length ? '다른 학기를 선택하거나 새 과목을 추가해 주세요.' : '학교 연결 없이 과목과 수업 시간을 직접 관리할 수 있어요.'}</p>
             <button type="button" className="button secondary" disabled={!data} onClick={() => setAdding(true)}>
               <Icon name="plus" size={16} />첫 과목 등록
             </button>

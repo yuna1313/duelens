@@ -8,7 +8,7 @@ export type Semester = typeof semesters[number]['value']
 export const isSemester = (value: unknown): value is Semester => semesters.some(item => item.value === value)
 export const isTerm = (value: unknown): value is string => typeof value === 'string' && /^[1-9]\d{3}-(1|summer|2|winter)$/.test(value)
 
-// A regular-term default only. Seasonal terms and the actual school calendar are selected explicitly.
+// A regular-term suggestion only. Persist a term only after the user chooses it.
 export function currentTerm(now = new Date()): string {
   const seoul = new Date(now.getTime() + 9 * 60 * 60 * 1000)
   const year = seoul.getUTCFullYear()
@@ -16,14 +16,15 @@ export function currentTerm(now = new Date()): string {
   return `${month < 3 ? year - 1 : year}-${month >= 3 && month <= 8 ? '1' : '2'}`
 }
 
-export function termLabel(term: string): string {
+export function termLabel(term: string | null): string {
+  if (term === null) return '학기 미선택'
   if (!isTerm(term)) return '학기 미지정'
   const [year, semester] = term.split('-')
   return `${year}년 ${semesters.find(item => item.value === semester)!.label}`
 }
 
-export function termOptions(selected: string, known: string[] = []): string[] {
-  const year = Number(selected.split('-')[0])
+export function termOptions(selected: string | null, known: string[] = []): string[] {
+  const year = Number((selected ?? currentTerm()).split('-')[0])
   const defaults = [year - 1, year, year + 1].filter(value => value >= 1000 && value <= 9999)
     .flatMap(value => semesters.map(semester => `${value}-${semester.value}`))
   return [...new Set([...defaults, selected, ...known].filter(isTerm))].sort((a, b) => {

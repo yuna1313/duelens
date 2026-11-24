@@ -1,5 +1,6 @@
 import { Brand } from '@/components/ui/Brand'
 import { Icon } from '@/components/ui/Icon'
+import { termLabel } from '@/domain/academicTerm'
 import './StartPage.css'
 
 function StartPreview() {
@@ -20,7 +21,7 @@ function StartPreview() {
   )
 }
 
-export function StartPage() {
+export function StartPage({ selectedTerm, onManualStart, onPreview }: { selectedTerm: string | null; onManualStart: () => void; onPreview: () => void }) {
   return (
     <>
       <a className="skip-link" href="#main" onClick={event => { event.preventDefault(); document.getElementById('main')?.focus() }}>본문으로 건너뛰기</a>
@@ -38,17 +39,18 @@ export function StartPage() {
         <section className="start-options" aria-labelledby="start-welcome-title">
           <div className="start-options-content">
             <span className="eyebrow">WELCOME TO DUELENS</span>
-            <h2 id="start-welcome-title">이번 학기, 함께 시작해요.</h2>
+            <h2 id="start-welcome-title">나에게 맞는 방법으로 시작해요.</h2>
             <p className="start-options-lead">학교 계정 없이도 과목과 과제를 직접 정리할 수 있어요.</p>
+            <div className="start-term-status"><Icon name="calendar" size={19} /><div><strong>{selectedTerm ? `${termLabel(selectedTerm)} 선택됨` : '아직 학기를 선택하지 않았어요'}</strong><p>{selectedTerm ? '저장한 학기로 이어서 사용하거나 나중에 변경할 수 있어요.' : '지금 정하지 않아도 괜찮아요. 첫 과목·과제를 등록할 때 선택해 주세요.'}</p></div></div>
             <div className="start-school-card">
               <div className="start-school-heading"><span className="start-school-icon"><Icon name="book" size={23} /></span><div><h3>인하대학교 I-Class</h3><span>learn.inha.ac.kr</span></div></div>
               <a className="button secondary" href="#/connection" aria-describedby="start-school-status"><Icon name="link" size={15} />학교 연결 화면 보기</a>
-              <p id="start-school-status">연결 상태와 수집 흐름을 예시로 확인할 수 있습니다.<br />실제 학교 로그인·공지 수집은 아직 제공하지 않습니다.</p>
+              <p id="start-school-status">연결 흐름을 예시로 살펴볼 수 있습니다.<br />실제 로그인·학기 정보 가져오기는 아직 제공하지 않습니다.</p>
             </div>
             <div className="start-divider"><span>학교 연결 없이 시작하기</span></div>
-            <a className="button primary start-manual-action" href="#/courses"><Icon name="book" size={15} />직접 입력으로 시작하기<Icon name="arrow" size={15} /></a>
-            <p className="start-manual-description">과목 등록부터 차근차근 시작해 보세요.</p>
-            <div className="start-secondary-actions"><a href="#/tasks/new"><Icon name="plus" size={13} />과제 바로 추가하기</a><a href="#/tasks">예시 화면 둘러보기<Icon name="arrow" size={13} /></a></div>
+            <a className="button primary start-manual-action" href="#/courses" onClick={onManualStart}><Icon name="book" size={15} />과목 등록으로 시작하기<Icon name="arrow" size={15} /></a>
+            <p className="start-manual-description">첫 과목 등록에서 연도와 학기를 함께 선택해요.</p>
+            <div className="start-secondary-actions"><a href="#/tasks/new" onClick={onManualStart}><Icon name="plus" size={13} />과제부터 등록하기</a><a href="#/tasks" onClick={onPreview}>예시 화면 둘러보기<Icon name="arrow" size={13} /></a></div>
             <details className="start-data-notice">
               <summary><Icon name="info" size={13} />입력한 내용은 어떻게 관리되나요?</summary>
               <div>

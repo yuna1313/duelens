@@ -18,6 +18,9 @@
 .mobile-navigation { display: none; }
 .skip-link { position: fixed; top: -70px; left: 12px; background: var(--brand); color: white; padding: 12px; border-radius: 8px; z-index: 100; }
 .skip-link:focus { top: 12px; }
+.term-preview-note { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px; margin-bottom: 26px; border: 1px solid #d6e8df; border-radius: 12px; background: #eef7f2; color: var(--brand); }
+.term-preview-note > svg { flex-shrink: 0; margin-top: 1px; }.term-preview-note > div { flex: 1; }.term-preview-note strong { font-size: var(--font-body); }.term-preview-note p { margin: 5px 0 0; color: var(--secondary); font-size: var(--font-body); line-height: 1.8; }.term-preview-note a { flex-shrink: 0; color: var(--brand); font-size: var(--font-body); padding-block: 3px; text-underline-offset: 4px; }
+@media (max-width: 700px) { .term-preview-note { flex-wrap: wrap; padding: 15px; gap: 10px; margin-bottom: 20px; }.term-preview-note a { margin-left: 28px; }.term-preview-note strong { font-size: var(--font-body); }.term-preview-note p { font-size: var(--font-small); } }
 @media (max-width: 1000px) and (min-width: 701px) { .sidebar { width: 195px; padding-inline: 15px; } .workspace-content { margin-left: 195px; } .page { padding: 30px 28px; } }
 @media (max-width: 700px) { .sidebar { display: none; } .workspace-content { margin-left: 0; } .mobile-top { display: flex; align-items: center; justify-content: space-between; height: 69px; padding: 0 20px; border-bottom: 1px solid var(--border); background: var(--surface); } .mobile-top .brand { font-size: 21px; } .mobile-top .brand-mark { width: 29px; height: 31px; border-radius: 9px; } .page { padding: 27px 20px 40px; } }
 @media (max-width: 700px) {

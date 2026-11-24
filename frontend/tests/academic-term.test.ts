@@ -12,3 +12,10 @@ test('정규·계절학기를 구분하고 다른 연도와 기존 학기를 선
   assert.ok(options.includes('2020-1'))
   assert.equal(options.length, new Set(options).size)
 })
+
+test('학기 미선택은 표시만 하고 선택 후보를 만드는 동안에도 확정하지 않는다', () => {
+  assert.equal(termLabel(null), '학기 미선택')
+  const options = termOptions(null, ['2020-winter'])
+  assert.ok(options.includes('2020-winter'))
+  assert.ok(options.every(isTerm))
+})

@@ -8,6 +8,14 @@
   --muted: #7c8795;
   --border: #e8ecf0;
   --error: #a53838;
+  --font-small: .875rem;
+  --font-body: 1rem;
+  --font-lead: 1.125rem;
+  --font-section: 1.25rem;
+  --font-heading: 1.5rem;
+  --font-title: 1.75rem;
+  --font-page: 2rem;
+  --font-stat: 2.25rem;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--text);
   background: #f7f8fa;
