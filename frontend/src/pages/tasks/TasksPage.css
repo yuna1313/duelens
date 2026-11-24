@@ -6,7 +6,7 @@
 .task-preview-icon { display: grid; place-items: center; color: var(--brand); flex-shrink: 0; }
 .task-preview-banner strong { font-size: var(--font-body); font-weight: 600; color: #345d53; }
 .task-preview-banner p { margin: 5px 0 0; color: #6e8b82; font-size: var(--font-body); line-height: 1.7; word-break: keep-all; }
-.task-preview-banner .button { margin-left: auto; flex-shrink: 0; min-height: 34px; padding: 7px 11px; font-size: var(--font-small); }
+.task-preview-banner .button { margin-left: auto; flex-shrink: 0; padding: 7px 11px; font-size: var(--font-small); }
 .task-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 25px 0 27px; padding: 0 2px; }
 .task-stats dt { color: var(--muted); font-size: var(--font-body); }
 .task-stats dd { margin: 8px 0 0; color: #2f4843; font-size: var(--font-stat); line-height: 1; font-weight: 650; }
@@ -73,7 +73,7 @@
   .task-preview-banner > div { flex: 1; min-width: 0; }
   .task-preview-banner strong { font-size: var(--font-body); }
   .task-preview-banner p { font-size: var(--font-small); }
-  .task-preview-banner .button { margin-left: auto; flex-shrink: 0; min-height: 34px; padding: 7px 11px; font-size: var(--font-small); }
+  .task-preview-banner .button { grid-column: 2; justify-self: start; margin-top: 4px; margin-left: 0; }
   .task-stats { gap: 8px; margin: 24px 0; }
   .task-stats dt { font-size: var(--font-small); line-height: 1.6; min-height: 28px; }
   .task-stats dd { font-size: var(--font-title); margin-top: 3px; }

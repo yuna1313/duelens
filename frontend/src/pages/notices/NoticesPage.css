@@ -3,7 +3,7 @@
 .notice-preview-banner > svg { flex-shrink: 0; }
 .notice-preview-banner strong { font-size: var(--font-body); color: #345d53; font-weight: 600; }
 .notice-preview-banner p { font-size: var(--font-body); color: #6e8b82; line-height: 1.8; margin: 4px 0 0; word-break: keep-all; overflow-wrap: anywhere; }
-.notice-preview-banner .button { margin-left: auto; flex-shrink: 0; min-height: 34px; padding: 7px 11px; font-size: var(--font-small); }
+.notice-preview-banner .button { margin-left: auto; flex-shrink: 0; padding: 7px 11px; font-size: var(--font-small); }
 .notice-filters { display: flex; gap: 10px; margin-bottom: 19px; }
 .notice-search { height: var(--control-height); display: flex; align-items: center; gap: 9px; border: 1px solid #dfe5e8; border-radius: 8px; background: white; padding: 0 12px; width: min(460px, 100%); color: var(--muted); }
 .notice-search input { height: 100%; min-width: 0; width: 100%; border: 0; background: none; color: var(--text); padding: 11px 0; font-size: var(--font-body); }
@@ -59,7 +59,7 @@
 }
 @media (max-width: 700px) {
   .notice-page-heading { align-items: flex-start; }.notice-page-heading .button { padding: 9px 10px; font-size: var(--font-small); }
-  .notice-preview-banner { flex-wrap: wrap; gap: 8px; padding: 13px; align-items: flex-start; }.notice-preview-banner > div { flex: 1; min-width: 0; }.notice-preview-banner strong { font-size: var(--font-body); }.notice-preview-banner p { font-size: var(--font-small); }.notice-preview-banner .button { margin-left: auto; flex-shrink: 0; min-height: 34px; padding: 7px 11px; font-size: var(--font-small); }
+  .notice-preview-banner { flex-wrap: wrap; gap: 8px; padding: 13px; align-items: flex-start; }.notice-preview-banner > div { flex: 1; min-width: 0; }.notice-preview-banner strong { font-size: var(--font-body); }.notice-preview-banner p { font-size: var(--font-small); }.notice-preview-banner .button { margin-left: 26px; margin-top: 2px; }
   .notice-filters { flex-wrap: wrap; }.notice-search { width: 100%; }.notice-filters .select-control { width: 100%; }.notice-search input { height: 100%; font-size: var(--font-body); }
   .notice-filter-tabs { gap: 21px; }.notice-filter-tabs button { font-size: var(--font-small); }
   .notice-row { padding: 21px 15px; gap: 10px; min-height: 121px; }.notice-row-icon { width: 30px; height: 32px; border-radius: 9px; }.notice-row h2 { font-size: var(--font-body); }.notice-row p { font-size: var(--font-small); }.notice-row-chevron { display: none; }.notice-row-meta { font-size: var(--font-small); }

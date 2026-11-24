@@ -60,8 +60,8 @@ export function ConnectionPage() {
       <section className="panel connection-school-card" aria-label="학교 연결 예시 상태">
         <span className="connection-school-icon"><Icon name="book" size={26} /></span>
         <div className="connection-school-info"><h2>인하대학교 I-Class</h2><p>learn.inha.ac.kr</p></div>
-        <span className={`connection-status ${preview.state}`}>{statusLabel} · 예시</span>
         <div className="connection-school-actions">
+          <span className={`connection-status ${preview.state}`}>{statusLabel} · 예시</span>
           {preview.state === 'connected' ? <button ref={actionRef} className="button primary" type="button" onClick={() => refresh()}><Icon name="refresh" size={14} />예시 수집 갱신</button>
             : <button ref={actionRef} className="button primary" type="button" onClick={() => setDialog(preview.courses.length ? 'reconnect' : 'connect')}><Icon name="link" size={14} />{preview.state === 'expired' ? '재연결 안내' : preview.courses.length ? '다시 연결 안내' : '연결 과정 보기'}</button>}
           {preview.state !== 'disconnected' && <button className="button secondary" type="button" onClick={() => setDialog('disconnect')}>예시 연결 해제</button>}
