@@ -22,6 +22,7 @@
 .task-filter-select > svg { position: absolute; top: 50%; right: 13px; transform: translateY(-50%) rotate(90deg); pointer-events: none; color: var(--secondary); }
 .task-content-grid { display: grid; grid-template-columns: minmax(0, 1fr) 255px; gap: 25px; align-items: start; }
 .task-list-area { min-width: 0; grid-column: 1; grid-row: 1; }
+.task-list-heading { margin: 0 0 10px; color: var(--text); font-size: 14px; font-weight: 650; }
 .task-result-count { margin: 0 0 19px; font-size: 11px; color: var(--muted); }
 .task-group { margin-bottom: 28px; }
 .task-group > header { display: flex; align-items: center; gap: 9px; margin: 0 0 13px; }

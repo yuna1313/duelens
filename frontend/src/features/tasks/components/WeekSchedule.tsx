@@ -94,8 +94,8 @@ export function WeekSchedule({ today, tasks }: { today: string; tasks: TaskPrevi
   return (
     <section className={`panel task-week-card ${expanded ? 'is-expanded' : ''}`} aria-label="주간 마감 일정">
       <header>
-        <h2>주간 일정</h2>
-        <button type="button" className="schedule-disclosure" aria-expanded={expanded} aria-controls={contentId} onClick={() => setExpanded(value => !value)}><span>주간 일정</span><Icon name="chevron" size={14} /></button>
+        <h2>일정 미리보기</h2>
+        <button type="button" className="schedule-disclosure" aria-expanded={expanded} aria-controls={contentId} onClick={() => setExpanded(value => !value)}><span>일정 미리보기</span><Icon name="chevron" size={14} /></button>
         <button type="button" className="icon-button schedule-picker-trigger" aria-label="달력에서 주 선택" aria-haspopup="dialog" aria-expanded={pickerOpen} title="달력에서 주 선택" onClick={() => setPickerOpen(true)}><Icon name="calendar" size={17} /></button>
       </header>
       <div id={contentId} className="schedule-content">

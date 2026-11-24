@@ -100,12 +100,12 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
       <section className="task-period-panel" aria-label="과제 조회 기간">
         <div className="task-period-tabs" role="group" aria-label="조회 기간">{taskPeriods.map(item => <button key={item.id} type="button" aria-pressed={period === item.id} className={period === item.id ? 'active' : ''} onClick={() => setPeriod(item.id)}>{item.label}</button>)}</div>
         <p className="task-period-range">{range ? `${range.start} ~ ${range.end} · ${period === 'week' ? '월요일~일요일' : '1일~말일'}` : period === 'undated' ? '마감 날짜가 정해지지 않은 과제' : '선택한 학기의 모든 마감일'} · 마감일 기준 · 한국 표준시</p>
-        <p className="task-count-guide">아래 집계와 목록에는 같은 학기·기간·검색·필터를 적용합니다. 남은 과제는 제출 완료로 표시하지 않은 과제이며, 작성 완료·기한이 지난 미제출도 포함합니다. 제출 완료 건수도 제출 시각이 아닌 과제 마감일로 조회합니다.</p>
+        <p className="task-count-guide">집계와 ‘과제 목록’에는 같은 학기·기간·검색·필터를 적용합니다. 남은 과제는 제출 완료로 표시하지 않은 과제이며, 작성 완료·기한이 지난 미제출도 포함합니다. 제출 완료 건수도 제출 시각이 아닌 과제 마감일로 조회합니다.</p>
         {range && unknownCount > 0 && <p className="task-period-unknown">마감 미정 {unknownCount}개는 기간 조회에서 제외했습니다. <button type="button" onClick={() => setPeriod('undated')}>마감 미정 보기</button></p>}
       </section>
       <dl className="task-stats">
         {[
-          ['조회 과제', summary.total], ['남은 과제', summary.remaining],
+          ['전체 과제', summary.total], ['남은 과제', summary.remaining],
           ['제출 완료', summary.submitted], ['마감 미정', summary.unknown],
         ].map(([label, count]) => <div key={label}><dt>{label}</dt><dd>{count}<small>개</small></dd></div>)}
       </dl>
@@ -147,6 +147,7 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
           </section>
         </aside>
         <div className="task-list-area" aria-label="과제 목록">
+          <h2 className="task-list-heading">과제 목록</h2>
           <p className="task-result-count" role="status">{filtered.length}개 과제{query || selectedCourse !== 'all' || status !== 'all' || period !== 'all' ? ' · 필터 적용 중' : ''}</p>
           {filtered.length > 0 ? taskGroups.map(group => {
             const items = filtered.filter(task => taskGroup(task, today) === group.id)
