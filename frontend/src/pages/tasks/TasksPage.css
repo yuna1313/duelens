@@ -100,3 +100,5 @@
   .task-empty h2 { font-size: 15px; }
   .task-empty p { font-size: 11px; }
 }
+.task-period-panel { margin-top: 23px; }.task-period-tabs { display: flex; gap: 7px; flex-wrap: wrap; }.task-period-tabs button { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 9px 15px; font-size: 12px; color: var(--secondary); }.task-period-tabs button.active { background: var(--brand-soft); border-color: #b8d7cd; color: var(--brand); font-weight: 600; }.task-period-range { color: var(--secondary); font-size: 11px; margin: 15px 0 8px; }.task-count-guide { color: var(--muted); font-size: 10px; line-height: 1.9; margin: 0; max-width: 780px; }.task-period-unknown { color: #8c7952; font-size: 10px; margin: 9px 0 0; line-height: 1.9; }.task-period-unknown button { background: none; border: 0; color: var(--brand); font-size: inherit; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 700px) { .task-period-tabs { gap: 5px; }.task-period-tabs button { padding: 8px 11px; font-size: 11px; }.task-period-range { font-size: 10px; }.task-count-guide { font-size: 10px; } }
