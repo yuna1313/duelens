@@ -103,7 +103,7 @@ function provision(passwords) {
       const defaults = [
         ['DUELENS_COOKIE_SECURE', 'false'],
         ['DUELENS_WRITE_ORIGINS', 'http://127.0.0.1:5173,http://localhost:5173'],
-      ].filter(([key]) => !new RegExp(`^${key}\\s*=`, 'm').test(current))
+      ].filter(([key]) => !new RegExp(`^[ \\t]*${key}(?:[ \\t]*[=:]|[ \\t]+|$)`, 'm').test(current))
       if (defaults.length) writeFileSync(path, current.trimEnd() + '\n' + defaults.map(([key, value]) => `${key}=${value}`).join('\n') + '\n')
     }
   }
