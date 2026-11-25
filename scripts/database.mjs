@@ -98,6 +98,14 @@ function provision(passwords) {
       `${prefix}_MIGRATION_USERNAME=${db.migration}`, `${prefix}_MIGRATION_PASSWORD=${passwords[db.migration]}`, '',
       ...(db.name === 'duelens' ? ['DUELENS_COOKIE_SECURE=false', 'DUELENS_WRITE_ORIGINS=http://127.0.0.1:5173,http://localhost:5173', ''] : []),
     ].join('\n'))
+    if (db.name === 'duelens') {
+      const current = readFileSync(path, 'utf8')
+      const defaults = [
+        ['DUELENS_COOKIE_SECURE', 'false'],
+        ['DUELENS_WRITE_ORIGINS', 'http://127.0.0.1:5173,http://localhost:5173'],
+      ].filter(([key]) => !new RegExp(`^${key}\\s*=`, 'm').test(current))
+      if (defaults.length) writeFileSync(path, current.trimEnd() + '\n' + defaults.map(([key, value]) => `${key}=${value}`).join('\n') + '\n')
+    }
   }
 }
 
