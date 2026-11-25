@@ -25,7 +25,7 @@ DB는 프로젝트의 `.local/postgres/data/`에 보관하며 `127.0.0.1:5432`�
 - [x] Flyway 체크섬 검증·재기동 시 미적용 버전만 실행, clean 비활성화
 - [x] 목 데이터·사용자 로컬 과목을 DB로 자동 가져오지 않음
 
-ERD의 업무 테이블 5개·관계 4개와 V1 DDL은 일치합니다. Flyway의 `flyway_schema_history`는 프레임워크 관리 테이블입니다. 사용자 세션 저장 테이블은 세션 구현 단계에서 추가합니다. 적용한 V1/V2는 수정하지 않고 새 마이그레이션을 추가합니다.
+ERD의 업무 테이블 5개·관계 4개와 V1 DDL은 일치합니다. Flyway의 `flyway_schema_history`는 프레임워크 관리 테이블입니다. 서버 세션·속성 테이블은 후속 V3에서 추가했습니다. [현재 세션 구현](user-session.md)을 참고해 주세요. 적용한 V1/V2는 수정하지 않고 새 마이그레이션을 추가합니다.
 
 ## 검증 결과
 
@@ -43,11 +43,12 @@ ERD의 업무 테이블 5개·관계 4개와 V1 DDL은 일치합니다. Flyway�
 
 ## 남은 작업
 
-- [ ] **바로 다음: 사용자 세션·CSRF·게스트 시작과 소유권 검사**
+- [x] 사용자 세션·CSRF·현재 작업 공간/학기 API — 후속 V3 구현 완료
+- [ ] **바로 다음: 과목 API·소유권·변경 충돌 검사**
 - [ ] 과목·과제·변경 이력 API와 접근 권한·충돌·재시도 검증
 - [ ] 공통 HTTP 200 응답 적용과 프론트 실제 저장 연결
 - [ ] 정식 로그인·iClass·AI·실제 알림 발송
 
-현재 실제 HTTP 경로는 `/api/health`뿐입니다. DB 테이블 생성이 끝났어도 프론트 입력이 서버에 저장되는 단계는 아닙니다.
+이 문서의 최초 DB 구성 검증 이후 세션·현재 사용자/학기 API도 구현했습니다. DB 테이블 생성이 끝났어도 프론트 입력이 서버에 저장되는 단계는 아닙니다.
 
 참고: [Homebrew PostgreSQL 18](https://formulae.brew.sh/formula/postgresql@18), [Spring Boot Flyway 초기화](https://docs.spring.io/spring-boot/how-to/data-initialization.html), [의존성 보안 점검](dependency-security-20261125.md).
