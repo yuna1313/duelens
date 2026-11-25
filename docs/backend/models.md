@@ -534,4 +534,3 @@ success=true, code=SUCCESS. data는 해당 응답 모델 또는 null.
 | code | string | 필수 | 고정 "SUCCESS" | 업무 결과 코드 |
 | message | string | 필수 | 최소 1자 / 최대 500자 | 결과 안내 문장 |
 | data | Schedule | 필수 |  | 업무 응답 값 |
-

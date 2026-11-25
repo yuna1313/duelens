@@ -15,6 +15,15 @@ Java 컴파일은 현재 실행 중인 JDK를 사용하며, Java 25 API를 기�
 
 ## 실행
 
+최초 한 번 PostgreSQL 18을 설치하고 프로젝트 전용 DB를 준비합니다.
+
+```sh
+brew install postgresql@18
+npm run db:start
+```
+
+이미 설치했다면 `brew install`은 생략합니다. Docker·전역 Gradle 설치는 필요하지 않습니다. Homebrew 기본 서비스 대신 프로젝트 전용 클러스터를 사용합니다. 재부팅 뒤에는 `npm run db:start`로 다시 시작합니다.
+
 저장소 루트에서 실행합니다.
 
 ```sh
@@ -56,16 +65,31 @@ npm run build:backend
 
 실행 가능한 JAR은 `backend/build/libs/`에 생성됩니다.
 통합 테스트는 임의 포트에서 서버를 시작하고 `/api/health`의 실제 HTTP 응답을 확인합니다.
+실제 PostgreSQL의 별도 `duelens_test` DB에서 마이그레이션·FK/NOT NULL·과목 중복·삭제 후 보존·과제/이력 롤백·실행 계정 권한을 검증합니다. 먼저 `npm run db:start`를 실행해 주세요. 테스트 데이터는 트랜잭션 종료 시 롤백합니다. H2로 대체하거나 DB 테스트를 자동 생략하지 않습니다.
 
 ## 설정
 
 애플리케이션 설정은 `src/main/resources/application.properties`에서 관리합니다.
+`bootRun`의 작업 디렉터리는 `backend/`이며 로컬 접속 값은 `config/local.properties`에서 읽습니다. 테스트 프로필은 `config/test.properties`와 `DUELENS_TEST_*`를 사용해 개발 DB 환경 변수와 분리합니다.
 `SERVER_PORT`, `SERVER_ADDRESS` 등 Spring 환경 변수로 값을 덮어쓸 수 있습니다.
 포트를 변경하면 프론트엔드 `vite.config.ts`의 개발 프록시 대상도 맞춰야 합니다.
 
+## 로컬 PostgreSQL 관리
+
+- 시작·준비: `npm run db:start` — 최초에는 개발/테스트 DB와 계정을 만들며 재실행 시 기존 값을 유지합니다.
+- 상태: `npm run db:status`
+- 중지: `npm run db:stop` — 프로젝트 DB만 중지하며 데이터는 남깁니다.
+- 주소: `127.0.0.1:5432`, 개발 DB `duelens`, 테스트 DB `duelens_test`
+- 바이너리 기본 경로: `/opt/homebrew/opt/postgresql@18/bin`; 다른 설치 경로는 `POSTGRES_BIN`으로 지정합니다.
+- DB 파일·관리 접속 정보: 저장소의 `.local/postgres/`. 런타임 접속 값은 `backend/config/local.properties`·`test.properties`에 생성하며 모두 Git에서 제외합니다. 비밀 파일의 권한은 소유자만 읽고 쓰는 600입니다. `local.properties.example`에는 공개 가능한 형식만 있습니다.
+
+DB는 루프백에만 바인딩하고 SCRAM 인증을 사용합니다. 앱 실행 계정과 스키마 변경 계정을 분리하며 앱에는 DDL·마이그레이션 메타데이터·이력 수정/삭제 권한을 주지 않습니다. 개발·테스트 앱 계정은 각각 허용한 DB에만 접속합니다. 운영 DB는 별도로 구성하고 `DUELENS_DB_*`·`DUELENS_MIGRATION_*`를 환경 변수·외부 비밀 저장소로 전달합니다. 위 접속 URL의 TLS 생략은 로컬 루프백 개발용입니다.
+
+스키마 변경은 `src/main/resources/db/migration/`의 Flyway로만 관리합니다. V1은 사용자·과목·과제·이력·생성 재시도 기록을 만들고 V2는 앱 역할의 권한을 부여합니다. DB 관리자는 마이그레이션 전에 `duelens_runtime NOLOGIN` 역할과 전용 DB/계정을 준비해야 합니다. 적용한 마이그레이션을 수정하지 않고 새 버전을 추가합니다. 앱 시작 시 체크섬 검증과 미적용 버전만 실행하며 `clean`은 비활성화했습니다.
+
 ## API·DB 설계
 
-PostgreSQL을 사용해 학기·과목·수동 과제·변경 이력을 저장할 계획입니다. 가입 없는 게스트 세션의 소유권을 먼저 구현하고, 학교 로그인·공지 수집·AI 분석은 후속으로 진행합니다.
+PostgreSQL 연결과 초기 스키마를 구현했습니다. 가입 없는 게스트 세션·소유권 검사와 업무 API는 다음 단계이며, 학교 로그인·공지 수집·AI 분석은 후속으로 진행합니다.
 
 - [저장 모델·소유권·트랜잭션 규칙](../docs/backend/data-model.md)
 - [ERD: 테이블·PK/FK·관계 그림과 편집 원본](../docs/backend/erd.md)
@@ -80,4 +104,4 @@ API 목표 계약은 성공·실패·생성·삭제 모두 HTTP 200과 `success`
 
 첫 공간은 `initialTerm` 없이 `{}`로 시작할 수 있으며 선택 학기를 `null`로 응답합니다. 이후 명시적으로 학기를 저장합니다. 과목 생성은 소속 `term`이 필수이고 과제 생성은 등록한 과목의 `courseId`가 필수입니다. DB의 `users.selected_term`은 NULL을 허용하며 사용자 → 과목 → 과제로 소유권을 확인합니다. 모델 정의서의 ‘읽는 방법’에서 요청 모델과 전체 응답·내부 데이터 모델의 차이를 확인할 수 있습니다.
 
-위 파일은 설계 산출물입니다. DB·세션·업무 API는 아직 연결하지 않았으며 `/api/health` 경로만 실제 제공됩니다. 해당 경로의 공통 응답 전환도 미구현입니다. 바로 다음 단계는 지원 버전·보안 공지 확인 후 DB 연결·마이그레이션과 게스트 세션·소유권 검증을 구현하는 작업입니다. 프론트엔드에 연결하기 전 저장 위치·복구 범위를 안내하고 로컬 데이터의 서버 가져오기는 사용자 선택으로 처리합니다.
+DB 연결·V1/V2 마이그레이션은 로컬 PostgreSQL 18.7에 적용·검증했습니다. 사용자 세션·업무 API·프론트 저장 연동은 아직 구현 전이며 `/api/health`만 실제 제공합니다. 해당 경로의 공통 응답 전환도 후속 범위입니다. 바로 다음 단계는 사용자 세션·CSRF·소유권 검사와 과목 API입니다. 목 데이터·기존 로컬 과목은 서버로 자동 가져오지 않습니다. [DB 구성 검증](../docs/backend/postgresql-setup.md)·[의존성 점검](../docs/backend/dependency-security-20261125.md)을 참고해 주세요.

@@ -1,0 +1,327 @@
+{
+  "checkedAt": "2026-11-25T02:20:48.504192+00:00",
+  "source": "https://api.osv.dev/v1/querybatch",
+  "scope": "Gradle runtimeClasspath Maven modules; PostgreSQL server and Homebrew packages excluded",
+  "packages": [
+    {
+      "name": "ch.qos.logback:logback-classic",
+      "version": "1.6.6",
+      "advisoryIds": []
+    },
+    {
+      "name": "ch.qos.logback:logback-core",
+      "version": "1.6.6",
+      "advisoryIds": []
+    },
+    {
+      "name": "com.fasterxml.jackson.core:jackson-annotations",
+      "version": "2.21",
+      "advisoryIds": []
+    },
+    {
+      "name": "com.zaxxer:HikariCP",
+      "version": "7.1.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "commons-logging:commons-logging",
+      "version": "1.4.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "io.micrometer:micrometer-commons",
+      "version": "1.18.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "io.micrometer:micrometer-core",
+      "version": "1.18.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "io.micrometer:micrometer-jakarta9",
+      "version": "1.18.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "io.micrometer:micrometer-observation",
+      "version": "1.18.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "jakarta.annotation:jakarta.annotation-api",
+      "version": "3.0.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.apache.logging.log4j:log4j-api",
+      "version": "2.26.1",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.apache.logging.log4j:log4j-to-slf4j",
+      "version": "2.26.1",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.apache.tomcat.embed:tomcat-embed-core",
+      "version": "11.0.27",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.apache.tomcat.embed:tomcat-embed-el",
+      "version": "11.0.27",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.apache.tomcat.embed:tomcat-embed-websocket",
+      "version": "11.0.27",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.checkerframework:checker-qual",
+      "version": "3.55.1",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.flywaydb:flyway-core",
+      "version": "12.11.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.flywaydb:flyway-database-postgresql",
+      "version": "12.11.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.hdrhistogram:HdrHistogram",
+      "version": "2.2.2",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.jspecify:jspecify",
+      "version": "1.0.1",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.postgresql:postgresql",
+      "version": "42.7.14",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.slf4j:jul-to-slf4j",
+      "version": "2.0.20",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.slf4j:slf4j-api",
+      "version": "2.0.20",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-actuator",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-actuator-autoconfigure",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-autoconfigure",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-flyway",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-health",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-http-converter",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-jackson",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-jdbc",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-micrometer-metrics",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-micrometer-observation",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-persistence",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-servlet",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-sql",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter-actuator",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter-flyway",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter-jackson",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter-jdbc",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter-logging",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter-micrometer-metrics",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter-tomcat",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter-tomcat-runtime",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter-webmvc",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-tomcat",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-transaction",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-web-server",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-webmvc",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework:spring-aop",
+      "version": "7.1.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework:spring-beans",
+      "version": "7.1.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework:spring-context",
+      "version": "7.1.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework:spring-core",
+      "version": "7.1.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework:spring-expression",
+      "version": "7.1.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework:spring-jdbc",
+      "version": "7.1.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework:spring-tx",
+      "version": "7.1.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework:spring-web",
+      "version": "7.1.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework:spring-webmvc",
+      "version": "7.1.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.yaml:snakeyaml",
+      "version": "2.7",
+      "advisoryIds": []
+    },
+    {
+      "name": "tools.jackson.core:jackson-core",
+      "version": "3.1.8",
+      "advisoryIds": []
+    },
+    {
+      "name": "tools.jackson.core:jackson-databind",
+      "version": "3.1.8",
+      "advisoryIds": []
+    },
+    {
+      "name": "tools.jackson:jackson-bom",
+      "version": "3.1.8",
+      "advisoryIds": []
+    }
+  ]
+}

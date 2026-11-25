@@ -1,0 +1,7 @@
+# 기본 실행 위치: backend/. 운영에서는 환경 변수·외부 비밀 저장소로 전달합니다.
+# npm run db:start는 실제 접속 정보를 local.properties와 test.properties에 생성합니다.
+DUELENS_DB_URL=jdbc:postgresql://127.0.0.1:5432/duelens?sslmode=disable&requireAuth=scram-sha-256
+DUELENS_DB_USERNAME=duelens_app
+DUELENS_DB_PASSWORD=replace-with-local-password
+DUELENS_MIGRATION_USERNAME=duelens_migrator
+DUELENS_MIGRATION_PASSWORD=replace-with-migration-password
