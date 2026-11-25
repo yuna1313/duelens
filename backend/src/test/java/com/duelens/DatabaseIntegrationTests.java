@@ -33,10 +33,10 @@ class DatabaseIntegrationTests {
 
     @Test
     void migrationsAreAppliedOnceAndChecksumsRemainValid() {
-        assertThat(flyway.info().applied()).hasSize(2);
+        assertThat(flyway.info().applied()).hasSize(3);
         assertThat(flyway.validateWithResult().validationSuccessful).isTrue();
         flyway.migrate();
-        assertThat(flyway.info().applied()).hasSize(2);
+        assertThat(flyway.info().applied()).hasSize(3);
         assertThat(jdbc.queryForObject("SELECT current_database()", String.class)).isEqualTo("duelens_test");
     }
 
