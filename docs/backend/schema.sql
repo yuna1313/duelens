@@ -1,20 +1,26 @@
 -- 설계안입니다. 실행 중인 DB 또는 Flyway에 적용하지 않았습니다.
+-- 사용자 → 과목 → 과제. 과제의 소유권은 과목의 user_id로 검사합니다.
 -- UUID·정규화 키·변경 시각은 서버가 생성합니다. UTF-8 DB를 전제로 합니다.
 -- 세션 테이블은 사용할 Spring Session 버전의 공식 스키마로 별도 추가합니다.
 
-CREATE TABLE workspaces (
+CREATE TABLE users (
     id uuid PRIMARY KEY,
-    owner_key uuid NOT NULL UNIQUE,
-    selected_term varchar(11) NOT NULL
-        CHECK (selected_term ~ '^[1-9][0-9]{3}-(1|summer|2|winter)$'),
+    display_name varchar(80) CHECK (display_name IS NULL OR char_length(btrim(display_name)) > 0),
+    email varchar(254),
+    status varchar(16) NOT NULL DEFAULT 'guest' CHECK (status IN ('guest', 'active', 'withdrawn')),
+    selected_term varchar(11) DEFAULT NULL
+        CHECK (selected_term IS NULL OR selected_term ~ '^[1-9][0-9]{3}-(1|summer|2|winter)$'),
     revision bigint NOT NULL DEFAULT 1 CHECK (revision BETWEEN 1 AND 9007199254740991),
     created_at timestamptz NOT NULL,
-    updated_at timestamptz NOT NULL
+    updated_at timestamptz NOT NULL,
+    deleted_at timestamptz,
+    CHECK ((status = 'withdrawn' AND deleted_at IS NOT NULL)
+        OR (status IN ('guest', 'active') AND deleted_at IS NULL))
 );
 
 CREATE TABLE courses (
     id uuid PRIMARY KEY,
-    workspace_id uuid NOT NULL REFERENCES workspaces(id),
+    user_id uuid NOT NULL REFERENCES users(id),
     term varchar(11) NOT NULL CHECK (term ~ '^[1-9][0-9]{3}-(1|summer|2|winter)$'),
     name varchar(100) NOT NULL CHECK (char_length(btrim(name)) > 0),
     section varchar(30) NOT NULL CHECK (char_length(btrim(section)) > 0),
@@ -26,23 +32,18 @@ CREATE TABLE courses (
     deleted_at timestamptz,
     created_at timestamptz NOT NULL,
     updated_at timestamptz NOT NULL,
-    UNIQUE (workspace_id, id),
     CHECK ((meeting_days = 0 AND start_time IS NULL)
         OR (meeting_days > 0 AND start_time IS NOT NULL)),
     CHECK (start_time IS NULL OR (start_time < time '24:00' AND extract(second FROM start_time) = 0))
 );
 
 CREATE UNIQUE INDEX courses_active_identity
-    ON courses (workspace_id, term, name_key, section_key)
+    ON courses (user_id, term, name_key, section_key)
     WHERE deleted_at IS NULL;
 
 CREATE TABLE tasks (
     id uuid PRIMARY KEY,
-    workspace_id uuid NOT NULL REFERENCES workspaces(id),
-    course_id uuid,
-    term varchar(11) NOT NULL CHECK (term ~ '^[1-9][0-9]{3}-(1|summer|2|winter)$'),
-    course_name varchar(100) NOT NULL CHECK (char_length(btrim(course_name)) > 0),
-    section varchar(30) NOT NULL CHECK (char_length(btrim(section)) > 0),
+    course_id uuid NOT NULL REFERENCES courses(id),
     title varchar(150) NOT NULL CHECK (char_length(btrim(title)) > 0),
     due_date date CHECK (due_date BETWEEN date '1000-01-01' AND date '9999-12-31'),
     due_time time without time zone,
@@ -56,20 +57,16 @@ CREATE TABLE tasks (
     revision bigint NOT NULL DEFAULT 1 CHECK (revision BETWEEN 1 AND 9007199254740991),
     created_at timestamptz NOT NULL,
     updated_at timestamptz NOT NULL,
-    UNIQUE (workspace_id, id),
-    FOREIGN KEY (workspace_id, course_id) REFERENCES courses(workspace_id, id),
     CHECK (due_time IS NULL OR due_date IS NOT NULL),
     CHECK (due_time IS NULL OR (due_time < time '24:00' AND extract(second FROM due_time) = 0))
 );
 
-CREATE INDEX tasks_workspace_term_deadline
-    ON tasks (workspace_id, term, due_date, due_time, id);
-CREATE INDEX tasks_workspace_course ON tasks (workspace_id, course_id);
+CREATE INDEX tasks_course_deadline ON tasks (course_id, due_date, due_time, id);
+CREATE INDEX courses_user_term ON courses (user_id, term, id);
 
 CREATE TABLE task_history (
     id uuid PRIMARY KEY,
-    workspace_id uuid NOT NULL REFERENCES workspaces(id),
-    task_id uuid NOT NULL,
+    task_id uuid NOT NULL REFERENCES tasks(id),
     version bigint NOT NULL CHECK (version BETWEEN 1 AND 9007199254740991),
     snapshot_version smallint NOT NULL DEFAULT 1 CHECK (snapshot_version = 1),
     kind varchar(20) NOT NULL CHECK (kind IN ('created', 'manual-edit')),
@@ -77,23 +74,22 @@ CREATE TABLE task_history (
     after_values jsonb NOT NULL CHECK (jsonb_typeof(after_values) = 'object'),
     note varchar(500) NOT NULL DEFAULT '',
     occurred_at timestamptz NOT NULL,
-    FOREIGN KEY (workspace_id, task_id) REFERENCES tasks(workspace_id, id),
-    UNIQUE (workspace_id, task_id, version),
+    UNIQUE (task_id, version),
     CHECK ((kind = 'created' AND version = 1 AND before_values IS NULL)
         OR (kind = 'manual-edit' AND version > 1 AND before_values IS NOT NULL
             AND jsonb_typeof(before_values) = 'object'))
 );
 
 CREATE TABLE idempotency_requests (
-    workspace_id uuid NOT NULL REFERENCES workspaces(id),
+    user_id uuid NOT NULL REFERENCES users(id),
     request_key uuid NOT NULL,
     operation varchar(100) NOT NULL,
     request_hash char(64) NOT NULL CHECK (request_hash ~ '^[0-9a-f]{64}$'),
-    response_status smallint NOT NULL CHECK (response_status = 201),
+    response_status smallint NOT NULL CHECK (response_status = 200),
     response_body jsonb NOT NULL CHECK (jsonb_typeof(response_body) = 'object'),
     created_at timestamptz NOT NULL,
     expires_at timestamptz NOT NULL,
-    PRIMARY KEY (workspace_id, request_key),
+    PRIMARY KEY (user_id, request_key),
     CHECK (expires_at > created_at)
 );
 
