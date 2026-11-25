@@ -85,3 +85,10 @@
   .dialog-header p { font-size: var(--font-body); }
   .dialog-body { padding: 21px 19px; }
 }
+
+.course-examples { margin-top: 28px; padding: 24px; }
+.course-examples h2 { margin: 0 0 12px; font-size: var(--font-heading); }
+.course-examples p { color: var(--muted); font-size: var(--font-body); line-height: 1.8; }
+.course-examples ul { list-style: none; padding: 0; margin: 0; }
+.course-examples li { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; padding: 14px 0; border-top: 1px solid var(--border); font-size: var(--font-body); }
+.course-examples li span { color: var(--muted); }

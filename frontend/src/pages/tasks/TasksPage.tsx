@@ -171,7 +171,6 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
       {(mode === 'create' || (mode === 'edit' && selected)) && (
         <TaskFormDialog
           key={selected?.id ?? 'new'} task={mode === 'edit' ? selected : undefined}
-          courses={[...new Set(tasks.map(task => task.course))]}
           courseOptions={courseOptions}
           term={activeTerm}
           onCancel={() => { window.location.hash = mode === 'edit' && selected ? `/tasks/${selected.id}` : '/tasks' }}

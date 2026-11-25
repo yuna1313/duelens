@@ -10,6 +10,7 @@ export type ReviewField = keyof ReviewValues
 export type ReviewChoice = 'proposal' | 'current'
 export interface ReviewTask {
   id: string
+  source?: 'example' | 'manual'
   term?: string
   title: string
   course: string

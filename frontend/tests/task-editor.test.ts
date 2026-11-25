@@ -4,7 +4,7 @@ import { emptyTaskDraft, safeSubmissionUrl, taskDraft, upsertTask, validateTaskD
 import type { TaskDraft } from '../src/features/tasks/model.ts'
 import { changeDeadlineMode } from '../src/features/tasks/deadline.ts'
 
-const draft = (changes: Partial<TaskDraft> = {}): TaskDraft => ({ ...emptyTaskDraft(), title: '보고서', course: '프로그래밍 기초', ...changes })
+const draft = (changes: Partial<TaskDraft> = {}): TaskDraft => ({ ...emptyTaskDraft(), courseId: 'registered-course', title: '보고서', course: '프로그래밍 기초', ...changes })
 
 test('날짜·시각 미정을 구분하고 잘못된 날짜와 시각만 있는 입력을 거부한다', () => {
   assert.equal(upsertTask([], draft(), 'first').task.dueDate, null)
@@ -37,7 +37,7 @@ test('제출 링크는 웹 주소만 허용하고 실행 스킴과 계정 정보
 
 test('필수 값과 입력 크기를 검사하고 같은 이름의 다른 과제를 별도 ID로 등록한다', () => {
   const errors = validateTaskDraft({ ...emptyTaskDraft(), section: '', description: 'a'.repeat(20_001) })
-  assert.ok(errors.title && errors.course && errors.section && errors.description)
+  assert.ok(errors.courseId && errors.title && errors.course && errors.section && errors.description)
   const first = upsertTask([], draft(), 'first')
   assert.equal(upsertTask(first.tasks, draft(), 'second').tasks.length, 2)
 })

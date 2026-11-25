@@ -11,6 +11,7 @@ import './ReviewForm.css'
 interface Props {
   candidate: ReviewCandidate
   tasks: ReviewTask[]
+  canCreateTask: boolean
   source: { title: string; paragraphs: string[]; timestamp: string }
   onComplete: (draft: ReviewDraft) => void
 }
@@ -18,7 +19,7 @@ interface Props {
 const displayValue = (field: ReviewField, value: string | null | undefined) => value
   || (field === 'dueDate' ? '날짜 미정' : field === 'dueTime' ? '시각 미정' : '미정')
 
-export function ReviewForm({ candidate, tasks, source, onComplete }: Props) {
+export function ReviewForm({ candidate, tasks, source, onComplete, canCreateTask }: Props) {
   const prefix = useId()
   const [draft, setDraft] = useState(() => initialReviewDraft(candidate, tasks))
   const [message, setMessage] = useState('')
@@ -28,6 +29,7 @@ export function ReviewForm({ candidate, tasks, source, onComplete }: Props) {
   const proposal = proposedValues(candidate, draft)
   const fields = reviewFields(candidate)
   const pending = validateReview(candidate, tasks, draft)
+  if (draft.targetId === 'new' && !canCreateTask) pending.target = '새 과제를 등록할 과목을 먼저 등록해 주세요.'
   const values = resolvedValues(candidate, tasks, draft)
   const changedCount = fields.filter(field => values[field] !== (target?.values[field] ?? (field === 'dueDate' || field === 'dueTime' ? null : ''))).length
 
@@ -61,10 +63,11 @@ export function ReviewForm({ candidate, tasks, source, onComplete }: Props) {
           setMessage('')
         }}>
           <option value="">과제를 선택해 주세요</option>
-          {candidate.allowNew && <option value="new">새 과제로 등록</option>}
+          {candidate.allowNew && canCreateTask && <option value="new">새 과제로 등록</option>}
           {targets.map(item => <option key={item.id} value={item.id}>{item.title} · {item.section}분반</option>)}
         </Select>
         <p>{candidate.course} · {candidate.section}분반{target ? ` · ${target.title}` : ''}</p>
+        {candidate.allowNew && !canCreateTask && <p>새 과제를 만들려면 같은 학기·과목·분반을 먼저 등록해 주세요. <a href="#/courses/new">과목 등록하기</a></p>}
         <label className="review-check">
           <input type="checkbox" checked={draft.targetConfirmed} disabled={!draft.targetId} onChange={event => update('targetConfirmed', event.target.checked)} />
           {draft.targetId === 'new' ? '새 과제로 등록하는 선택을 확인했습니다.' : '연결할 과목·분반·과제를 확인했습니다.'}

@@ -5,7 +5,6 @@
 .task-editor-body { padding: 22px 27px; }
 .task-editor-help { margin: 0 0 24px; color: var(--muted); font-size: var(--font-body); line-height: 1.9; word-break: keep-all; }
 .task-editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 17px; }
-.task-editor-course-grid { grid-template-columns: 2fr 1fr; }
 .task-editor-field { min-width: 0; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
 .task-editor-field label { color: var(--secondary); font-size: var(--font-body); }
 .task-editor-field label > span { color: var(--brand); }
@@ -21,3 +20,5 @@
 .task-editor-footer { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 8px; padding: 18px 27px; border-top: 1px solid var(--border); background: white; }
 @media (max-width: 700px) { .task-editor-heading { padding: 21px 19px; }.task-editor-body { padding: 21px 19px; }.task-editor-heading h2 { font-size: var(--font-title); }.task-editor-grid { gap: 12px; }.task-editor-field input, .task-editor-field textarea { font-size: var(--font-body); padding: 10px; }.task-editor-field label { font-size: var(--font-body); }.task-editor-footer { padding: 16px 19px; } }
 .task-editor-term { font-size: var(--font-body); color: var(--brand); margin: 0 0 20px; }.task-editor-deadline-mode { font-size: var(--font-body); line-height: 1.9; background: #f0f6f3; color: #648572; border-radius: 8px; padding: 12px; }.task-editor-deadline-mode button { border: 0; background: none; color: var(--brand); padding: 2px 0; text-decoration: underline; text-underline-offset: 3px; font-size: inherit; }
+
+.task-editor-field small { font-size: var(--font-small); color: var(--secondary); line-height: 1.8; overflow-wrap: anywhere; }

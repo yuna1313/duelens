@@ -1,8 +1,9 @@
 export type TaskMode = 'list' | 'create' | 'detail' | 'edit' | 'history'
 export type SettingsTab = 'reminders' | 'data' | 'privacy'
-type BasicPage = 'start' | 'courses' | 'notifications' | 'connection' | 'not-found'
+type BasicPage = 'start' | 'notifications' | 'connection' | 'not-found'
 export type AppRoute =
   | { page: BasicPage; title: string }
+  | { page: 'courses'; title: string; adding: boolean; creatingTask: boolean }
   | { page: 'tasks'; title: string; taskId: string | null; mode: TaskMode }
   | { page: 'notices'; title: string; noticeId: string | null }
   | { page: 'reviews'; title: string; reviewId: string | null }
@@ -13,7 +14,7 @@ const taskTitles: Record<TaskMode, string> = { list: '내 과제', create: '과�
 export function parseRoute(hash: string): AppRoute {
   if (!hash || hash === '#/' || hash === '#/start' || hash === '#/start/') return { page: 'start', title: '시작 안내' }
   const path = hash.endsWith('/') ? hash.slice(0, -1) : hash
-  if (path === '#/courses') return { page: 'courses', title: '과목·수업' }
+  if (['#/courses', '#/courses/new', '#/courses/new/task'].includes(path)) return { page: 'courses', title: '과목·수업', adding: path !== '#/courses', creatingTask: path === '#/courses/new/task' }
   if (path === '#/notifications') return { page: 'notifications', title: '알림센터' }
   if (path === '#/connection') return { page: 'connection', title: '학교 연결·수집 관리' }
   if (path === '#/settings' || path === '#/settings/data' || path === '#/settings/privacy') {

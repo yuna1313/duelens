@@ -5,7 +5,7 @@ import { emptyTaskDraft, upsertTask } from '../src/features/tasks/model.ts'
 import type { TaskStatus } from '../src/features/tasks/model.ts'
 
 const task = (id: string, dueDate: string, status: TaskStatus = 'todo') =>
-  upsertTask([], { ...emptyTaskDraft('2026-2'), course: '과목', title: id, dueDate, status }, id).task
+  upsertTask([], { ...emptyTaskDraft('2026-2'), courseId: 'registered-course', course: '과목', title: id, dueDate, status }, id).task
 
 test('이번 주는 연도가 바뀌어도 월요일부터 일요일까지 양끝 마감일을 포함한다', () => {
   assert.deepEqual(taskPeriodRange('week', '2027-01-01'), { start: '2026-12-28', end: '2027-01-03' })

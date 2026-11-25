@@ -11,8 +11,9 @@ import './ReviewPage.css'
 interface Props {
   reviewId: string | null; today: string; candidates: ReviewCandidate[]; tasks: ReviewTask[]; sources: Notice[]
   results: Record<string, ReviewResult>; onApply: (id: string, draft: ReviewDraft) => ReviewResult
+  canCreateTask: (candidate: ReviewCandidate) => boolean
 }
-export function ReviewPage({ reviewId, today, candidates, tasks, sources, results, onApply }: Props) {
+export function ReviewPage({ reviewId, today, candidates, tasks, sources, results, onApply, canCreateTask }: Props) {
   const candidate = candidates.find(item => item.id === (reviewId ?? candidates[0]?.id))
   const source = sources.find(item => item.id === candidate?.noticeId)
   const result = candidate ? results[candidate.id] : undefined
@@ -65,7 +66,7 @@ export function ReviewPage({ reviewId, today, candidates, tasks, sources, result
                   </div>
                 </section>
               ) : (
-                <ReviewForm key={candidate.id} candidate={candidate} tasks={tasks} source={{ title: source.title, paragraphs: source.paragraphs, timestamp: noticeTimestamp(source.publishedAt) }} onComplete={draft => {
+                <ReviewForm key={candidate.id} candidate={candidate} canCreateTask={canCreateTask(candidate)} tasks={tasks.filter(task => task.source === source.source)} source={{ title: source.title, paragraphs: source.paragraphs, timestamp: noticeTimestamp(source.publishedAt) }} onComplete={draft => {
                   onApply(candidate.id, draft)
                   window.scrollTo(0, 0)
                 }} />

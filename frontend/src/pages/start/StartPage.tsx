@@ -41,7 +41,7 @@ export function StartPage({ selectedTerm, onManualStart, onPreview }: { selected
             <span className="eyebrow">WELCOME TO DUELENS</span>
             <h2 id="start-welcome-title">나에게 맞는 방법으로 시작해요.</h2>
             <p className="start-options-lead">학교 계정 없이도 과목과 과제를 직접 정리할 수 있어요.</p>
-            <div className="start-term-status"><Icon name="calendar" size={19} /><div><strong>{selectedTerm ? `${termLabel(selectedTerm)} 선택됨` : '아직 학기를 선택하지 않았어요'}</strong><p>{selectedTerm ? '저장한 학기로 이어서 사용하거나 나중에 변경할 수 있어요.' : '지금 정하지 않아도 괜찮아요. 첫 과목·과제를 등록할 때 선택해 주세요.'}</p></div></div>
+            <div className="start-term-status"><Icon name="calendar" size={19} /><div><strong>{selectedTerm ? `${termLabel(selectedTerm)} 선택됨` : '아직 학기를 선택하지 않았어요'}</strong><p>{selectedTerm ? '저장한 학기로 이어서 사용하거나 나중에 변경할 수 있어요.' : '지금 정하지 않아도 괜찮아요. 첫 과목을 등록할 때 선택해 주세요.'}</p></div></div>
             <div className="start-school-card">
               <div className="start-school-heading"><span className="start-school-icon"><Icon name="book" size={23} /></span><div><h3>인하대학교 I-Class</h3><span>learn.inha.ac.kr</span></div></div>
               <a className="button secondary" href="#/connection" aria-describedby="start-school-status"><Icon name="link" size={15} />학교 연결 화면 보기</a>
@@ -50,7 +50,7 @@ export function StartPage({ selectedTerm, onManualStart, onPreview }: { selected
             <div className="start-divider"><span>학교 연결 없이 시작하기</span></div>
             <a className="button primary start-manual-action" href="#/courses" onClick={onManualStart}><Icon name="book" size={15} />과목 등록으로 시작하기<Icon name="arrow" size={15} /></a>
             <p className="start-manual-description">첫 과목 등록에서 연도와 학기를 함께 선택해요.</p>
-            <div className="start-secondary-actions"><a href="#/tasks/new" onClick={onManualStart}><Icon name="plus" size={13} />과제부터 등록하기</a><a href="#/tasks" onClick={onPreview}>예시 화면 둘러보기<Icon name="arrow" size={13} /></a></div>
+            <div className="start-secondary-actions"><a href="#/tasks/new" onClick={onManualStart}><Icon name="plus" size={13} />과제 추가하기</a><a href="#/tasks" onClick={onPreview}>예시 화면 둘러보기<Icon name="arrow" size={13} /></a></div>
             <details className="start-data-notice">
               <summary><Icon name="info" size={13} />입력한 내용은 어떻게 관리되나요?</summary>
               <div>

@@ -5,7 +5,7 @@ import { emptyTaskDraft, upsertTask } from '../src/features/tasks/model.ts'
 import type { TaskStatus } from '../src/features/tasks/model.ts'
 
 const task = (id: string, dueDate: string, status: TaskStatus = 'todo', dueTime = '') =>
-  upsertTask([], { ...emptyTaskDraft('2026-2'), course: '과목', title: id, dueDate, dueTime, status }, id).task
+  upsertTask([], { ...emptyTaskDraft('2026-2'), courseId: 'registered-course', course: '과목', title: id, dueDate, dueTime, status }, id).task
 
 test('월 달력은 월요일부터 일요일까지 이어지며 윤년 2월과 앞뒤 달 날짜를 포함한다', () => {
   const leap = monthCalendar('2028-02-15')

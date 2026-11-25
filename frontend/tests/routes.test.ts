@@ -22,6 +22,12 @@ test('직접 진입한 과제 상세·수정·이력과 공지·검토 ID를 구
   assert.deepEqual(parseRoute('#/reviews/date-check'), { page: 'reviews', title: '변경 검토', reviewId: 'date-check' })
 })
 
+test('과제에서 과목을 먼저 등록하는 경로를 구분한다', () => {
+  assert.deepEqual(parseRoute('#/courses/new/task'), { page: 'courses', title: '과목·수업', adding: true, creatingTask: true })
+  assert.deepEqual(parseRoute('#/courses/new'), { page: 'courses', title: '과목·수업', adding: true, creatingTask: false })
+  assert.equal(parseRoute('#/courses/new/invalid').page, 'not-found')
+})
+
 test('알 수 없는 메뉴·설정 하위 주소·중첩 경로·손상된 ID를 다른 화면으로 대체하지 않는다', () => {
   for (const hash of ['#/does-not-exist', '#/settings/does-not-exist', '#/tasks/new/edit', '#/tasks/id/edit/extra', '#/notices/id/extra', '#/reviews/%ZZ', '#/tasks//edit', '#main']) assert.equal(parseRoute(hash).page, 'not-found', hash)
   const data = parseRoute('#/settings/data')

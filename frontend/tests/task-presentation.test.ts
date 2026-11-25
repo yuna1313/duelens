@@ -5,6 +5,7 @@ import { currentWeek, offsetDate, seoulDateKey } from '../src/utils/date.ts'
 import type { TaskPreview } from '../src/features/tasks/model.ts'
 
 const task: TaskPreview = {
+  courseId: 'example-course',
   id: 'preview', title: '중간보고서', course: '프로그래밍 기초', section: '001', tone: 'green',
   dueDate: '2026-11-23', dueTime: null, status: 'written', description: '',
   source: 'example', submissionFormat: '', quantity: '', submissionUrl: '',

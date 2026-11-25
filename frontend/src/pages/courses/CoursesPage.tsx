@@ -48,9 +48,16 @@ function CourseDialog({ term, onClose, onSave, onSaved }: CourseDialogProps) {
   )
 }
 
-export function CoursesPage({ controller }: { controller: ReturnType<typeof useCourses> }) {
+interface Props {
+  controller: ReturnType<typeof useCourses>
+  adding?: boolean
+  creatingTask?: boolean
+  exampleCourses: Course[]
+}
+
+export function CoursesPage({ controller, adding: initiallyAdding = false, creatingTask = false, exampleCourses }: Props) {
   const { data, error, save, selectTerm, reload } = controller
-  const [adding, setAdding] = useState(false)
+  const [adding, setAdding] = useState(initiallyAdding)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editorVersion, setEditorVersion] = useState(0)
   const [notice, setNotice] = useState('')
@@ -67,6 +74,7 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
   }, [editingId])
 
   function saved(course: Course, isNew: boolean) {
+    if (isNew && creatingTask) { window.location.hash = '/tasks/new'; return }
     setAdding(false)
     setEditingId(course.id)
     setNotice(isNew ? '과목을 등록했어요. 이 기기에 저장했습니다.' : '변경 사항을 이 기기에 저장했습니다.')
@@ -183,6 +191,11 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
         <Icon name="shield" size={15} />
         <span>과목 정보는 현재 브라우저에 저장됩니다. 브라우저 데이터를 지우면 기록도 삭제됩니다.</span>
       </p>
+      {import.meta.env.DEV && exampleCourses.length > 0 && <section className="panel course-examples" aria-label="과제 미리보기용 예시 과목">
+        <h2>과제 미리보기용 예시 과목</h2>
+        <p>예시 과제는 아래 예시 과목에 연결되어 있습니다. 직접 등록한 과목·백업에는 포함되지 않습니다.</p>
+        <ul>{exampleCourses.map(course => <li key={course.id}><strong>{course.name} · {course.section}분반</strong><span>{termLabel(course.term)} · 예시</span></li>)}</ul>
+      </section>}
       {adding && (
         <CourseDialog term={term} onSave={save} onClose={() => setAdding(false)} onSaved={course => saved(course, true)} />
       )}
