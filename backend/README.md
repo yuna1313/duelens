@@ -49,6 +49,8 @@ curl http://127.0.0.1:8080/api/health
 프론트엔드 개발 서버에서는 `/api/health` 요청을 백엔드로 전달합니다.
 Actuator의 다른 관리 엔드포인트와 상세 상태는 노출하지 않습니다.
 
+로컬 API 명세는 <http://localhost:8080/swagger-ui/index.html>에서 확인합니다. `npm run db:start`가 로컬 문서 활성화 옵션을 보완하며 운영 기본값은 비활성입니다. 검토한 OpenAPI 원본의 전체 17개 중 11개 API가 구현 상태입니다. 세션·CSRF를 포함한 실행 순서는 [Swagger UI 안내](../docs/backend/swagger-ui.md)에 있습니다.
+
 ## 테스트 및 빌드
 
 ```sh

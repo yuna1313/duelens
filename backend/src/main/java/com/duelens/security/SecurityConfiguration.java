@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -78,18 +79,22 @@ public class SecurityConfiguration {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, SecurityResponses responses,
             CsrfTokenRepository csrf, SecurityContextRepository contexts,
-            @Value("${duelens.security.write-origins:}") String origins) throws Exception {
+            @Value("${duelens.security.write-origins:}") String origins,
+            @Value("${duelens.api-docs.enabled:false}") boolean apiDocs) throws Exception {
         http.formLogin(AbstractHttpConfigurer::disable).httpBasic(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .requestCache(cache -> cache.requestCache(new NullRequestCache()))
                 .securityContext(context -> context.securityContextRepository(contexts))
                 .csrf(config -> config.csrfTokenRepository(csrf))
                 .addFilterBefore(new WriteOriginFilter(origins, responses), CsrfFilter.class)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/health", "/api/v1/session", "/api/v1/workspace/start").permitAll()
+                .authorizeHttpRequests(auth -> {
+                    if (apiDocs) auth.requestMatchers(HttpMethod.GET, "/swagger-ui.html", "/swagger-ui/**",
+                            "/v3/api-docs/swagger-config", "/api/docs/openapi.json").permitAll();
+                    auth.requestMatchers("/api/health", "/api/v1/session", "/api/v1/workspace/start").permitAll()
                         .requestMatchers("/api/v1/workspace", "/api/v1/terms").authenticated()
                         .requestMatchers("/api/v1/courses", "/api/v1/courses/*").authenticated()
-                        .anyRequest().denyAll())
+                        .anyRequest().denyAll();
+                })
                 .exceptionHandling(errors -> errors
                         .authenticationEntryPoint((request, response, error) -> responses.failure(response, "USER_REQUIRED", "사용자 작업 공간을 먼저 시작해 주세요."))
                         .accessDeniedHandler((request, response, error) -> responses.failure(response,
