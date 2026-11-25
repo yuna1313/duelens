@@ -8,8 +8,8 @@ import './WeekSchedule.css'
 
 const weekdays = ['월', '화', '수', '목', '금', '토', '일']
 
-function WeekPicker({ date, today, referenceDate, onSelect, onClose }: {
-  date: string; today: string; referenceDate: string; onSelect: (date: string) => void; onClose: () => void
+function WeekPicker({ date, today, onSelect, onClose }: {
+  date: string; today: string; onSelect: (date: string) => void; onClose: () => void
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   const prefix = useId()
@@ -43,13 +43,13 @@ function WeekPicker({ date, today, referenceDate, onSelect, onClose }: {
           onClick={() => onSelect(day)}
         >{Number(day.slice(-2))}</button> : <span key={day} />)}
       </div>
-      <footer><button type="button" className="button secondary" onClick={onClose}>취소</button><button type="button" className="button primary" onClick={() => onSelect(referenceDate)}>{referenceDate === today ? '이번 주로 이동' : '학기 기준 주로 이동'}</button></footer>
+      <footer><button type="button" className="button secondary" onClick={onClose}>취소</button><button type="button" className="button primary" onClick={() => onSelect(today)}>이번 주로 이동</button></footer>
     </dialog>
   )
 }
 
-function WeekDayPreview({ today, date, tasks, referenceDate, onReferenceWeek }: {
-  today: string; date: string; tasks: TaskPreview[]; referenceDate: string; onReferenceWeek: () => void
+function WeekDayPreview({ today, date, tasks, onCurrentWeek }: {
+  today: string; date: string; tasks: TaskPreview[]; onCurrentWeek: () => void
 }) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
   const previewId = useId()
@@ -70,7 +70,7 @@ function WeekDayPreview({ today, date, tasks, referenceDate, onReferenceWeek }: 
           </li>
         })}
       </ol>
-      <button type="button" className="task-week-today" onClick={onReferenceWeek}>{referenceDate === today ? '이번 주로 돌아가기' : '학기 기준 주로 돌아가기'}</button>
+      <button type="button" className="task-week-today" onClick={onCurrentWeek}>이번 주로 돌아가기</button>
       <section className="task-day-preview" id={previewId} aria-labelledby={`${previewId}-heading`}>
         <div className="schedule-preview-heading">
           <h3 id={`${previewId}-heading`} aria-live="polite">{selectedDay ? `${dateLabel(selectedDay)} 미제출` : '이 주 미제출'}<span>{visibleTasks.length}개</span></h3>
@@ -88,8 +88,8 @@ export function WeekSchedule({ today, term, tasks }: { today: string; term: stri
   const [pickerOpen, setPickerOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const contentId = useId()
-  const referenceDate = scheduleReferenceDate(term, today, tasks)
-  const date = anchor ?? referenceDate
+  const initialDate = scheduleReferenceDate(term, today, tasks)
+  const date = anchor ?? initialDate
   const week = currentWeek(date)
   const previous = offsetDate(date, -7)
   const next = offsetDate(date, 7)
@@ -107,10 +107,10 @@ export function WeekSchedule({ today, term, tasks }: { today: string; term: stri
         <span aria-live="polite"><time dateTime={week[0]}>{week[0]}</time> ~ <wbr /><time dateTime={week[6]}>{week[6]}</time></span>
         <button type="button" className="icon-button" aria-label="다음 주" disabled={!isCalendarDate(next)} onClick={() => setAnchor(next)}><Icon name="chevron" size={14} /></button>
       </div>
-      <WeekDayPreview key={week[0]} today={today} date={date} tasks={tasks} referenceDate={referenceDate} onReferenceWeek={() => setAnchor(null)} />
+      <WeekDayPreview key={week[0]} today={today} date={date} tasks={tasks} onCurrentWeek={() => setAnchor(today)} />
       <p className="schedule-scope-note">선택한 학기의 미제출 일정입니다. 목록의 기간·검색·필터와 별도로 확인할 수 있어요.</p>
       </div>
-      {pickerOpen && <WeekPicker date={date} today={today} referenceDate={referenceDate} onClose={() => setPickerOpen(false)} onSelect={day => { setAnchor(day); setPickerOpen(false) }} />}
+      {pickerOpen && <WeekPicker date={date} today={today} onClose={() => setPickerOpen(false)} onSelect={day => { setAnchor(day); setPickerOpen(false) }} />}
     </section>
   )
 }
