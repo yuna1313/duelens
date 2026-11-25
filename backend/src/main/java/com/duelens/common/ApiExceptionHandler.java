@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.dao.ConcurrencyFailureException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -14,6 +15,11 @@ public class ApiExceptionHandler {
     ApiResponse<Void> domain(ApiException error, HttpServletResponse response) {
         if ("RATE_LIMITED".equals(error.code())) response.setHeader("Retry-After", "60");
         return ApiResponse.failure(error.code(), error.getMessage());
+    }
+
+    @ExceptionHandler(ConcurrencyFailureException.class)
+    ApiResponse<Void> concurrentChange() {
+        return ApiResponse.failure("REVISION_CONFLICT", "동시에 변경된 내용이 있습니다. 최신 내용을 확인해 주세요.");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

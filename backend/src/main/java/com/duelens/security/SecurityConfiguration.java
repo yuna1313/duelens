@@ -88,6 +88,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/health", "/api/v1/session", "/api/v1/workspace/start").permitAll()
                         .requestMatchers("/api/v1/workspace", "/api/v1/terms").authenticated()
+                        .requestMatchers("/api/v1/courses", "/api/v1/courses/*").authenticated()
                         .anyRequest().denyAll())
                 .exceptionHandling(errors -> errors
                         .authenticationEntryPoint((request, response, error) -> responses.failure(response, "USER_REQUIRED", "사용자 작업 공간을 먼저 시작해 주세요."))

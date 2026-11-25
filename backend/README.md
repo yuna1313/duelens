@@ -65,7 +65,7 @@ npm run build:backend
 
 실행 가능한 JAR은 `backend/build/libs/`에 생성됩니다.
 통합 테스트는 임의 포트에서 서버를 시작하고 `/api/health`의 실제 HTTP 응답을 확인합니다.
-실제 PostgreSQL의 별도 `duelens_test` DB에서 마이그레이션·FK/NOT NULL·과목 중복·삭제 후 보존·과제/이력 롤백·실행 계정 권한을 검증합니다. 먼저 `npm run db:start`를 실행해 주세요. 테스트 데이터는 트랜잭션 종료 시 롤백합니다. H2로 대체하거나 DB 테스트를 자동 생략하지 않습니다.
+실제 PostgreSQL의 별도 `duelens_test` DB에서 마이그레이션·FK/NOT NULL·과목 중복·삭제 후 보존·과제/이력 롤백·실행 계정 권한을 검증합니다. 먼저 `npm run db:start`를 실행해 주세요. 일반 테스트 데이터는 트랜잭션 종료 시 롤백하며 HTTP·동시 실행 테스트의 커밋된 데이터는 해당 테스트의 소유자 범위만 정리합니다. 이력 삭제가 필요한 실패 검증은 테스트 DB를 확인한 마이그레이션 계정으로 정리하고 실행 계정 권한은 유지합니다. H2로 대체하거나 DB 테스트를 자동 생략하지 않습니다.
 
 ## 설정
 
@@ -89,7 +89,7 @@ DB는 루프백에만 바인딩하고 SCRAM 인증을 사용합니다. 앱 실�
 
 ## API·DB 설계
 
-PostgreSQL 연결과 초기 스키마를 구현했습니다. 가입 없는 게스트 세션·CSRF·현재 사용자/학기 소유권 검사도 구현했으며, 과목·과제 업무 API와 학교 로그인·공지 수집·AI 분석은 후속으로 진행합니다.
+PostgreSQL 연결과 초기 스키마를 구현했습니다. 가입 없는 게스트 세션·CSRF·현재 사용자/학기 소유권 검사도 구현했으며, 과목 등록·조회·수정·삭제와 연결 과제 이력 처리를 구현했습니다. 과제·이력·일정 API와 학교 로그인·공지 수집·AI 분석은 후속으로 진행합니다.
 
 - [저장 모델·소유권·트랜잭션 규칙](../docs/backend/data-model.md)
 - [ERD: 테이블·PK/FK·관계 그림과 편집 원본](../docs/backend/erd.md)
@@ -104,6 +104,8 @@ API 목표 계약은 성공·실패·생성·삭제 모두 HTTP 200과 `success`
 
 첫 공간은 `initialTerm` 없이 `{}`로 시작할 수 있으며 선택 학기를 `null`로 응답합니다. 이후 명시적으로 학기를 저장합니다. 과목 생성은 소속 `term`이 필수이고 과제 생성은 등록한 과목의 `courseId`가 필수입니다. DB의 `users.selected_term`은 NULL을 허용하며 사용자 → 과목 → 과제로 소유권을 확인합니다. 모델 정의서의 ‘읽는 방법’에서 요청 모델과 전체 응답·내부 데이터 모델의 차이를 확인할 수 있습니다.
 
-DB 연결·V1~V3 마이그레이션을 로컬 PostgreSQL 18.7에 적용했습니다. `/api/health`와 `/api/v1/session`, `/api/v1/workspace/start`, `/api/v1/workspace`, `/api/v1/terms`의 실제 API·공통 응답을 구현했습니다. 사용자 세션은 JDBC로 유지하고 시작 시 세션 ID·CSRF 토큰을 갱신합니다. 바로 다음 단계는 과목 API·소유권·변경 충돌 검사입니다. 프론트 저장은 아직 목 데이터 흐름이며 실제 API 연결은 후속 범위입니다. 목 데이터·기존 로컬 과목은 서버로 자동 가져오지 않습니다. [DB 구성 검증](../docs/backend/postgresql-setup.md)·[의존성 점검](../docs/backend/dependency-security-20261125.md)을 참고해 주세요.
+DB 연결·V1~V3 마이그레이션을 로컬 PostgreSQL 18.7에 적용했습니다. `/api/health`와 `/api/v1/session`, `/api/v1/workspace/start`, `/api/v1/workspace`, `/api/v1/terms`의 실제 API·공통 응답을 구현했습니다. 사용자 세션은 JDBC로 유지하고 시작 시 세션 ID·CSRF 토큰을 갱신합니다. 과목 API의 소유권·변경 충돌·생성 재시도·삭제 보존도 구현했습니다. 바로 다음 단계는 과제·변경 이력·주간 일정 API입니다. 프론트 저장은 아직 목 데이터 흐름이며 실제 API 연결은 후속 범위입니다. 목 데이터·기존 로컬 과목은 서버로 자동 가져오지 않습니다. [DB 구성 검증](../docs/backend/postgresql-setup.md)·[의존성 점검](../docs/backend/dependency-security-20261125.md)을 참고해 주세요.
 
 세션 호출 순서·쿠키·출처 설정과 25개 백엔드 검증은 [사용자 세션 구현 기록](../docs/backend/user-session.md)에 있습니다. 기존 로컬 설정에 공개 개발 옵션이 없으면 `npm run db:start`가 접속 정보는 유지하며 누락된 옵션만 보완합니다.
+
+과목 API 구현·동시성·기록 보존 및 전체 43개 테스트 결과는 [과목 API 구현 기록](../docs/backend/course-api.md)에 있습니다.
