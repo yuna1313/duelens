@@ -68,3 +68,18 @@ erDiagram
     courses ||..o{ tasks : "FK-02"
     tasks ||..o{ task_history : "FK-03"
     users ||..o{ idempotency_requests : "FK-04"
+    spring_session {
+        char(36) primary_id PK "NOT NULL"
+        char(36) session_id "NOT NULL"
+        bigint creation_time "NOT NULL"
+        bigint last_access_time "NOT NULL"
+        int max_inactive_interval "NOT NULL"
+        bigint expiry_time "NOT NULL"
+        varchar(100) principal_name "NULL"
+    }
+    spring_session_attributes {
+        char(36) session_primary_id PK,FK "NOT NULL"
+        varchar(200) attribute_name PK "NOT NULL"
+        bytea attribute_bytes "NOT NULL"
+    }
+    spring_session ||--o{ spring_session_attributes : "session attributes"

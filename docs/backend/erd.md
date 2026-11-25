@@ -1,8 +1,10 @@
 # DueLens ERD
 
-v0.3 · 2026-11-25. **사용자 → 과목 → 과제** 관계의 PostgreSQL 물리 설계입니다. 5개 테이블·54개 컬럼·4개 FK를 정의했으며 동일한 업무 DDL을 로컬 PostgreSQL 18.7에 Flyway V1으로 적용했습니다. 그림은 v0.3 작성 당시의 설계 원본이고, 현재 적용 상태·권한·검증 결과는 [DB 구성 기록](postgresql-setup.md)에 있습니다.
+v0.4 · 2026-11-25. **사용자 → 과목 → 과제** 관계의 PostgreSQL 물리 설계입니다. 업무 5개 테이블·54개 컬럼·4개 FK에 서버 세션 2개 테이블·10개 컬럼·1개 FK를 추가했습니다. 전체 7개 테이블·64개 컬럼·5개 FK이며 로컬 PostgreSQL 18.7에 V1/V3로 적용했습니다. 편집 원본은 업무 데이터·서버 세션 두 페이지이며, 현재 적용 상태·권한·검증 결과는 [DB 구성 기록](postgresql-setup.md)에 있습니다.
 
-![DueLens 물리 ERD](erd.svg)
+![DueLens 업무 ERD](erd.svg)
+
+![DueLens 서버 세션 ERD](session-erd.svg)
 
 - [크게 보기](erd.svg)
 - [draw.io 편집 원본](erd.drawio)
@@ -55,5 +57,12 @@ iClass는 학교 데이터 접근용 연결이며 DueLens 사용자 테이블을
 - [x] 온라인 ERD 저장·재열기 확인
 - [x] 화면의 과목 등록 필수 흐름 반영
 - [x] PostgreSQL 초기 마이그레이션·DB 실행 권한·롤백 통합 검증
-- [ ] 사용자 세션·CSRF·업무 데이터 소유권 검사
+- [x] 사용자 세션·CSRF·본인 작업 공간/학기 소유권 검사
+- [ ] 과목·과제 API의 자원별 소유권 검사
 - [ ] 정식 로그인·iClass·구독·결제 설계 및 구현
+
+## 서버 세션 물리 관계
+
+Spring Session JDBC 4.2.0의 `spring_session`과 `spring_session_attributes`를 공식 스키마로 관리합니다. 세션 속성의 `(session_primary_id, attribute_name)`이 복합 PK이며 세션 삭제 시 속성은 CASCADE로 삭제합니다. `principal_name`은 인증 주체 문자열이고 users FK를 추가하지 않습니다. 현재 사용자의 유효성·소유권은 API가 users와 세션을 대조합니다.
+
+온라인 링크는 v0.3 업무 ERD 원본입니다. 로컬·참고 폴더의 v0.4 편집 원본에는 서버 세션 페이지를 추가했습니다.

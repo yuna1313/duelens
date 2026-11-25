@@ -32,6 +32,7 @@ class DueLensApplicationTests {
 
             assertThat(response.statusCode()).isEqualTo(200);
             assertThat(response.body()).contains("\"status\":\"UP\"");
+            assertThat(response.body()).contains("\"success\":true", "\"code\":\"SUCCESS\"");
         }
     }
 }

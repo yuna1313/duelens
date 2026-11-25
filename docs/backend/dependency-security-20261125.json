@@ -1,7 +1,7 @@
 {
-  "checkedAt": "2026-11-25T02:20:48.504192+00:00",
+  "checkedAt": "2026-11-25T02:54:39.284880+00:00",
   "source": "https://api.osv.dev/v1/querybatch",
-  "scope": "Gradle runtimeClasspath Maven modules; PostgreSQL server and Homebrew packages excluded",
+  "scope": "Gradle runtimeClasspath Maven modules including Security, Session and validation; PostgreSQL server and Homebrew packages excluded",
   "packages": [
     {
       "name": "ch.qos.logback:logback-classic",
@@ -16,6 +16,11 @@
     {
       "name": "com.fasterxml.jackson.core:jackson-annotations",
       "version": "2.21",
+      "advisoryIds": []
+    },
+    {
+      "name": "com.fasterxml:classmate",
+      "version": "1.8.0",
       "advisoryIds": []
     },
     {
@@ -51,6 +56,11 @@
     {
       "name": "jakarta.annotation:jakarta.annotation-api",
       "version": "3.0.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "jakarta.validation:jakarta.validation-api",
+      "version": "3.1.1",
       "advisoryIds": []
     },
     {
@@ -96,6 +106,16 @@
     {
       "name": "org.hdrhistogram:HdrHistogram",
       "version": "2.2.2",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.hibernate.validator:hibernate-validator",
+      "version": "9.1.6.Final",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.jboss.logging:jboss-logging",
+      "version": "3.6.3.Final",
       "advisoryIds": []
     },
     {
@@ -179,7 +199,22 @@
       "advisoryIds": []
     },
     {
+      "name": "org.springframework.boot:spring-boot-security",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
       "name": "org.springframework.boot:spring-boot-servlet",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-session",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-session-jdbc",
       "version": "4.2.0",
       "advisoryIds": []
     },
@@ -224,12 +259,27 @@
       "advisoryIds": []
     },
     {
+      "name": "org.springframework.boot:spring-boot-starter-security",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter-session-jdbc",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
       "name": "org.springframework.boot:spring-boot-starter-tomcat",
       "version": "4.2.0",
       "advisoryIds": []
     },
     {
       "name": "org.springframework.boot:spring-boot-starter-tomcat-runtime",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.boot:spring-boot-starter-validation",
       "version": "4.2.0",
       "advisoryIds": []
     },
@@ -249,12 +299,47 @@
       "advisoryIds": []
     },
     {
+      "name": "org.springframework.boot:spring-boot-validation",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
       "name": "org.springframework.boot:spring-boot-web-server",
       "version": "4.2.0",
       "advisoryIds": []
     },
     {
       "name": "org.springframework.boot:spring-boot-webmvc",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.security:spring-security-config",
+      "version": "7.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.security:spring-security-core",
+      "version": "7.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.security:spring-security-crypto",
+      "version": "7.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.security:spring-security-web",
+      "version": "7.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.session:spring-session-core",
+      "version": "4.2.0",
+      "advisoryIds": []
+    },
+    {
+      "name": "org.springframework.session:spring-session-jdbc",
       "version": "4.2.0",
       "advisoryIds": []
     },
