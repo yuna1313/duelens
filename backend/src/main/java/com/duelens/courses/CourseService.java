@@ -7,10 +7,13 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import com.duelens.common.ApiException;
+import com.duelens.common.ApiResponse;
+import com.duelens.common.IdempotencyRequests;
 import com.duelens.workspace.WorkspaceService;
 
 @Service
@@ -27,10 +30,12 @@ public class CourseService {
     };
     private final JdbcTemplate jdbc;
     private final WorkspaceService workspaces;
+    private final IdempotencyRequests requests;
 
-    public CourseService(JdbcTemplate jdbc, WorkspaceService workspaces) {
+    public CourseService(JdbcTemplate jdbc, WorkspaceService workspaces, IdempotencyRequests requests) {
         this.jdbc = jdbc;
         this.workspaces = workspaces;
+        this.requests = requests;
     }
 
     @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
@@ -46,6 +51,29 @@ public class CourseService {
     public Course get(UUID user, UUID id) {
         workspaces.require(user);
         return owned(user, id, false);
+    }
+
+    @Transactional
+    public ApiResponse<Course> create(UUID user, UUID key, CourseInput input) {
+        CourseInput value = input.normalized();
+        lockOwner(user);
+        return requests.execute(user, key, "POST /api/v1/courses", value, Course.class, () -> {
+            UUID id = UUID.randomUUID();
+            try {
+                jdbc.update("INSERT INTO courses (id, user_id, term, name, section, name_key, section_key, meeting_days, start_time, created_at, updated_at) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                        id, user, value.term(), value.name(), value.section(), value.nameKey(), value.sectionKey(), value.dayMask(), value.time());
+            } catch (DuplicateKeyException error) {
+                throw new ApiException("COURSE_DUPLICATE", "같은 학기·이름·분반의 과목이 이미 있습니다.");
+            }
+            return owned(user, id, false);
+        });
+    }
+
+    private void lockOwner(UUID user) {
+        if (jdbc.queryForList("SELECT id FROM users WHERE id = ? AND status IN ('guest', 'active') AND deleted_at IS NULL FOR SHARE", UUID.class, user).isEmpty()) {
+            throw new ApiException("USER_REQUIRED", "사용자 작업 공간을 먼저 시작해 주세요.");
+        }
     }
 
     private Course owned(UUID user, UUID id, boolean lock) {

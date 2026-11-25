@@ -4,6 +4,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.duelens.common.ApiResponse;
@@ -30,5 +33,12 @@ public class CourseController {
     public ApiResponse<Course> detail(@PathVariable String courseId, @RequestParam MultiValueMap<String, String> query, Authentication authentication) {
         RequestParameters.allowOnly(query);
         return ApiResponse.success(courses.get(CurrentUser.requireId(authentication), RequestParameters.uuid(courseId)));
+    }
+
+    @PostMapping("/api/v1/courses")
+    public ApiResponse<Course> create(@RequestBody CourseInput input, @RequestHeader(name = "Idempotency-Key", required = false) String key,
+            @RequestParam MultiValueMap<String, String> query, Authentication authentication) {
+        RequestParameters.allowOnly(query);
+        return courses.create(CurrentUser.requireId(authentication), RequestParameters.uuid(key), input);
     }
 }

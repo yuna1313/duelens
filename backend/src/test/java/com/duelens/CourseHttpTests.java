@@ -115,6 +115,50 @@ class CourseHttpTests {
         code(owner.get("/api/v1/courses/" + id), "USER_REQUIRED");
     }
 
+    @Test
+    void creationNormalizesFieldsAndReplaysTheOriginalResponse() throws Exception {
+        Client owner = started();
+        String key = UUID.randomUUID().toString();
+        String input = "{\"term\":\"2026-2\",\"name\":\"  Cafe\\u0301  \",\"section\":\" ABC \",\"days\":[4,2],\"startTime\":\"00:00\"}";
+        Reply created = owner.write("POST", "/api/v1/courses", input, key);
+        code(created, "SUCCESS");
+        JsonNode data = created.body.path("data");
+        assertThat(data.path("name").asString()).isEqualTo("Café");
+        assertThat(data.path("section").asString()).isEqualTo("ABC");
+        assertThat(data.path("days").get(0).asInt()).isEqualTo(2);
+        assertThat(data.path("startTime").asString()).isEqualTo("00:00");
+        Reply replay = owner.write("POST", "/api/v1/courses", input.replace("[4,2]", "[2,4]"), key);
+        code(replay, "SUCCESS");
+        assertThat(replay.body).isEqualTo(created.body);
+        code(owner.write("POST", "/api/v1/courses", input.replace("Cafe\\u0301", "다른 과목"), key), "IDEMPOTENCY_CONFLICT");
+        code(owner.write("POST", "/api/v1/courses", input.replace("Cafe\\u0301", "CAFÉ").replace(" ABC ", " abc "), UUID.randomUUID().toString()), "COURSE_DUPLICATE");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM courses WHERE user_id = ?", Integer.class, owner.user)).isOne();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM idempotency_requests WHERE user_id = ?", Integer.class, owner.user)).isOne();
+        assertThat(owner.get("/api/v1/terms").body.path("data").path("items").get(0).path("code").asString()).isEqualTo("2026-2");
+    }
+
+    @Test
+    void creationRejectsMissingFieldsInvalidSchedulesAndIdentityInjection() throws Exception {
+        Client owner = started();
+        String valid = "{\"term\":\"2026-2\",\"name\":\"과목\",\"section\":\"001\",\"days\":[],\"startTime\":null}";
+        for (String input : List.of(valid.replace("\"days\":[]", "\"days\":[1,1]"), valid.replace("\"days\":[]", "\"days\":[0]"),
+                valid.replace("\"days\":[]", "\"days\":null"), valid.replace("\"days\":[]", "\"days\":[1]"),
+                valid.replace("\"startTime\":null", "\"startTime\":\"10:00\""), valid.replace("\"name\":\"과목\"", "\"name\":\"  \""),
+                valid.replace("\"name\":\"과목\"", "\"name\":\"" + "😀".repeat(51) + "\""),
+                valid.replace("\"startTime\":null", "\"startTime\":\"24:00\""), valid.replace("2026-2", "2026-3"))) {
+            code(owner.write("POST", "/api/v1/courses", input, UUID.randomUUID().toString()), "VALIDATION_FAILED");
+        }
+        for (String input : List.of(valid.replace(",\"startTime\":null", ""), valid.replace("\"days\":[]", "\"days\":[1.5]"),
+                valid.replace("\"days\":[]", "\"days\":[\"1\"]"), valid.replace("\"section\":\"001\"", "\"section\":1"),
+                valid.replace("{", "{\"userId\":\"" + UUID.randomUUID() + "\","))) {
+            code(owner.write("POST", "/api/v1/courses", input, UUID.randomUUID().toString()), "MALFORMED_REQUEST");
+        }
+        code(owner.write("POST", "/api/v1/courses", valid, null), "MALFORMED_REQUEST");
+        code(owner.write("POST", "/api/v1/courses", valid, "1-1-1-1-1"), "MALFORMED_REQUEST");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM courses WHERE user_id = ?", Integer.class, owner.user)).isZero();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM idempotency_requests WHERE user_id = ?", Integer.class, owner.user)).isZero();
+    }
+
     private UUID seed(UUID user, String term, String name, String section, boolean deleted) {
         UUID id = UUID.randomUUID();
         jdbc.update("INSERT INTO courses (id, user_id, term, name, section, name_key, section_key, deleted_at, created_at, updated_at) "
