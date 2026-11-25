@@ -290,6 +290,7 @@ frontend/
 - [x] PostgreSQL 18.7 로컬 설치·개발/테스트 DB 분리·초기 마이그레이션·권한 검증: [구성 기록](docs/backend/postgresql-setup.md)
 - [x] 사용자 세션·CSRF·게스트 시작과 현재 사용자/학기 소유권 검사: [구현 기록](docs/backend/user-session.md)
 - [x] 과목 API·소유권·중복 재시도·변경 충돌·연결 과제 이력·삭제 보존: [구현·43개 검증](docs/backend/course-api.md)
+- [x] 로컬 Swagger UI·검토 명세 연결·기본 비공개 설정: [접속·호출 방법 및 46개 검증](docs/backend/swagger-ui.md)
 - [ ] **수동 과제·변경 이력·주간 일정 API 구현과 실제 DB 통합 검증 — 바로 다음 단계**
 - [ ] 프론트엔드 API 연결·저장 위치 안내·선택적 로컬 과목 가져오기
 - [ ] 공지·분석 후보·검토 결과·알림의 서버 저장
