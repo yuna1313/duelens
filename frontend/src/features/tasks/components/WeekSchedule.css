@@ -5,8 +5,6 @@
 .task-week li { min-width: 0; }
 .task-week-day { display: flex; flex-direction: column; align-items: center; width: 100%; min-height: 76px; padding: 5px 0; border: 0; border-radius: var(--control-radius); background: none; font-size: var(--font-small); color: var(--secondary); }
 .task-week-day:not(.is-selected):hover b { background: #f1f4f3; }
-.task-week-day:focus-visible { outline: none; }
-.task-week-day:focus-visible b { outline: 2px solid var(--text); outline-offset: 3px; }
 .task-week b { display: grid; place-items: center; width: 32px; height: 36px; margin-top: 7px; border: 1px solid transparent; color: #536172; font-size: var(--font-body); font-weight: 500; border-radius: 7px; }
 .task-week .is-today b { font-weight: 700; }
 .task-week .is-selected b { background: var(--brand); color: white; }

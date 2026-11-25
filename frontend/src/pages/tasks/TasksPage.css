@@ -14,8 +14,6 @@
 .task-filters { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(130px, 190px) 130px; gap: 10px; margin-bottom: 23px; }
 .task-search { height: var(--control-height); display: flex; align-items: center; gap: 9px; border: 1px solid #dfe5e8; border-radius: var(--control-radius); background: white; padding: 0 12px; color: var(--muted); }
 .task-search input { height: 100%; border: 0; background: none; width: 100%; padding: 11px 0; color: var(--text); font-size: var(--font-body); }
-.task-search:focus-within { outline: 3px solid #65b7a7; outline-offset: 2px; }
-.task-search input:focus-visible { outline: 0; }
 .task-search input::placeholder { color: #98a4ae; }
 .task-content-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 25px; align-items: start; }
 .task-list-area { min-width: 0; grid-column: 1; grid-row: 1; }
