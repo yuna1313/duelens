@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { CourseError, emptyDraft, upsertCourse, validateDraft } from '../src/features/courses/model.ts'
 import { currentTerm } from '../src/domain/academicTerm.ts'
-import { readCourses, saveCourse } from '../src/features/courses/storage.ts'
+import { readCourses, saveCourse, writeCourses } from '../src/features/courses/storage.ts'
 import type { CourseDraft } from '../src/features/courses/model.ts'
 
 const id = '3ba0bc31-5406-45d3-b81a-a9f4956123b2'
@@ -66,9 +66,35 @@ test('저장 공간 오류는 성공으로 처리하지 않고 기존 데이터�
   assert.throws(() => readCourses({ getItem: () => { throw new Error('SecurityError') } }), /저장 공간/)
 })
 
-test('기본 학기는 한국 날짜를 기준으로 정한다', () => {
+test('추천 학기는 한국 날짜를 기준으로 정한다', () => {
   assert.equal(currentTerm(new Date('2026-08-31T15:00:00Z')), '2026-2')
   assert.equal(currentTerm(new Date('2026-02-15T00:00:00Z')), '2025-2')
+})
+
+test('첫 사용은 학기를 자동 확정하지 않고 명시적 저장 전까지 미선택을 유지한다', () => {
+  const storage = new MemoryStorage()
+  const initial = readCourses(storage)
+  assert.deepEqual(initial, { version: 1, courses: [], selectedTerm: null })
+  assert.equal(storage.value, null)
+  const firstDraft = emptyDraft(null)
+  assert.equal(firstDraft.semester, '')
+  assert.ok(validateDraft({ ...firstDraft, name: '처음 등록', section: '001' }).semester)
+  assert.throws(() => saveCourse(storage, { ...firstDraft, name: '처음 등록', section: '001' }, id), CourseError)
+  assert.equal(storage.value, null)
+  writeCourses(storage, initial)
+  assert.equal(readCourses(storage).selectedTerm, null)
+  const saved = saveCourse(storage, { ...firstDraft, semester: 'winter', year: '2027', name: '첫 과목', section: '001' }, id)
+  assert.equal(saved.state.selectedTerm, '2027-winter')
+})
+
+test('미선택 null만 허용하고 누락되거나 손상된 선택 학기를 자동 복구하지 않는다', () => {
+  const storage = new MemoryStorage()
+  for (const selectedTerm of [undefined, '', '2026-3']) {
+    const raw = JSON.stringify({ version: 1, courses: [], selectedTerm })
+    storage.value = raw
+    assert.throws(() => readCourses(storage), CourseError)
+    assert.equal(storage.value, raw)
+  }
 })
 
 test('기존 정규학기 저장 형식을 유지하며 계절학기 과목을 함께 복원한다', () => {

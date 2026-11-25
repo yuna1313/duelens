@@ -6,7 +6,7 @@ export type TaskGroup = 'overdue' | 'today' | 'upcoming' | 'unknown' | 'submitte
 
 export interface TaskPreview {
   id: string
-  courseId?: string
+  courseId: string
   term?: string
   title: string
   course: string
@@ -23,7 +23,7 @@ export interface TaskPreview {
 }
 
 export interface TaskDraft {
-  courseId?: string
+  courseId: string
   term?: string
   title: string
   course: string
@@ -68,7 +68,7 @@ export const taskGroups: { id: TaskGroup; label: string }[] = [
 
 export function emptyTaskDraft(term?: string): TaskDraft {
   return {
-    term,
+    term, courseId: '',
     title: '', course: '', section: '001', dueDate: '', dueTime: '', status: 'todo',
     submissionFormat: '', quantity: '', submissionUrl: '', description: '',
   }
@@ -95,6 +95,7 @@ export function safeSubmissionUrl(value: string): string | null {
 
 export function validateTaskDraft(draft: TaskDraft): TaskErrors {
   const errors: TaskErrors = {}
+  if (!draft.courseId?.trim()) errors.courseId = '등록한 과목을 선택해 주세요.'
   if (draft.term !== undefined && !isTerm(draft.term)) errors.term = '학기 정보를 확인해 주세요.'
   if (!draft.course.trim() || draft.course.trim().length > 100) errors.course = '과목명은 1~100자로 입력해 주세요.'
   if (!draft.section.trim() || draft.section.trim().length > 30) errors.section = '분반은 1~30자로 입력해 주세요.'
@@ -115,7 +116,7 @@ export function upsertTask(tasks: TaskPreview[], draft: TaskDraft, id: string): 
   if (Object.keys(errors).length) throw new TaskError('입력 내용을 확인해 주세요.', errors)
   const existing = tasks.find(task => task.id === id)
   const task: TaskPreview = {
-    id, courseId: draft.courseId || undefined, term: draft.term, title: draft.title.trim(), course: draft.course.trim(), section: draft.section.trim(),
+    id, courseId: draft.courseId, term: draft.term, title: draft.title.trim(), course: draft.course.trim(), section: draft.section.trim(),
     dueDate: draft.dueDate || null, dueTime: draft.dueTime || null, status: draft.status,
     submissionFormat: draft.submissionFormat.trim(), quantity: draft.quantity.trim(),
     submissionUrl: draft.submissionUrl.trim() ? safeSubmissionUrl(draft.submissionUrl)! : '',

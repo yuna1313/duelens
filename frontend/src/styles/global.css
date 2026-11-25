@@ -8,10 +8,20 @@
   --muted: #7c8795;
   --border: #e8ecf0;
   --error: #a53838;
+  --font-small: .875rem;
+  --font-body: 1rem;
+  --font-lead: 1.125rem;
+  --font-section: 1.25rem;
+  --font-heading: 1.5rem;
+  --font-title: 1.75rem;
+  --font-page: 2rem;
+  --font-stat: 2.25rem;
+  --control-height: 48px;
+  --control-radius: 8px;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--text);
   background: #f7f8fa;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -40,5 +50,16 @@ textarea {
 button { cursor: pointer; }
 a { color: inherit; }
 button:disabled { cursor: not-allowed; opacity: .5; }
-:focus-visible { outline: 3px solid #65b7a7; outline-offset: 3px; }
+:focus, :focus-visible { outline: none; }
 input, select { min-width: 0; }
+
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"])) {
+  height: var(--control-height);
+  line-height: 1.5;
+}
+
+.page, .start-page, dialog {
+  --muted: #637184;
+  font-size: var(--font-body);
+  line-height: 1.6;
+}

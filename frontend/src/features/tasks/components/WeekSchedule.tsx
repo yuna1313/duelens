@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { currentWeek, dateLabel, isCalendarDate, offsetDate } from '@/utils/date'
-import { adjacentMonth, monthCalendar, scheduleTasks } from '../weekCalendar'
+import { adjacentMonth, monthCalendar, scheduleReferenceDate, scheduleTasks } from '../weekCalendar'
+import { termLabel } from '@/domain/academicTerm'
 import type { TaskPreview } from '../model'
 import './WeekSchedule.css'
 
@@ -82,12 +83,13 @@ function WeekDayPreview({ today, date, tasks, onCurrentWeek }: {
   </>
 }
 
-export function WeekSchedule({ today, tasks }: { today: string; tasks: TaskPreview[] }) {
+export function WeekSchedule({ today, term, tasks }: { today: string; term: string; tasks: TaskPreview[] }) {
   const [anchor, setAnchor] = useState<string | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const contentId = useId()
-  const date = anchor ?? today
+  const initialDate = scheduleReferenceDate(term, today, tasks)
+  const date = anchor ?? initialDate
   const week = currentWeek(date)
   const previous = offsetDate(date, -7)
   const next = offsetDate(date, 7)
@@ -99,12 +101,13 @@ export function WeekSchedule({ today, tasks }: { today: string; tasks: TaskPrevi
         <button type="button" className="icon-button schedule-picker-trigger" aria-label="달력에서 주 선택" aria-haspopup="dialog" aria-expanded={pickerOpen} title="달력에서 주 선택" onClick={() => setPickerOpen(true)}><Icon name="calendar" size={17} /></button>
       </header>
       <div id={contentId} className="schedule-content">
+      <p className="schedule-term">{termLabel(term)}</p>
       <div className="task-week-navigation">
         <button type="button" className="icon-button week-previous" aria-label="이전 주" disabled={!isCalendarDate(previous)} onClick={() => setAnchor(previous)}><Icon name="chevron" size={14} /></button>
-        <span aria-live="polite">{week[0]} ~ {week[6]}</span>
+        <span aria-live="polite"><time dateTime={week[0]}>{week[0]}</time> ~ <wbr /><time dateTime={week[6]}>{week[6]}</time></span>
         <button type="button" className="icon-button" aria-label="다음 주" disabled={!isCalendarDate(next)} onClick={() => setAnchor(next)}><Icon name="chevron" size={14} /></button>
       </div>
-      <WeekDayPreview key={week[0]} today={today} date={date} tasks={tasks} onCurrentWeek={() => setAnchor(null)} />
+      <WeekDayPreview key={week[0]} today={today} date={date} tasks={tasks} onCurrentWeek={() => setAnchor(today)} />
       <p className="schedule-scope-note">선택한 학기의 미제출 일정입니다. 목록의 기간·검색·필터와 별도로 확인할 수 있어요.</p>
       </div>
       {pickerOpen && <WeekPicker date={date} today={today} onClose={() => setPickerOpen(false)} onSelect={day => { setAnchor(day); setPickerOpen(false) }} />}

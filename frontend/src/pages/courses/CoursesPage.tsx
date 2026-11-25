@@ -1,16 +1,17 @@
+import { Select } from '@/components/ui/Select'
 import { useEffect, useId, useRef, useState } from 'react'
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
 import { CourseForm } from '@/features/courses/components/CourseForm'
 import { scheduleLabel } from '@/features/courses/model'
-import { currentTerm, termLabel, termOptions } from '@/domain/academicTerm'
+import { termLabel, termOptions } from '@/domain/academicTerm'
 import type { useCourses } from '@/features/courses/hooks/useCourses'
 import type { Course, CourseDraft } from '@/features/courses/model'
 import type { SaveResult } from '@/features/courses/hooks/useCourses'
 import './CoursesPage.css'
 
 interface CourseDialogProps {
-  term: string
+  term: string | null
   onClose: () => void
   onSave: (draft: CourseDraft, id?: string, revision?: number) => SaveResult
   onSaved: (course: Course) => void
@@ -22,9 +23,9 @@ function CourseDialog({ term, onClose, onSave, onSaved }: CourseDialogProps) {
   useEffect(() => {
     const dialog = dialogRef.current
     dialog?.showModal()
-    dialog?.querySelector<HTMLInputElement>('input[name="name"]')?.focus()
+    dialog?.querySelector<HTMLElement>(term ? 'input[name="name"]' : 'select[name="semester"]')?.focus()
     return () => dialog?.close()
-  }, [])
+  }, [term])
   return (
     <dialog
       className="course-dialog" ref={dialogRef} aria-labelledby={titleId}
@@ -34,7 +35,7 @@ function CourseDialog({ term, onClose, onSave, onSaved }: CourseDialogProps) {
         <div>
           <span className="eyebrow">NEW COURSE</span>
           <h2 id={titleId}>새 과목 등록</h2>
-          <p>과목을 등록하고 이번 학기를 정리해 보세요.</p>
+          <p>{term ? '과목을 등록하고 이번 학기를 정리해 보세요.' : '연도와 학기를 선택해 첫 과목을 등록해 주세요.'}</p>
         </div>
         <button className="icon-button" type="button" onClick={onClose} aria-label="등록 창 닫기">
           <Icon name="close" size={21} />
@@ -47,14 +48,21 @@ function CourseDialog({ term, onClose, onSave, onSaved }: CourseDialogProps) {
   )
 }
 
-export function CoursesPage({ controller }: { controller: ReturnType<typeof useCourses> }) {
+interface Props {
+  controller: ReturnType<typeof useCourses>
+  adding?: boolean
+  creatingTask?: boolean
+  exampleCourses: Course[]
+}
+
+export function CoursesPage({ controller, adding: initiallyAdding = false, creatingTask = false, exampleCourses }: Props) {
   const { data, error, save, selectTerm, reload } = controller
-  const [adding, setAdding] = useState(false)
+  const [adding, setAdding] = useState(initiallyAdding)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editorVersion, setEditorVersion] = useState(0)
   const [notice, setNotice] = useState('')
   const editorRef = useRef<HTMLElement>(null)
-  const term = data?.selectedTerm ?? currentTerm()
+  const term = data?.selectedTerm ?? null
   const courses = data?.courses ?? []
   const visible = courses
     .filter(course => course.term === term)
@@ -66,6 +74,7 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
   }, [editingId])
 
   function saved(course: Course, isNew: boolean) {
+    if (isNew && creatingTask) { window.location.hash = '/tasks/new'; return }
     setAdding(false)
     setEditingId(course.id)
     setNotice(isNew ? '과목을 등록했어요. 이 기기에 저장했습니다.' : '변경 사항을 이 기기에 저장했습니다.')
@@ -89,14 +98,15 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
       {notice && <div className="save-notice" role="status"><Icon name="check" size={16} />{notice}</div>}
       <div className="course-filter">
         <label className="sr-only" htmlFor="term-filter">학기 선택</label>
-        <select
-          id="term-filter" value={term} disabled={!data}
+        <Select
+          id="term-filter" value={term ?? ''} disabled={!data}
           onChange={event => { selectTerm(event.target.value); setEditingId(null); setNotice('') }}
         >
+          <option value="" disabled>학기를 선택해 주세요</option>
           {termOptions(term, courses.map(course => course.term)).map(option => (
             <option key={option} value={option}>{termLabel(option)}</option>
           ))}
-        </select>
+        </Select>
         <span>{visible.length}개 과목</span>
         <span className="storage-caption"><Icon name="shield" size={14} />이 기기에 저장</span>
       </div>
@@ -145,8 +155,8 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
         ) : (
           <div className="courses-empty">
             <span className="empty-symbol"><Icon name="book" size={28} /></span>
-            <h2>{courses.length ? '이 학기에는 등록된 과목이 없어요.' : '이번 학기, 첫 과목을 등록해 보세요.'}</h2>
-            <p>{courses.length ? '다른 학기를 선택하거나 새 과목을 추가해 주세요.' : '학교 연결 없이 과목과 수업 시간을 직접 관리할 수 있어요.'}</p>
+            <h2>{term === null ? '첫 과목과 사용할 학기를 함께 정해 주세요.' : courses.length ? '이 학기에는 등록된 과목이 없어요.' : '이번 학기, 첫 과목을 등록해 보세요.'}</h2>
+            <p>{term === null ? '위에서 학기만 먼저 선택하거나, 과목 등록에서 연도와 학기를 함께 선택할 수 있어요.' : courses.length ? '다른 학기를 선택하거나 새 과목을 추가해 주세요.' : '학교 연결 없이 과목과 수업 시간을 직접 관리할 수 있어요.'}</p>
             <button type="button" className="button secondary" disabled={!data} onClick={() => setAdding(true)}>
               <Icon name="plus" size={16} />첫 과목 등록
             </button>
@@ -181,6 +191,11 @@ export function CoursesPage({ controller }: { controller: ReturnType<typeof useC
         <Icon name="shield" size={15} />
         <span>과목 정보는 현재 브라우저에 저장됩니다. 브라우저 데이터를 지우면 기록도 삭제됩니다.</span>
       </p>
+      {import.meta.env.DEV && exampleCourses.length > 0 && <section className="panel course-examples" aria-label="과제 미리보기용 예시 과목">
+        <h2>과제 미리보기용 예시 과목</h2>
+        <p>예시 과제는 아래 예시 과목에 연결되어 있습니다. 직접 등록한 과목·백업에는 포함되지 않습니다.</p>
+        <ul>{exampleCourses.map(course => <li key={course.id}><strong>{course.name} · {course.section}분반</strong><span>{termLabel(course.term)} · 예시</span></li>)}</ul>
+      </section>}
       {adding && (
         <CourseDialog term={term} onSave={save} onClose={() => setAdding(false)} onSaved={course => saved(course, true)} />
       )}

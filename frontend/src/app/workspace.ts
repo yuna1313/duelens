@@ -20,13 +20,13 @@ export interface WorkspaceState {
 }
 
 export function historyValues(task: TaskPreview): HistoryValues {
-  return { term: task.term ? termLabel(task.term) : undefined, title: task.title, course: `${task.course} · ${task.section}분반`, courseLink: task.courseId ? '등록한 과목 연결' : '직접 입력 또는 예시',
+  return { term: task.term ? termLabel(task.term) : undefined, title: task.title, course: `${task.course} · ${task.section}분반`, courseLink: task.source === 'example' ? '예시 과목 연결' : '등록한 과목 연결',
     dueDate: task.dueDate, dueTime: task.dueTime, submissionFormat: task.submissionFormat, quantity: task.quantity,
     progress: statusLabels[task.status], description: task.description, submissionUrl: task.submissionUrl }
 }
 
 export const reviewTasks = (tasks: TaskPreview[]): ReviewTask[] => tasks.map(task => ({
-  id: task.id, term: task.term, title: task.title, course: task.course, section: task.section,
+  id: task.id, source: task.source, term: task.term, title: task.title, course: task.course, section: task.section,
   values: { dueDate: task.dueDate, dueTime: task.dueTime, submissionFormat: task.submissionFormat, quantity: task.quantity },
 }))
 
@@ -37,12 +37,14 @@ function recordChange(state: WorkspaceState, task: TaskPreview, before: TaskPrev
     note: kind === 'notice-applied' ? '직접 확인한 공지 검토 결과를 반영했습니다.' : before ? '과제 내용 또는 진행 상태를 직접 수정했습니다.' : '과제를 등록했습니다.' }
 }
 
-export function saveWorkspaceTask(state: WorkspaceState, draft: TaskDraft, id: string, now: string, courses: Course[] = []): { state: WorkspaceState; result: TaskPreview } {
+export function saveWorkspaceTask(state: WorkspaceState, draft: TaskDraft, id: string, now: string, courses: Course[]): { state: WorkspaceState; result: TaskPreview } {
   const before = state.tasks.find(task => task.id === id)
   const linked = draft.courseId ? courses.find(course => course.id === draft.courseId) : undefined
-  const preservedLink = before?.courseId === draft.courseId && before?.course === draft.course && before?.section === draft.section
-  if (draft.courseId && !linked && !preservedLink) throw new TaskError('연결한 과목을 찾을 수 없습니다. 과목을 다시 선택하거나 직접 입력으로 변경해 주세요.', { courseId: '과목 연결을 확인해 주세요.' })
-  const input = linked ? { ...draft, term: linked.term, course: linked.name, section: linked.section } : draft
+  const preservedLink = Boolean(before?.courseId && before.courseId === draft.courseId)
+  if (!linked && !preservedLink) throw new TaskError('등록한 과목을 선택해 주세요. 과목이 없다면 먼저 등록해 주세요.', { courseId: '등록한 과목을 선택해 주세요.' })
+  // 목록에서 사라진 기존 과목은 연결과 당시 정보를 보존할 수 있지만 새로 연결할 수는 없습니다.
+  const input = linked ? { ...draft, term: linked.term, course: linked.name, section: linked.section }
+    : { ...draft, term: before!.term, course: before!.course, section: before!.section }
   const saved = upsertTask(state.tasks, input, id)
   if (before && (Object.keys(saved.task) as (keyof TaskPreview)[]).every(key => before[key] === saved.task[key])) return { state, result: before }
   const record = recordChange(state, saved.task, before, before ? 'manual-edit' : 'created', now)
@@ -54,18 +56,21 @@ export const resolveTaskCourses = (tasks: TaskPreview[], courses: Course[]): Tas
   return linked ? { ...task, term: linked.term, course: linked.name, section: linked.section } : task
 })
 
-export function applyWorkspaceReview(state: WorkspaceState, candidateId: string, draft: ReviewDraft, newTaskId: string, now: string): { state: WorkspaceState; result: ReviewResult } {
+export function applyWorkspaceReview(state: WorkspaceState, candidateId: string, draft: ReviewDraft, newTaskId: string, now: string, courses: Course[]): { state: WorkspaceState; result: ReviewResult } {
   // A completed candidate is immutable within this session, including duplicate submits.
   if (Object.hasOwn(state.results, candidateId)) return { state, result: state.results[candidateId] }
   const candidate = state.candidates.find(item => item.id === candidateId)
   const notice = state.notices.find(item => item.id === candidate?.noticeId)
   if (!candidate || !notice) throw new ReviewError({ target: '공지와 검토 대상을 다시 확인해 주세요.' })
-  const result = applyReview(candidate, reviewTasks(state.tasks), draft)
-  const before = state.tasks.find(task => task.id === result.targetId)
+  const tasks = resolveTaskCourses(state.tasks, courses).filter(task => task.source === notice.source)
+  const result = applyReview(candidate, reviewTasks(tasks), draft)
+  const before = tasks.find(task => task.id === result.targetId)
+  const course = courses.find(course => course.term === result.term && course.name === result.course && course.section === result.section)
+  if (!before && !course) throw new ReviewError({ target: '같은 학기·과목·분반을 먼저 등록한 뒤 새 과제를 만들어 주세요.' })
   const id = before?.id ?? newTaskId
   if (!before && state.tasks.some(task => task.id === id)) throw new ReviewError({ target: '새 과제 ID가 중복되었습니다. 다시 시도해 주세요.' })
   const input: TaskDraft = before ? taskDraft(before) : {
-    term: result.term, title: result.title, course: result.course, section: result.section, status: 'todo',
+    courseId: course!.id, term: course!.term, title: result.title, course: course!.name, section: course!.section, status: 'todo',
     dueDate: '', dueTime: '', submissionFormat: '', quantity: '', submissionUrl: '', description: '',
   }
   const saved = upsertTask(state.tasks, { ...input, ...result.values, dueDate: result.values.dueDate ?? '', dueTime: result.values.dueTime ?? '' }, id)
@@ -102,7 +107,7 @@ export function createWorkspaceStore(initial: WorkspaceState) {
     getSnapshot: () => state,
     subscribe: (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener) } },
     saveTask: (draft: TaskDraft, id: string, now: string, courses: Course[]) => update(current => saveWorkspaceTask(current, draft, id, now, courses)),
-    applyReview: (id: string, draft: ReviewDraft, newId: string, now: string) => update(current => applyWorkspaceReview(current, id, draft, newId, now)),
+    applyReview: (id: string, draft: ReviewDraft, newId: string, now: string, courses: Course[]) => update(current => applyWorkspaceReview(current, id, draft, newId, now, courses)),
     addNotice: (draft: NoticeDraft, id: string, now: Date) => update(current => {
       const notice = { ...createManualNotice(draft, id, now), isRead: true }
       return { state: { ...current, notices: [notice, ...current.notices] }, result: notice }

@@ -1,0 +1,29 @@
+.select-control {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.select-control > select {
+  display: block;
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  height: var(--control-height);
+  border: 1px solid #dfe5e8;
+  border-radius: var(--control-radius);
+  padding: 10px 44px 10px 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--font-body);
+  line-height: 1.5;
+}
+
+.select-control > svg {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%) rotate(90deg);
+  pointer-events: none;
+  color: var(--secondary);
+}

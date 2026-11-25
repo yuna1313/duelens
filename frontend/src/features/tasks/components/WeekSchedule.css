@@ -1,57 +1,57 @@
 .task-week-card { padding: 23px; }
 .task-week-card > header { display: flex; align-items: center; justify-content: space-between; color: #96a5ad; }
-.task-week-card > header h2 { font-size: 13px; color: var(--text); margin: 0; }
+.task-week-card > header h2 { font-size: var(--font-body); color: var(--text); margin: 0; }
 .task-week { list-style: none; display: grid; grid-template-columns: repeat(7, 1fr); margin: 24px 0 15px; padding: 0; gap: 3px; }
 .task-week li { min-width: 0; }
-.task-week-day { display: flex; flex-direction: column; align-items: center; width: 100%; min-height: 66px; padding: 5px 0; border: 0; border-radius: 8px; background: none; font-size: 9px; color: #8d9aa2; }
+.task-week-day { display: flex; flex-direction: column; align-items: center; width: 100%; min-height: 76px; padding: 5px 0; border: 0; border-radius: var(--control-radius); background: none; font-size: var(--font-small); color: var(--secondary); }
 .task-week-day:not(.is-selected):hover b { background: #f1f4f3; }
-.task-week-day:focus-visible { outline: none; }
-.task-week-day:focus-visible b { outline: 2px solid var(--text); outline-offset: 3px; }
-.task-week b { display: grid; place-items: center; width: 27px; height: 32px; margin-top: 7px; border: 1px solid transparent; color: #536172; font-size: 11px; font-weight: 500; border-radius: 7px; }
+.task-week b { display: grid; place-items: center; width: 32px; height: 36px; margin-top: 7px; border: 1px solid transparent; color: #536172; font-size: var(--font-body); font-weight: 500; border-radius: 7px; }
 .task-week .is-today b { font-weight: 700; }
 .task-week .is-selected b { background: var(--brand); color: white; }
 .week-marker { display: block; width: 4px; height: 4px; margin-top: 7px; border-radius: 50%; }
 .week-marker.has-deadline { background: #86a799; }
-.schedule-scope-note { border-top: 1px solid var(--border); padding-top: 17px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.9; }
+.schedule-scope-note { border-top: 1px solid var(--border); padding-top: 17px; margin: 0; color: var(--muted); font-size: var(--font-body); line-height: 1.9; word-break: keep-all; overflow-wrap: anywhere; }
 .schedule-disclosure { display: none; }
 .task-week-card .icon-button { width: 30px; height: 30px; color: var(--secondary); }
 .week-previous svg { transform: rotate(180deg); }
 .task-week-navigation { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-top: 13px; }
-.task-week-navigation > span { font-size: 9px; color: var(--secondary); white-space: nowrap; }
+.task-week-navigation > span { min-width: 0; text-align: center; font-size: var(--font-small); color: var(--secondary); }
+.task-week-navigation time { white-space: nowrap; }
+.schedule-term { margin: 10px 0 0; font-size: var(--font-small); color: var(--muted); }
 .task-week-navigation + .task-week { margin-top: 14px; }
-.task-week-today { display: block; border: 0; background: none; color: var(--brand); font-size: 10px; margin: 0 0 15px auto; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+.task-week-today { display: block; border: 0; background: none; color: var(--brand); font-size: var(--font-small); margin: 0 0 15px auto; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
 .task-day-preview { border-top: 1px solid var(--border); padding-top: 16px; margin-bottom: 17px; }
 .schedule-preview-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; }
-.task-day-preview h3 { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; margin: 0; color: var(--secondary); }
-.schedule-preview-heading > button { flex-shrink: 0; margin-left: auto; border: 1px solid var(--border); border-radius: 5px; padding: 4px 6px; font-size: 9px; color: var(--secondary); background: white; }
+.task-day-preview h3 { display: flex; align-items: center; gap: 7px; font-size: var(--font-body); font-weight: 600; margin: 0; color: var(--secondary); }
+.schedule-preview-heading > button { flex-shrink: 0; margin-left: auto; border: 1px solid var(--border); border-radius: var(--control-radius); padding: 4px 6px; font-size: var(--font-small); color: var(--secondary); background: white; }
 .schedule-preview-heading > button[aria-pressed='true'] { color: var(--brand); background: var(--brand-soft); border-color: #b8d7cd; }
-.task-day-preview h3 > span { flex-shrink: 0; font-size: 10px; font-weight: 400; color: var(--muted); }
-.task-day-preview ul { list-style: none; display: grid; gap: 7px; margin: 0; padding: 0; max-height: 230px; overflow-y: auto; }
-.task-day-preview a { display: block; padding: 10px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); text-decoration: none; background: #fafcfb; }
+.task-day-preview h3 > span { flex-shrink: 0; font-size: var(--font-small); font-weight: 400; color: var(--muted); }
+.task-day-preview ul { list-style: none; display: grid; gap: 7px; margin: 0; padding: 0; max-height: 360px; overflow-y: auto; }
+.task-day-preview a { display: block; padding: 10px; border: 1px solid var(--border); border-radius: var(--control-radius); color: var(--text); text-decoration: none; background: #fafcfb; }
 .task-day-preview a:hover { border-color: #b8d7cd; background: var(--brand-soft); }
-.task-day-preview strong { display: block; font-size: 11px; font-weight: 500; line-height: 1.7; overflow-wrap: anywhere; }
-.task-day-preview time { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
-.task-day-preview p { font-size: 10px; color: var(--muted); line-height: 1.9; margin: 0; }
+.task-day-preview strong { display: block; font-size: var(--font-body); font-weight: 500; line-height: 1.7; overflow-wrap: anywhere; }
+.task-day-preview time { display: block; margin-top: 4px; color: var(--muted); font-size: var(--font-small); }
+.task-day-preview p { font-size: var(--font-small); color: var(--muted); line-height: 1.9; margin: 0; }
 .week-picker { width: min(380px, calc(100% - 28px)); max-height: calc(100svh - 32px); overflow-y: auto; padding: 24px; color: var(--text); background: white; border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 20px 80px #163b3530; }
 .week-picker::backdrop { background: #192e2b70; }
 .week-picker > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.week-picker h2 { font-size: 19px; margin: 0; }
-.week-picker > p { font-size: 11px; color: var(--muted); line-height: 1.9; margin: 15px 0 21px; }
+.week-picker h2 { font-size: var(--font-heading); margin: 0; }
+.week-picker > p { font-size: var(--font-body); color: var(--muted); line-height: 1.9; margin: 15px 0 21px; }
 .week-picker-month { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
-.week-picker-month strong { font-size: 14px; }
+.week-picker-month strong { font-size: var(--font-lead); }
 .week-picker-weekdays, .week-picker-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
-.week-picker-weekdays { text-align: center; font-size: 11px; color: var(--muted); margin-bottom: 7px; }
-.week-picker-days button { min-height: 37px; padding: 0; border: 1px solid transparent; border-radius: 7px; font-size: 12px; color: var(--secondary); background: white; }
+.week-picker-weekdays { text-align: center; font-size: var(--font-body); color: var(--muted); margin-bottom: 7px; }
+.week-picker-days button { min-height: 37px; padding: 0; border: 1px solid transparent; border-radius: var(--control-radius); font-size: var(--font-body); color: var(--secondary); background: white; }
 .week-picker-days .outside-month { color: #a5afb6; }
 .week-picker-days .selected-week { background: var(--brand-soft); color: var(--brand); }
 .week-picker-days button[aria-current='date'] { border-color: var(--brand); font-weight: 700; }
 .week-picker-days button:hover { background: var(--brand-soft); border-color: #b8d7cd; }
 .week-picker footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 23px; }
-@media (max-width: 700px) { .week-picker { padding: 21px 18px; }.week-picker footer .button { font-size: 11px; } }
+@media (max-width: 700px) { .week-picker { padding: 21px 18px; }.week-picker footer .button { font-size: var(--font-body); } }
 @media (max-width: 1150px) {
   .task-week-card { padding: 16px 18px; }
   .task-week-card > header h2 { display: none; }
-  .schedule-disclosure { display: flex; flex: 1; align-items: center; justify-content: space-between; gap: 10px; border: 0; padding: 5px 0; color: var(--text); background: none; font-size: 13px; font-weight: 600; text-align: left; }
+  .schedule-disclosure { display: flex; flex: 1; align-items: center; justify-content: space-between; gap: 10px; border: 0; padding: 5px 0; color: var(--text); background: none; font-size: var(--font-body); font-weight: 600; text-align: left; }
   .schedule-disclosure svg { transform: rotate(90deg); }
   .is-expanded .schedule-disclosure svg { transform: rotate(270deg); }
   .is-expanded .schedule-disclosure { margin-right: 10px; }

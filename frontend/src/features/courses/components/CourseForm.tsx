@@ -1,3 +1,4 @@
+import { Select } from '@/components/ui/Select'
 import { useId, useState } from 'react'
 import type { FormEvent } from 'react'
 import { courseDraft, emptyDraft, validateDraft, weekdays } from '../model'
@@ -9,7 +10,7 @@ import { Icon } from '@/components/ui/Icon'
 import './CourseForm.css'
 
 interface Props {
-  term: string
+  term: string | null
   course?: Course
   onSave: (draft: CourseDraft, id?: string, revision?: number) => SaveResult
   onSaved: (course: Course) => void
@@ -58,6 +59,7 @@ export function CourseForm({ term, course, onSave, onSaved, onCancel }: Props) {
 
   return (
     <form className="course-form" onSubmit={submit} noValidate>
+      {!course && term === null && <p className="academic-term-note">연도는 현재 날짜 기준의 추천값입니다. 사용할 학기를 선택하고 과목을 저장하면 선택 학기도 함께 저장됩니다.</p>}
       <div className="form-grid">
         <div className="form-field">
           <label htmlFor={`${prefix}-year`}>연도 <span className="required-mark">*</span></label>
@@ -70,13 +72,14 @@ export function CourseForm({ term, course, onSave, onSaved, onCancel }: Props) {
         </div>
         <div className="form-field">
           <label htmlFor={`${prefix}-semester`}>학기 <span className="required-mark">*</span></label>
-          <select
-            id={`${prefix}-semester`} value={draft.semester} required
+          <Select
+            id={`${prefix}-semester`} name="semester" value={draft.semester} required
             onChange={event => update('semester', event.target.value as Semester)}
             aria-invalid={Boolean(errors.semester)} aria-describedby={describedBy('semester')}
           >
+            <option value="" disabled>학기 선택</option>
             {semesters.map(semester => <option key={semester.value} value={semester.value}>{semester.label}</option>)}
-          </select>
+          </Select>
           {error('semester')}
         </div>
         <div className="form-field">

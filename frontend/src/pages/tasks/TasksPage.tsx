@@ -1,3 +1,4 @@
+import { Select } from '@/components/ui/Select'
 import { useState } from 'react'
 import { WorkspaceLayout } from '@/components/layout/WorkspaceLayout'
 import { Icon } from '@/components/ui/Icon'
@@ -117,26 +118,20 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
             <input id="task-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="과제명이나 과목을 검색하세요" />
           </div>
           <label className="sr-only" htmlFor="task-course-filter">과목 필터</label>
-          <div className="task-filter-select">
-            <select id="task-course-filter" value={selectedCourse} onChange={event => setCourse(event.target.value)}>
+          <Select id="task-course-filter" value={selectedCourse} onChange={event => setCourse(event.target.value)}>
               <option value="all">모든 과목</option>
               {courses.map(name => <option key={name} value={name}>{name}</option>)}
-            </select>
-            <Icon name="chevron" size={14} />
-          </div>
+          </Select>
           <label className="sr-only" htmlFor="task-status-filter">상태 필터</label>
-          <div className="task-filter-select">
-            <select id="task-status-filter" value={status} onChange={event => setStatus(event.target.value as TaskStatus | 'all')}>
+          <Select id="task-status-filter" value={status} onChange={event => setStatus(event.target.value as TaskStatus | 'all')}>
               <option value="all">모든 상태</option>
               {(Object.entries(statusLabels) as [TaskStatus, string][]).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-            </select>
-            <Icon name="chevron" size={14} />
-          </div>
+          </Select>
         </div>
       )}
       <div className="task-content-grid">
         <aside className="task-aside" aria-label="일정 미리보기">
-          <WeekSchedule key={activeTerm} today={today} tasks={source} />
+          <WeekSchedule key={activeTerm} today={today} term={activeTerm} tasks={source} />
           <section className="panel task-study-card">
             <span className="study-check"><Icon name="check" size={20} /></span>
             <h2>작성 완료, 제출도 하셨나요?</h2>
@@ -176,7 +171,6 @@ export function TasksPage({ taskId, mode, today, activeTerm, tasks, history, cou
       {(mode === 'create' || (mode === 'edit' && selected)) && (
         <TaskFormDialog
           key={selected?.id ?? 'new'} task={mode === 'edit' ? selected : undefined}
-          courses={[...new Set(tasks.map(task => task.course))]}
           courseOptions={courseOptions}
           term={activeTerm}
           onCancel={() => { window.location.hash = mode === 'edit' && selected ? `/tasks/${selected.id}` : '/tasks' }}

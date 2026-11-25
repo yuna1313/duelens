@@ -1,8 +1,9 @@
-import { useRef } from 'react'
+import { useContext, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { Icon } from '../ui/Icon'
 import { Brand } from '../ui/Brand'
 import { AcademicTermControl } from '../ui/AcademicTermControl'
+import { AcademicTermContext } from '@/contexts/AcademicTermContext'
 import './WorkspaceLayout.css'
 
 const pages = [
@@ -22,6 +23,7 @@ interface Props {
 
 export function WorkspaceLayout({ children, semester, activePage = 'courses' }: Props) {
   const moreRef = useRef<HTMLDetailsElement>(null)
+  const term = useContext(AcademicTermContext)
   const storageLabel = activePage === 'courses' || activePage === 'settings' ? '이 기기에 저장' : '화면 미리보기'
   const navigationItem = (page: typeof pages[number]) => (
     <a
@@ -58,7 +60,7 @@ export function WorkspaceLayout({ children, semester, activePage = 'courses' }: 
         <header className="mobile-top">
           <Brand /><AcademicTermControl fallback={semester} />
         </header>
-        <main id="main" className="page" tabIndex={-1}>{children}</main>
+        <main id="main" className="page" tabIndex={-1}>{term?.preview && <div className="term-preview-note" role="status"><Icon name="info" size={18} /><div><strong>예시 학기로 화면을 둘러보고 있어요.</strong><p>아직 사용할 학기를 저장하지 않았습니다. 직접 등록할 때 학기를 선택해 주세요.</p></div><a href="#/start" onClick={term.exitPreview}>예시 종료</a></div>}{children}</main>
         <nav className="mobile-navigation" aria-label="모바일 주 메뉴">
           {pages.slice(0, 3).map(navigationItem)}
           <details className="mobile-more" ref={moreRef} onKeyDown={event => {

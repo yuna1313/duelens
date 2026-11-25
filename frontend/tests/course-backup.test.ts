@@ -64,6 +64,18 @@ test('과목 삭제는 대상 키만 지우며 알림 설정과 다른 앱 데�
   const result = deleteStoredCourses(storage, storage.getItem(storageKey))
   assert.equal(storage.getItem(storageKey), null)
   assert.equal(result.data.courses.length, 0)
+  assert.equal(result.data.selectedTerm, null)
   assert.equal(storage.getItem(reminderStorageKey), preferences.raw)
   assert.equal(storage.getItem('unrelated'), 'keep')
+})
+
+test('학기 미선택 백업을 그대로 복원하고 확인한 기존 학기 백업도 보존한다', () => {
+  const storage = new MemoryStorage()
+  const empty = parseCourseBackup(createCourseBackup(storage))
+  assert.equal(empty.data.selectedTerm, null)
+  restoreCourseBackup(storage, empty, null)
+  assert.equal(readCourseSnapshot(storage).data.selectedTerm, null)
+  const selected = parseCourseBackup(backupText())
+  restoreCourseBackup(storage, selected, storage.getItem(storageKey))
+  assert.equal(readCourseSnapshot(storage).data.selectedTerm, '2026-2')
 })

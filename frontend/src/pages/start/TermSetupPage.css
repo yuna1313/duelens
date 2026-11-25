@@ -1,0 +1,14 @@
+.term-setup-panel { max-width: 610px; margin: 36px auto 0; padding: 34px 38px; }
+.term-setup-icon { display: grid; place-items: center; width: 58px; height: 58px; margin-bottom: 22px; border-radius: 16px; color: var(--brand); background: #edf6f2; }
+.term-setup-panel .eyebrow { color: var(--brand); }
+.term-setup-panel h2 { font-size: var(--font-title); letter-spacing: -.8px; margin: 12px 0; }
+.term-setup-panel > p { color: var(--muted); font-size: var(--font-body); line-height: 1.9; }
+.term-setup-panel .academic-term-inputs { margin-top: 28px; }
+.term-setup-panel footer { display: flex; justify-content: flex-end; margin-top: 24px; }
+.term-setup-alternatives { display: grid; gap: 12px; max-width: 610px; margin: 18px auto 0; }
+.term-setup-alternatives a { display: flex; align-items: center; gap: 14px; padding: 19px 22px; background: white; border: 1px solid var(--border); border-radius: 12px; color: var(--secondary); text-decoration: none; }
+.term-setup-alternatives a:hover { border-color: #a8c9bf; }
+.term-setup-alternatives a > span { flex: 1; }
+.term-setup-alternatives strong { display: block; font-size: var(--font-body); font-weight: 600; }
+.term-setup-alternatives small { display: block; color: var(--muted); font-size: var(--font-body); line-height: 1.8; margin-top: 5px; }
+@media (max-width: 700px) { .term-setup-panel { margin-top: 22px; padding: 26px 22px; }.term-setup-panel h2 { font-size: var(--font-title); }.term-setup-panel > p { font-size: var(--font-body); }.term-setup-panel footer .button { width: 100%; }.term-setup-alternatives a { padding: 17px; }.term-setup-alternatives strong { font-size: var(--font-body); }.term-setup-alternatives small { font-size: var(--font-small); } }

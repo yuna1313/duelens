@@ -1,3 +1,4 @@
+import { createPreviewCourses } from '../mocks/courses.ts'
 import { createPreviewTasks } from '../mocks/tasks.ts'
 import { createPreviewNotices } from '../mocks/notices.ts'
 import { createReviewExamples } from '../mocks/reviews.ts'
@@ -10,10 +11,11 @@ import { currentTerm } from '../domain/academicTerm.ts'
 export function createWorkspacePreview(today: string): WorkspaceState {
   const term = currentTerm(new Date(`${today}T12:00:00+09:00`))
   const examples = createReviewExamples(today)
+  const courses = createPreviewCourses(today)
   const tasks = createPreviewTasks(today).map(task => ({ ...task, term }))
   for (const example of examples.tasks) {
     if (!tasks.some(task => task.id === example.id)) tasks.push({
-      id: example.id, term, title: example.title, course: example.course, section: example.section, ...example.values,
+      id: example.id, courseId: courses.find(course => course.name === example.course && course.section === example.section)!.id, term, title: example.title, course: example.course, section: example.section, ...example.values,
       status: 'todo', tone: 'green', source: 'example', description: '연결 대상·직접 수정값 확인을 위한 과제 예시입니다.', submissionUrl: '',
     })
   }
