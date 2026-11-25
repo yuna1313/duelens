@@ -50,4 +50,17 @@ class SecurityHttpTests {
             assertThat(body.size()).isEqualTo(4);
         }
     }
+
+    @Test
+    void documentationAndWebjarPathsAreClosedByDefault() throws Exception {
+        String base = "http://127.0.0.1:" + environment.getRequiredProperty("local.server.port");
+        try (var client = HttpClient.newHttpClient()) {
+            for (String path : java.util.List.of("/swagger-ui.html", "/swagger-ui/index.html", "/swagger-ui/swagger-ui-bundle.js",
+                    "/v3/api-docs/swagger-config", "/api/docs/openapi.json", "/webjars/swagger-ui/index.html")) {
+                var response = client.send(HttpRequest.newBuilder(URI.create(base + path)).GET().build(), HttpResponse.BodyHandlers.ofString());
+                assertThat(response.statusCode()).isEqualTo(200);
+                assertThat(json.readTree(response.body()).path("code").asString()).isEqualTo("USER_REQUIRED");
+            }
+        }
+    }
 }
