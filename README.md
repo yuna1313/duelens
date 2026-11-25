@@ -49,7 +49,7 @@ npm run dev
 
 ## 프론트엔드 개발 범위와 구조
 
-현재 프론트엔드는 **예시 데이터로 화면과 사용자 흐름을 구현한 상태**입니다. PostgreSQL 저장 모델과 [수동 관리 API 계약](docs/backend/api.md)을 설계했으며, 백엔드는 PostgreSQL·사용자 세션·선택 학기 API까지 구현했습니다. 프론트엔드 서버 저장과 iClass 로그인·과목/공지 수집·AI 분석은 아직 연동하지 않았습니다.
+현재 프론트엔드는 **예시 데이터로 화면과 사용자 흐름을 구현한 상태**입니다. PostgreSQL 저장 모델과 [수동 관리 API 계약](docs/backend/api.md)을 설계했으며, 백엔드는 PostgreSQL·사용자 세션·선택 학기·과목 API까지 구현했습니다. 프론트엔드 서버 저장과 iClass 로그인·과목/공지 수집·AI 분석은 아직 연동하지 않았습니다.
 
 ```text
 frontend/
@@ -246,7 +246,7 @@ frontend/
 
 과목 정보는 현재 브라우저의 `localStorage`에 저장됩니다. 브라우저·프로필·접속 주소가 다르면 별도 데이터이며, 브라우저 데이터를 삭제하면 기록도 삭제됩니다.
 손상되었거나 지원하지 않는 형식의 저장 데이터는 자동으로 초기화하거나 덮어쓰지 않습니다.
-현재 백엔드는 PostgreSQL·사용자 세션·선택 학기 API까지 구현했습니다. 과목 API·기기 간 동기화와 마감 표현 해석은 아직 구현하지 않았습니다.
+현재 백엔드는 PostgreSQL·사용자 세션·선택 학기·과목 API까지 구현했습니다. 이 화면의 서버 저장 연결·기기 간 동기화와 마감 표현 해석은 아직 구현하지 않았습니다.
 
 ### 설정·데이터 관리
 
@@ -264,7 +264,7 @@ frontend/
 
 ## 개발 진행 현황
 
-체크된 화면은 예시 데이터로 구현을 완료한 범위이며 실제 연동 완료를 뜻하지 않습니다. 백엔드는 수동 관리의 API·DB 초안과 ERD에 첫 사용의 학기 미선택 흐름을 반영했습니다. 로컬 PostgreSQL·사용자 세션·CSRF·현재 사용자/선택 학기 API를 구현했습니다. 과목·과제 업무 API와 프론트 서버 저장 연결은 다음 단계입니다.
+체크된 화면은 예시 데이터로 구현을 완료한 범위이며 실제 연동 완료를 뜻하지 않습니다. 백엔드는 수동 관리의 API·DB 초안과 ERD에 첫 사용의 학기 미선택 흐름을 반영했습니다. 로컬 PostgreSQL·사용자 세션·CSRF·현재 사용자/선택 학기·과목 API를 구현했습니다. 과목 수정의 연결 과제 버전·이력 갱신도 검증했습니다. 과제·이력·일정 API와 프론트 서버 저장 연결은 다음 단계입니다.
 단계 완료 보고는 완료 작업·검증 결과와 함께 아래 체크박스 목록을 갱신하고 바로 다음 단계를 명시합니다.
 
 - [x] 과목 등록·수정
@@ -289,8 +289,8 @@ frontend/
 - [x] 업무·서버 세션의 전체 컬럼·PK/FK·5개 관계를 포함한 ERD와 모델 정의서 읽는 방법 작성
 - [x] PostgreSQL 18.7 로컬 설치·개발/테스트 DB 분리·초기 마이그레이션·권한 검증: [구성 기록](docs/backend/postgresql-setup.md)
 - [x] 사용자 세션·CSRF·게스트 시작과 현재 사용자/학기 소유권 검사: [구현 기록](docs/backend/user-session.md)
-- [ ] **과목 API·자원별 소유권·변경 충돌 검사 — 바로 다음 단계**
-- [ ] 과목·수동 과제·변경 이력 API 구현과 실제 DB 통합 검증
+- [x] 과목 API·소유권·중복 재시도·변경 충돌·연결 과제 이력·삭제 보존: [구현·43개 검증](docs/backend/course-api.md)
+- [ ] **수동 과제·변경 이력·주간 일정 API 구현과 실제 DB 통합 검증 — 바로 다음 단계**
 - [ ] 프론트엔드 API 연결·저장 위치 안내·선택적 로컬 과목 가져오기
 - [ ] 공지·분석 후보·검토 결과·알림의 서버 저장
 - [ ] 기획서의 추가 기능: 과제 취소·삭제·실행 취소, 수업 기준 마감 후보, 전체 데이터 백업·삭제
@@ -299,7 +299,7 @@ frontend/
 - [ ] 실제 알림 예약·발송 및 마감·제출 상태에 따른 갱신
 - [ ] 통합 검증·출시 준비
 
-설계 문서는 [ERD](docs/backend/erd.md), [업무 모델](docs/backend/data-model.md), [컬럼·제약 참고](docs/backend/database-design.md), [테이블 설계안](docs/backend/schema.sql), [API 명세서](docs/backend/api.md), [모델 정의서](docs/backend/models.md), [오류코드 정의서](docs/backend/error-codes.md), [OpenAPI 계약](docs/backend/openapi.json)에 있습니다. 검토용 엑셀은 저장소 밖 `duelens-reference-20261121/docs/specs/`의 `03_API명세서_v0.9.xlsx`, `05_모델정의서_v0.4.xlsx`, `06_오류코드정의서_v0.4.xlsx`로 보관합니다. DB 설계서는 ERD로 관리하며 중복 DB 설계 엑셀은 보관하지 않습니다. ERD는 같은 폴더의 `04_ERD_v0.4.svg`·`04_ERD_서버세션_v0.4.svg`와 편집용 `04_ERD_v0.4.drawio`로 제공합니다. API 파일은 `API 명세` 한 탭에서 API 하나당 한 행으로 나열하며 기능·메서드·URL·요청 헤더·요청 본문·성공 응답·HTTP를 열로 배치합니다. 헤더가 없으면 빈 셀로 두며, 실패 응답 열은 두지 않습니다. 실패 코드·조건·처리 방법·응답 JSON은 별도 오류코드 정의서에 모읍니다. 응답은 success·code·message·data 네 필드이고, 검증 오류의 구체적인 이유는 message에 담습니다. JSON 내용은 생략하지 않고 고정폭 글꼴·4칸 들여쓰기와 중첩 객체의 짧은 필드 정렬을 사용합니다. 모델 타입·필드와 오류코드의 정의는 각각의 별도 문서에 둡니다. 서버가 처리한 응답은 HTTP 200이며 `success`·`code`로 결과를 판단합니다. 공통 응답은 상태·세션·현재 사용자/학기 API에 적용했으며 나머지 업무 API는 목표 계약입니다. 수정 요청은 엑셀과 API 계약에 함께 반영합니다.
+설계 문서는 [ERD](docs/backend/erd.md), [업무 모델](docs/backend/data-model.md), [컬럼·제약 참고](docs/backend/database-design.md), [테이블 설계안](docs/backend/schema.sql), [API 명세서](docs/backend/api.md), [모델 정의서](docs/backend/models.md), [오류코드 정의서](docs/backend/error-codes.md), [OpenAPI 계약](docs/backend/openapi.json)에 있습니다. 검토용 엑셀은 저장소 밖 `duelens-reference-20261121/docs/specs/`의 `03_API명세서_v0.10.xlsx`, `05_모델정의서_v0.4.xlsx`, `06_오류코드정의서_v0.4.xlsx`로 보관합니다. DB 설계서는 ERD로 관리하며 중복 DB 설계 엑셀은 보관하지 않습니다. ERD는 같은 폴더의 `04_ERD_v0.4.svg`·`04_ERD_서버세션_v0.4.svg`와 편집용 `04_ERD_v0.4.drawio`로 제공합니다. API 파일은 `API 명세` 한 탭에서 API 하나당 한 행으로 나열하며 기능·메서드·URL·요청 헤더·요청 본문·성공 응답·HTTP를 열로 배치합니다. 헤더가 없으면 빈 셀로 두며, 실패 응답 열은 두지 않습니다. 실패 코드·조건·처리 방법·응답 JSON은 별도 오류코드 정의서에 모읍니다. 응답은 success·code·message·data 네 필드이고, 검증 오류의 구체적인 이유는 message에 담습니다. JSON 내용은 생략하지 않고 고정폭 글꼴·4칸 들여쓰기와 필드당 한 줄을 사용하며 중첩 객체·배열에서도 짧은 필드를 한 줄에 합치지 않습니다. 모델 타입·필드와 오류코드의 정의는 각각의 별도 문서에 둡니다. 서버가 처리한 응답은 HTTP 200이며 `success`·`code`로 결과를 판단합니다. 공통 응답은 상태·세션·현재 사용자/학기·과목 API에 적용했으며 과제·이력·일정 API는 목표 계약입니다. 수정 요청은 엑셀과 API 계약에 함께 반영합니다.
 
 ## 검증 및 빌드
 
@@ -364,4 +364,4 @@ npm install -D <개발용-패키지명> --workspace @duelens/frontend
 
 ### 2026-11-25 설계 변경
 
-사용자 정보는 `users`, 과목은 `courses.user_id`, 과제는 필수 `tasks.course_id`로 연결합니다. 과제의 사용자·학기·과목명·분반은 과목에서 확인합니다. [개정 ERD](docs/backend/erd.md)와 [API 명세](docs/backend/api.md)에 반영했습니다. 화면의 과목 필수 등록·로컬 DB·사용자 세션·학기 API까지 완료했으며 과목·과제 API와 프론트 저장 연결은 후속 단계입니다. 기본 기능 무료·추가 기능 유료 방향은 [업무 모델](docs/backend/data-model.md)에 기록했습니다.
+사용자 정보는 `users`, 과목은 `courses.user_id`, 과제는 필수 `tasks.course_id`로 연결합니다. 과제의 사용자·학기·과목명·분반은 과목에서 확인합니다. [개정 ERD](docs/backend/erd.md)와 [API 명세](docs/backend/api.md)에 반영했습니다. 화면의 과목 필수 등록·로컬 DB·사용자 세션·학기·과목 API까지 완료했으며 과제·이력·일정 API와 프론트 저장 연결은 후속 단계입니다. 기본 기능 무료·추가 기능 유료 방향은 [업무 모델](docs/backend/data-model.md)에 기록했습니다.

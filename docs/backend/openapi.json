@@ -2,8 +2,8 @@
     "openapi": "3.1.1",
     "info": {
         "title": "DueLens 수동 관리 API 설계",
-        "version": "0.9.0",
-        "description": "성공·실패 모두 HTTP 200을 사용하는 설계 계약입니다. success, code, message, data로 결과를 구분합니다. 모든 API에 URL·헤더 JSON·본문 JSON·성공/실패 응답 예시가 있습니다. 업무 API와 공통 응답은 아직 구현하지 않았습니다. 기존 health 경로도 공통 응답 전환이 필요합니다."
+        "version": "0.10.0",
+        "description": "성공·실패 모두 HTTP 200을 사용하며 success, code, message, data로 결과를 구분합니다. 상태·세션·현재 사용자/학기·과목 API(API-00~10)는 실제 PostgreSQL·HTTP 통합 검증을 완료했습니다. 과제·이력·일정 API는 설계 단계입니다. 프론트 API 연결·iClass·AI·실제 알림 발송은 아직 미구현입니다."
     },
     "servers": [
         {
@@ -626,7 +626,7 @@
                     "body": null
                 },
                 "x-failure-condition": "term이 유효한 학기 코드가 아닌 경우",
-                "x-implementation": "설계 · 미구현"
+                "x-implementation": "구현 · PostgreSQL·HTTP·소유권·충돌·기록 보존 검증 완료"
             },
             "post": {
                 "operationId": "createCourse",
@@ -747,7 +747,7 @@
                     }
                 },
                 "x-failure-condition": "같은 학기·과목명·분반의 과목이 이미 있는 경우",
-                "x-implementation": "설계 · 미구현"
+                "x-implementation": "구현 · PostgreSQL·HTTP·소유권·충돌·기록 보존 검증 완료"
             }
         },
         "/courses/{courseId}": {
@@ -833,7 +833,7 @@
                     "body": null
                 },
                 "x-failure-condition": "과목이 없거나 다른 소유자의 과목인 경우",
-                "x-implementation": "설계 · 미구현"
+                "x-implementation": "구현 · PostgreSQL·HTTP·소유권·충돌·기록 보존 검증 완료"
             },
             "put": {
                 "operationId": "updateCourse",
@@ -950,7 +950,7 @@
                     }
                 },
                 "x-failure-condition": "현재 과목 버전과 expectedRevision이 다른 경우",
-                "x-implementation": "설계 · 미구현"
+                "x-implementation": "구현 · PostgreSQL·HTTP·소유권·충돌·기록 보존 검증 완료"
             },
             "delete": {
                 "operationId": "deleteCourse",
@@ -1035,7 +1035,7 @@
                     "body": null
                 },
                 "x-failure-condition": "현재 과목 버전과 expectedRevision이 다른 경우",
-                "x-implementation": "설계 · 미구현"
+                "x-implementation": "구현 · PostgreSQL·HTTP·소유권·충돌·기록 보존 검증 완료"
             }
         },
         "/tasks": {
