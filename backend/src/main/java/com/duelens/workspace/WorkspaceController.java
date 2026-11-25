@@ -10,7 +10,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.duelens.common.ApiException;
 import com.duelens.common.ApiResponse;
 import com.duelens.security.SessionRateLimiter;
+import com.duelens.security.CurrentUser;
 
 @RestController
 public class WorkspaceController {
@@ -48,7 +48,7 @@ public class WorkspaceController {
         if (request.getSession(false) == null) rateLimiter.acquire(request.getRemoteAddr());
         var session = request.getSession(true);
         if (session.getAttribute(RESERVED_USER_ID) == null) session.setAttribute(RESERVED_USER_ID, UUID.randomUUID());
-        UUID id = userId(authentication);
+        UUID id = CurrentUser.id(authentication);
         if (id != null) workspaces.require(id);
         return ApiResponse.success(new Session(id == null ? "new" : "active", id, csrf.getToken()));
     }
@@ -56,7 +56,7 @@ public class WorkspaceController {
     @PostMapping("/api/v1/workspace/start")
     public ApiResponse<Workspace> start(@Valid @RequestBody WorkspaceStart input, HttpServletRequest request,
             HttpServletResponse response, Authentication authentication) {
-        UUID existing = userId(authentication);
+        UUID existing = CurrentUser.id(authentication);
         if (existing != null) return ApiResponse.success(workspaces.require(existing));
         var session = request.getSession(false);
         if (session == null || !(session.getAttribute(RESERVED_USER_ID) instanceof UUID reserved)) {
@@ -74,28 +74,17 @@ public class WorkspaceController {
 
     @GetMapping("/api/v1/workspace")
     public ApiResponse<Workspace> workspace(Authentication authentication) {
-        return ApiResponse.success(workspaces.require(requireUserId(authentication)));
+        return ApiResponse.success(workspaces.require(CurrentUser.requireId(authentication)));
     }
 
     @PatchMapping("/api/v1/workspace")
     public ApiResponse<Workspace> selectTerm(@Valid @RequestBody WorkspaceUpdate input, Authentication authentication) {
-        return ApiResponse.success(workspaces.selectTerm(requireUserId(authentication), input.selectedTerm(), input.expectedRevision()));
+        return ApiResponse.success(workspaces.selectTerm(CurrentUser.requireId(authentication), input.selectedTerm(), input.expectedRevision()));
     }
 
     @GetMapping("/api/v1/terms")
     public ApiResponse<WorkspaceService.Terms> terms(Authentication authentication) {
-        return ApiResponse.success(workspaces.terms(requireUserId(authentication)));
-    }
-
-    private UUID requireUserId(Authentication authentication) {
-        UUID id = userId(authentication);
-        if (id == null) throw new ApiException("USER_REQUIRED", "사용자 작업 공간을 먼저 시작해 주세요.");
-        return id;
-    }
-
-    private UUID userId(Authentication authentication) {
-        return authentication == null || authentication instanceof AnonymousAuthenticationToken || !authentication.isAuthenticated()
-                ? null : UUID.fromString(authentication.getName());
+        return ApiResponse.success(workspaces.terms(CurrentUser.requireId(authentication)));
     }
 
     public record Session(String state, UUID userId, String csrfToken) { }
