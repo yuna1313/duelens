@@ -159,6 +159,33 @@ class CourseHttpTests {
         assertThat(jdbc.queryForObject("SELECT count(*) FROM idempotency_requests WHERE user_id = ?", Integer.class, owner.user)).isZero();
     }
 
+    @Test
+    void updateChecksOwnershipRevisionAndDuplicateBeforeSaving() throws Exception {
+        Client owner = started();
+        Client other = started();
+        UUID id = seed(owner.user, "2026-2", "원래 과목", "001", false);
+        UUID duplicate = seed(owner.user, "2026-2", "기존 과목", "001", false);
+        String input = updateBody("수정 과목", 1);
+        code(other.write("PUT", "/api/v1/courses/" + id, input, null), "NOT_FOUND");
+        code(owner.write("PUT", "/api/v1/courses/" + UUID.randomUUID(), input, null), "NOT_FOUND");
+        Reply changed = owner.write("PUT", "/api/v1/courses/" + id, input, null);
+        code(changed, "SUCCESS");
+        assertThat(changed.body.path("data").path("revision").asLong()).isEqualTo(2);
+        code(owner.write("PUT", "/api/v1/courses/" + id, input, null), "REVISION_CONFLICT");
+        Reply same = owner.write("PUT", "/api/v1/courses/" + id, updateBody("수정 과목", 2), null);
+        code(same, "SUCCESS");
+        assertThat(same.body).isEqualTo(changed.body);
+        code(owner.write("PUT", "/api/v1/courses/" + id, updateBody("기존 과목", 2), null), "COURSE_DUPLICATE");
+        assertThat(owner.get("/api/v1/courses/" + id).body.path("data").path("revision").asLong()).isEqualTo(2);
+        assertThat(owner.get("/api/v1/courses/" + duplicate).body.path("data").path("name").asString()).isEqualTo("기존 과목");
+        code(owner.write("PUT", "/api/v1/courses/" + id, updateBody("수정 과목", 0), null), "VALIDATION_FAILED");
+        code(owner.write("PUT", "/api/v1/courses/" + id, input.replace("\"expectedRevision\":1", "\"expectedRevision\":\"2\""), null), "MALFORMED_REQUEST");
+    }
+
+    private String updateBody(String name, long revision) {
+        return "{\"term\":\"2026-2\",\"name\":\"" + name + "\",\"section\":\"001\",\"days\":[],\"startTime\":null,\"expectedRevision\":" + revision + "}";
+    }
+
     private UUID seed(UUID user, String term, String name, String section, boolean deleted) {
         UUID id = UUID.randomUUID();
         jdbc.update("INSERT INTO courses (id, user_id, term, name, section, name_key, section_key, deleted_at, created_at, updated_at) "

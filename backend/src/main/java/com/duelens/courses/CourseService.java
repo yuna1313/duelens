@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.duelens.common.ApiException;
 import com.duelens.common.ApiResponse;
 import com.duelens.common.IdempotencyRequests;
+import com.duelens.common.RequestParameters;
 import com.duelens.workspace.WorkspaceService;
 
 @Service
@@ -31,11 +32,13 @@ public class CourseService {
     private final JdbcTemplate jdbc;
     private final WorkspaceService workspaces;
     private final IdempotencyRequests requests;
+    private final CourseTaskHistory history;
 
-    public CourseService(JdbcTemplate jdbc, WorkspaceService workspaces, IdempotencyRequests requests) {
+    public CourseService(JdbcTemplate jdbc, WorkspaceService workspaces, IdempotencyRequests requests, CourseTaskHistory history) {
         this.jdbc = jdbc;
         this.workspaces = workspaces;
         this.requests = requests;
+        this.history = history;
     }
 
     @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
@@ -68,6 +71,35 @@ public class CourseService {
             }
             return owned(user, id, false);
         });
+    }
+
+    @Transactional
+    public Course update(UUID user, UUID id, CourseInput input, long expectedRevision) {
+        CourseInput value = input.normalized();
+        lockOwner(user);
+        Course current = owned(user, id, true);
+        checkRevision(current, expectedRevision);
+        boolean identityChanged = !current.term().equals(value.term()) || !current.name().equals(value.name()) || !current.section().equals(value.section());
+        if (!identityChanged && current.days().equals(value.days()) && java.util.Objects.equals(current.startTime(), value.startTime())) return current;
+        requireNextRevision(current.revision());
+        try {
+            jdbc.update("UPDATE courses SET term = ?, name = ?, section = ?, name_key = ?, section_key = ?, meeting_days = ?, start_time = ?, "
+                    + "revision = revision + 1, updated_at = statement_timestamp() WHERE id = ? AND user_id = ?",
+                    value.term(), value.name(), value.section(), value.nameKey(), value.sectionKey(), value.dayMask(), value.time(), id, user);
+        } catch (DuplicateKeyException error) {
+            throw new ApiException("COURSE_DUPLICATE", "같은 학기·이름·분반의 과목이 이미 있습니다.");
+        }
+        Course updated = owned(user, id, false);
+        if (identityChanged) history.record(current, updated);
+        return updated;
+    }
+
+    private void checkRevision(Course current, long expectedRevision) {
+        if (current.revision() != expectedRevision) throw new ApiException("REVISION_CONFLICT", "다른 변경이 있습니다. 최신 내용을 확인해 주세요.");
+    }
+
+    private void requireNextRevision(long revision) {
+        if (revision == RequestParameters.MAX_REVISION) throw new ApiException("REVISION_CONFLICT", "현재 버전의 수정 한도를 확인해 주세요.");
     }
 
     private void lockOwner(UUID user) {

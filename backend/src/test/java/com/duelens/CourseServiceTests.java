@@ -78,6 +78,24 @@ class CourseServiceTests {
         assertThat(count("idempotency_requests", first)).isOne();
     }
 
+    @Test
+    void simultaneousUpdatesDoNotOverwriteEachOther() throws Exception {
+        UUID user = user();
+        UUID id = courses.create(user, UUID.randomUUID(), input("원래 과목")).data().id();
+        var gate = new CountDownLatch(1);
+        var first = CompletableFuture.supplyAsync(() -> { await(gate); return updateResult(user, id, "수정 A"); });
+        var second = CompletableFuture.supplyAsync(() -> { await(gate); return updateResult(user, id, "수정 B"); });
+        gate.countDown();
+        assertThat(List.of(first.get(10, TimeUnit.SECONDS), second.get(10, TimeUnit.SECONDS)))
+                .containsExactlyInAnyOrder("SUCCESS", "REVISION_CONFLICT");
+        assertThat(courses.get(user, id).revision()).isEqualTo(2);
+    }
+
+    private String updateResult(UUID user, UUID id, String name) {
+        try { courses.update(user, id, input(name), 1); return "SUCCESS"; }
+        catch (ApiException error) { return error.code(); }
+    }
+
     private String createResult(UUID user, String name) {
         try { courses.create(user, UUID.randomUUID(), input(name)); return "SUCCESS"; }
         catch (ApiException error) { return error.code(); }

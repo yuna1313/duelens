@@ -5,6 +5,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,5 +41,12 @@ public class CourseController {
             @RequestParam MultiValueMap<String, String> query, Authentication authentication) {
         RequestParameters.allowOnly(query);
         return courses.create(CurrentUser.requireId(authentication), RequestParameters.uuid(key), input);
+    }
+
+    @PutMapping("/api/v1/courses/{courseId}")
+    public ApiResponse<Course> update(@PathVariable String courseId, @RequestBody CourseUpdate input,
+            @RequestParam MultiValueMap<String, String> query, Authentication authentication) {
+        RequestParameters.allowOnly(query);
+        return ApiResponse.success(courses.update(CurrentUser.requireId(authentication), RequestParameters.uuid(courseId), input.input(), input.revision()));
     }
 }
