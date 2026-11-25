@@ -1,116 +1,968 @@
-# 수동 관리 API 계약
+# API 명세서
 
-기준: 2026-11-24. [OpenAPI 3.1.1 계약](openapi.json), [저장 모델](data-model.md), [PostgreSQL 테이블 설계안](schema.sql)을 함께 사용합니다. 현재 서버에서 동작하는 엔드포인트는 기존 `GET /api/health`뿐이며, 정상 상태에는 `200 {"status":"UP"}`, 비정상 상태에는 `503`과 상태 본문을 반환합니다. 아래 16개 업무 API는 아직 구현하지 않았습니다.
+v0.8 · 2026-11-25. [OpenAPI 3.1.1](openapi.json), [DB 설계서(ERD)](erd.md), [업무 모델](data-model.md)을 함께 관리합니다. 엑셀 명세서는 API 하나당 한 행이며 URL·요청 헤더·요청 본문·성공 응답을 각각의 열에서 확인합니다. 실패 코드·조건·응답 예시는 오류코드 정의서에 모으며, 헤더가 없는 API의 헤더 칸은 비워 둡니다. 아래는 목표 계약입니다. 업무 API와 공통 응답은 아직 구현하지 않았고, 기존 기동 상태 경로도 공통 응답 전환이 필요합니다.
 
-## 공통 규칙
+## 공통 요청·응답
 
-- 기준 경로는 `/api/v1`, JSON 필드명은 `camelCase`입니다. 프론트엔드와 같은 출처를 사용하며 개발 서버는 `/api` 프록시로 연결합니다.
-- 세션 준비 → 작업 공간 시작 → 조회·변경 순서입니다. 별도 회원 가입이나 학교 로그인을 요구하지 않습니다. 세션 자체는 서버에 저장하며, 서버가 세션에서 소유자를 결정합니다.
-- 쓰기 요청은 세션 쿠키와 `X-CSRF-TOKEN`이 모두 필요합니다. CSRF 토큰은 `GET /session`에서 받고 메모리에 보관합니다. 세션·토큰 만료 시 새 토큰과 현재 공간 연결 상태를 확인한 뒤 재시도합니다.
-- 응답과 오류에 `Cache-Control: no-store`를 사용합니다. 업무 JSON 본문 제한은 256 KiB입니다. 알려지지 않은 본문 필드·쿼리, 중복된 단일 쿼리 값, 잘못된 형식을 거부합니다.
-- 정수 페이지는 0부터 시작합니다. 기본 크기 50, 최대 100입니다. `total`은 페이지 분할 전 결과 수입니다. 데이터가 바뀌면 다음 페이지의 구성도 달라질 수 있습니다.
-- `PUT`은 폼의 입력값 전체를 받습니다. 선택 필드도 생략하지 않고 미정인 날짜·시각·제출 URL·과목 연결에는 `null`, 선택 텍스트에는 `""`를 사용합니다.
-- 수정·삭제에는 `expectedRevision`이 필수입니다. 연결 과제 저장에는 현재 과목의 `courseRevision`도 보냅니다. 일치하지 않으면 자동 덮어쓰기 없이 `409`를 반환합니다.
-- 과목·과제 생성에는 UUID 형식 `Idempotency-Key`가 필요합니다. 같은 키의 다른 요청은 거부하며 같은 요청의 재시도는 24시간 동안 최초 응답을 반환합니다. 공간 시작은 세션의 내부 소유자 키를 기준으로 중복을 방지합니다.
+- 성공·실패·생성·삭제를 포함해 애플리케이션이 처리한 응답의 HTTP 상태는 모두 **200**, 본문 형식은 `application/json`입니다.
+- 결과는 `success`와 `code`로 판단합니다. 성공은 `success:true`, `code:SUCCESS`, 업무 값은 `data`에 담습니다. 실패는 `success:false`, 업무 데이터는 `null`, 오류는 `code`와 `message`에 담으며 입력 검증 실패 이유도 `message` 문자열로 안내합니다.
+- 프론트엔드는 HTTP 성공 여부만 보고 저장 성공을 표시하지 않습니다. 응답 JSON의 `success`와 `code`를 확인합니다. 네트워크 단절·프록시 오류 등 애플리케이션 응답을 받지 못한 경우는 별도로 처리합니다.
+- 쿼리 매개변수는 아래 Request URL에 표시합니다. 경로 ID도 실제 예시 값으로 표시하며, 헤더와 본문은 각각 JSON으로 작성합니다. 본문 `null`은 실제 HTTP 요청에 본문이 없다는 뜻입니다.
+- 세션 준비 → 공간 시작 → 업무 API 순서입니다. 쿠키는 브라우저가 전달하며, 예시의 Cookie 값은 서버 발급 세션을 나타내는 자리 표시자입니다. 모든 쓰기 요청은 CSRF 검증을 통과해야 합니다.
+- 조회·변경은 서버 세션의 사용자으로 제한합니다. 권한·CSRF 실패의 HTTP 상태를 200으로 맞추어도 접근 차단과 트랜잭션 롤백은 유지합니다. 타인의 리소스와 없는 리소스는 같은 NOT_FOUND로 응답합니다.
+- 본문 최대 256 KiB, page는 0부터, size 기본 50·최대 100입니다. 알 수 없는 필드·쿼리, 중복 단일 쿼리, 잘못된 입력은 실패 응답으로 처리합니다.
+- 과목·과제 생성은 UUID Idempotency-Key로 중복을 방지합니다. 성공한 최초 결과를 24시간 보관하며 같은 키의 다른 내용은 실패합니다. 수정은 expectedRevision·courseRevision을 확인하고 자동 덮어쓰지 않습니다.
+- 개인 응답은 Cache-Control: no-store입니다. 실패 예시는 API별 대표 상황이며 해당 상황에서 변경한 요청값 또는 경합을 가정합니다. RATE_LIMITED에는 Retry-After를 초 단위로 전달합니다.
 
-## 첫 구현의 엔드포인트
-
-아래 경로 앞에 `/api/v1`을 붙입니다. 목록·개별 조회 모두 현재 세션의 공간에 한정합니다.
-
-| 메서드 | 경로 | 동작 |
-| --- | --- | --- |
-| GET | `/session` | 세션·CSRF 토큰 준비. `new`/`active` 상태 반환 |
-| POST | `/workspace/start` | 최초 학기로 공간 생성 `201`, 이미 있으면 기존 공간 `200` |
-| GET | `/workspace` | 선택 학기와 공간 버전 조회 |
-| PATCH | `/workspace` | 선택 학기 저장. 빈 학기도 선택 가능 |
-| GET | `/terms` | 선택 학기와 삭제되지 않은 과목·보존된 과제에 등장하는 학기의 합집합 |
-| GET | `/courses` | 필수 `term`의 활성 과목 목록 |
-| POST | `/courses` | 과목 등록 |
-| GET | `/courses/{courseId}` | 활성 과목 상세 |
-| PUT | `/courses/{courseId}` | 과목 수정, 연결 과제 정보·이력 함께 갱신 |
-| DELETE | `/courses/{courseId}` | 필수 쿼리 `expectedRevision`으로 삭제 표시. 과제·이력 유지 |
-| GET | `/tasks` | 과제 목록·집계·실제 기간 범위 조회 |
-| POST | `/tasks` | 수동 과제와 최초 이력 생성 |
-| GET | `/tasks/{taskId}` | 과제 상세 |
-| PUT | `/tasks/{taskId}` | 과제 수정과 이력 생성 |
-| GET | `/tasks/{taskId}/history` | 변경 이력. 선택 `kind=created/manual-edit` |
-| GET | `/schedule` | 필수 `term`, 월요일 날짜 `weekStart`의 주간 미제출 일정 |
-
-삭제 표시된 과목을 직접 조회·다시 삭제하면 `404`를 반환합니다. 해당 과목에 연결되어 있던 과제에서는 저장한 과목명·학기·분반과 연결 ID가 유지되며 `courseRevision`은 `null`입니다. 과목 이름을 새로 같은 값으로 등록해도 기존 과제를 새 ID에 자동 연결하지 않습니다.
-
-과목 목록은 이름·분반·ID 오름차순, 이력은 버전 내림차순으로 정렬합니다. 학기는 연도 내림차순과 겨울→2학기→여름→1학기 순입니다. 연도 확장과 네 학기의 선택 항목 생성은 기존 프론트엔드 공용 모델을 유지합니다.
-
-## 과제 목록과 일정 미리보기
-
-`GET /tasks`는 `term` 필수, 선택 쿼리는 `period`, `q`, `course`, `status`, `page`, `size`입니다.
-
-| 쿼리 | 의미 |
-| --- | --- |
-| `period=all` | 선택 학기 전체. 기본값 |
-| `period=week` | 서버의 한국 날짜 기준 이번 주 월~일 |
-| `period=month` | 서버의 한국 날짜 기준 이번 달 |
-| `period=undated` | 날짜 미정. 시각만 미정인 과제는 제외 |
-| `q` | 최대 200자, NFC·공백 정리·소문자화 후 제목·과목명·분반 부분 검색 |
-| `course` | 과목명 완전 일치. 직접 입력·삭제 과목에 남은 과제도 포함 |
-| `status` | `todo/in-progress/written/submitted`. 생략하면 전체 |
-
-모든 조건을 적용한 동일한 DB 읽기 스냅샷에서 목록·집계를 계산합니다. 집계는 현재 페이지만 세지 않습니다. PostgreSQL의 반복 가능한 읽기 트랜잭션 또는 같은 SQL 문장으로 일관성을 확보합니다. 날짜·시각은 오름차순 `NULLS LAST`, 다음 제목·ID 순으로 정렬합니다. 서버 목록의 제목 정렬은 명시적 `C` collation을 사용하고 프론트엔드가 페이지 안에서 재정렬하지 않습니다.
-
-`summary.total`은 ‘전체 과제’, `remaining`은 미제출, `submitted`는 제출 완료, `unknown`은 날짜 미정입니다. `range`와 `asOf`로 조회에 사용한 기간과 시점을 표시합니다. 서버 시각상 주·월 경계를 지원하는 날짜 범위 밖으로 벗어나면 해당 요청은 `422`입니다.
+공통 성공 응답 구조:
 
 ```json
 {
-  "summary": { "total": 8, "remaining": 6, "submitted": 2, "unknown": 0 },
-  "range": {
-    "period": "week",
-    "startDate": "2026-11-23",
-    "endDate": "2026-11-29",
-    "timeZone": "Asia/Seoul"
-  },
-  "asOf": "2026-11-24T02:00:00Z"
+    "success": true,
+    "code": "SUCCESS",
+    "message": "요청을 처리했습니다.",
+    "data": null
 }
 ```
 
-위는 응답 일부의 형식 예시입니다. `week` 조회에서는 날짜 미정이 제외되므로 `unknown`은 0입니다. 전체 응답 예시는 OpenAPI의 `TaskList.examples`에 있습니다.
+## 관련 정의서
 
-`GET /schedule?term=2026-2&weekStart=2026-11-23`은 해당 주 월~일의 7개 날짜와 각 날짜의 미제출 과제 수·간단한 목록을 반환합니다. 과제는 시각·제목·ID 순으로 정렬하고 날짜별 `count`와 배열 길이는 같습니다. 날짜 미정과 제출 완료는 제외합니다. 선택 날짜와 펼침 상태는 프론트엔드가 관리합니다. 일정의 주를 바꿔도 메인 과제 목록과 집계에는 영향을 주지 않습니다.
+- [모델 정의서](models.md): 요청·응답의 타입과 필드
+- [오류코드 정의서](error-codes.md): 실패 코드·발생 조건·처리 방법
 
-## 입력과 오류
+## 과목 등록과 소유권
 
-날짜는 실제 달력 날짜, 시각은 `00:00..23:59`입니다. `format: date/uri`와 정규식만으로 서버의 달력·URL·소유권 검증을 대신하지 않습니다. 활성 과목을 연결할 때 요청의 학기·과목명·분반이 연결 과목과 일치해야 합니다. 새 과제의 삭제 과목 연결은 거부합니다.
+과목 등록 후 과제를 생성합니다. 과제 요청은 courseId로 과목을 지정하며 term·courseName·section을 받지 않습니다. 과제 응답의 해당 값은 과목에서 조회합니다. workspace API는 users의 개인 설정을 표현하며 별도 DB 테이블이 아닙니다.
 
-| HTTP | 대표 코드 | 프론트엔드 처리 |
-| --- | --- | --- |
-| 400 | `MALFORMED_REQUEST` | 잘못된 JSON·쿼리 형식. 재시도 전 요청 수정 |
-| 401 | `WORKSPACE_REQUIRED` | 세션·공간 연결 확인. 기존 자료를 자동으로 새 공간에 업로드하지 않음 |
-| 403 | `CSRF_INVALID` | 세션 상태·CSRF 토큰 다시 확인 |
-| 404 | `NOT_FOUND` | 리소스 없음 또는 다른 소유자. 찾을 수 없음 화면 |
-| 409 | `REVISION_CONFLICT`, `COURSE_CHANGED` | 최신 값 재조회 후 확인 |
-| 409 | `COURSE_DUPLICATE`, `IDEMPOTENCY_CONFLICT` | 중복·키 충돌 설명, 자동 재전송 금지 |
-| 413 | `PAYLOAD_TOO_LARGE` | 입력 크기 안내 |
-| 422 | `VALIDATION_FAILED` | `errors[].field`로 폼에 오류 표시 |
-| 429 | `RATE_LIMITED` | `Retry-After`를 준수. 생성은 같은 키로만 재시도 |
+## API별 Request / Response
 
-오류는 `application/problem+json`의 `type`, `title`, `status`, `detail`과 확장 필드 `code`, `errors`를 사용합니다. 내부 예외·SQL·쿠키·입력 원문·타인 데이터는 포함하지 않습니다. 서버 오류는 일반 설명만 반환하고 요청 식별자로 서버 기록과 연결합니다. 제한의 구체적 요청 횟수는 공개 배포 환경에 맞춰 설정하며 최초 세션 발급에도 적용합니다.
+### API-00 서버 기동 상태 확인
 
-## 프론트엔드 연결 시 변경점
+구현 상태: 기동 경로 구현 · 공통 응답 미적용.
 
-| 현재 화면 모델 | API 연결 처리 |
-| --- | --- |
-| 폼의 빈 마감 문자열 | 요청 시 `null`, 응답 시 폼에는 빈 문자열 |
-| `task.course` | API의 `courseName`과 변환 |
-| 선택적 `term`, `courseId` | 서버 레코드의 학기는 필수. 미연결 `courseId`는 명시적 `null` |
-| 로컬 버전·메모리 이력 | 서버 `revision`, `expectedRevision`, `courseRevision` 사용 |
-| 이력 `progress`, 표시용 과목·분반 문자열 | `snapshotVersion=1`의 `status`, `courseName`, `section`으로부터 표시 모델 생성 |
-| `tone`, 목 데이터 `source=example` | UI에서만 유지. 실 데이터에 예시 ID·예시 내용을 자동 저장하지 않음 |
-| 로컬 과목 백업 | 사용자 선택에 따른 가져오기 별도 구현. API 전환으로 자동 업로드하지 않음 |
+Request URL:
 
-API 호출 코드는 실제 연결 단계에 기능별로 추가합니다. 페이지에서 공용 HTTP 처리 세부 사항을 직접 조립하지 않습니다. 응답을 신뢰해 임의 HTML을 렌더링하거나 URL을 서버에서 가져오지 않습니다.
+```text
+GET /api/health
+```
+
+Request headers:
+
+Request body:
+
+```json
+null
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "서버 기동 상태 확인 처리 완료",
+    "data": {
+        "status": "UP"
+    }
+}
+```
+
+### API-01 사용자 세션과 CSRF 토큰 준비
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+GET /api/v1/session
+```
+
+Request headers:
+
+Request body:
+
+```json
+null
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "게스트 세션과 CSRF 토큰 준비 처리 완료",
+    "data": {
+        "state": "active",
+        "userId": "7a526074-a4e9-4ec6-8b48-05a1bb9604eb",
+        "csrfToken": "example-csrf-token-not-a-real-secret"
+    }
+}
+```
+
+### API-02 DueLens 사용자 작업 공간 시작
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+POST /api/v1/workspace/start
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>",
+    "X-CSRF-TOKEN": "<session.data.csrfToken>",
+    "Content-Type": "application/json"
+}
+```
+
+Request body:
+
+```json
+{}
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "가입 없이 작업 공간 시작 처리 완료",
+    "data": {
+        "id": "7a526074-a4e9-4ec6-8b48-05a1bb9604eb",
+        "selectedTerm": null,
+        "revision": 1,
+        "createdAt": "2026-11-24T02:00:00Z",
+        "updatedAt": "2026-11-24T02:00:00Z"
+    }
+}
+```
+
+### API-03 현재 작업 공간과 선택 학기 조회
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+GET /api/v1/workspace
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>"
+}
+```
+
+Request body:
+
+```json
+null
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "현재 작업 공간과 선택 학기 조회 처리 완료",
+    "data": {
+        "id": "7a526074-a4e9-4ec6-8b48-05a1bb9604eb",
+        "selectedTerm": null,
+        "revision": 1,
+        "createdAt": "2026-11-24T02:00:00Z",
+        "updatedAt": "2026-11-24T02:00:00Z"
+    }
+}
+```
+
+### API-04 선택 학기 저장
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+PATCH /api/v1/workspace
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>",
+    "X-CSRF-TOKEN": "<session.data.csrfToken>",
+    "Content-Type": "application/json"
+}
+```
+
+Request body:
+
+```json
+{
+    "selectedTerm": "2026-winter",
+    "expectedRevision": 1
+}
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "선택 학기 저장 처리 완료",
+    "data": {
+        "id": "7a526074-a4e9-4ec6-8b48-05a1bb9604eb",
+        "selectedTerm": "2026-winter",
+        "revision": 2,
+        "createdAt": "2026-11-24T02:00:00Z",
+        "updatedAt": "2026-11-24T02:05:00Z"
+    }
+}
+```
+
+### API-05 선택 학기와 저장 데이터에 등장하는 학기 조회
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+GET /api/v1/terms
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>"
+}
+```
+
+Request body:
+
+```json
+null
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "선택 학기와 저장 데이터에 등장하는 학기 조회 처리 완료",
+    "data": {
+        "selectedTerm": null,
+        "items": []
+    }
+}
+```
+
+### API-06 학기의 삭제되지 않은 과목 조회
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+GET /api/v1/courses?term=2026-2&page=0&size=50
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>"
+}
+```
+
+Request body:
+
+```json
+null
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "학기의 삭제되지 않은 과목 조회 처리 완료",
+    "data": {
+        "items": [
+            {
+                "term": "2026-2",
+                "name": "알고리즘",
+                "section": "001",
+                "days": [
+                    2,
+                    4
+                ],
+                "startTime": "10:30",
+                "id": "2377c5b5-7785-4dc8-a02c-1c14e3869de8",
+                "revision": 1,
+                "createdAt": "2026-11-24T02:00:00Z",
+                "updatedAt": "2026-11-24T02:00:00Z"
+            }
+        ],
+        "page": 0,
+        "size": 50,
+        "total": 1
+    }
+}
+```
+
+### API-07 과목 등록
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+POST /api/v1/courses
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>",
+    "X-CSRF-TOKEN": "<session.data.csrfToken>",
+    "Content-Type": "application/json",
+    "Idempotency-Key": "04eaabce-07db-4088-87f5-c9da93b1e3b2"
+}
+```
+
+Request body:
+
+```json
+{
+    "term": "2026-2",
+    "name": "알고리즘",
+    "section": "001",
+    "days": [
+        2,
+        4
+    ],
+    "startTime": "10:30"
+}
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "과목 등록 처리 완료",
+    "data": {
+        "term": "2026-2",
+        "name": "알고리즘",
+        "section": "001",
+        "days": [
+            2,
+            4
+        ],
+        "startTime": "10:30",
+        "id": "2377c5b5-7785-4dc8-a02c-1c14e3869de8",
+        "revision": 1,
+        "createdAt": "2026-11-24T02:00:00Z",
+        "updatedAt": "2026-11-24T02:00:00Z"
+    }
+}
+```
+
+### API-08 과목 상세 조회
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+GET /api/v1/courses/2377c5b5-7785-4dc8-a02c-1c14e3869de8
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>"
+}
+```
+
+Request body:
+
+```json
+null
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "과목 상세 조회 처리 완료",
+    "data": {
+        "term": "2026-2",
+        "name": "알고리즘",
+        "section": "001",
+        "days": [
+            2,
+            4
+        ],
+        "startTime": "10:30",
+        "id": "2377c5b5-7785-4dc8-a02c-1c14e3869de8",
+        "revision": 1,
+        "createdAt": "2026-11-24T02:00:00Z",
+        "updatedAt": "2026-11-24T02:00:00Z"
+    }
+}
+```
+
+### API-09 과목 전체 입력값 수정과 연결 과제 정보 갱신
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+PUT /api/v1/courses/2377c5b5-7785-4dc8-a02c-1c14e3869de8
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>",
+    "X-CSRF-TOKEN": "<session.data.csrfToken>",
+    "Content-Type": "application/json"
+}
+```
+
+Request body:
+
+```json
+{
+    "term": "2026-2",
+    "name": "알고리즘 심화",
+    "section": "001",
+    "days": [
+        2,
+        4
+    ],
+    "startTime": "10:30",
+    "expectedRevision": 1
+}
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "과목 전체 입력값 수정과 연결 과제 정보 갱신 처리 완료",
+    "data": {
+        "term": "2026-2",
+        "name": "알고리즘 심화",
+        "section": "001",
+        "days": [
+            2,
+            4
+        ],
+        "startTime": "10:30",
+        "id": "2377c5b5-7785-4dc8-a02c-1c14e3869de8",
+        "revision": 2,
+        "createdAt": "2026-11-24T02:00:00Z",
+        "updatedAt": "2026-11-24T02:05:00Z"
+    }
+}
+```
+
+### API-10 과목 삭제. 과제·이력·연결 ID 보존
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+DELETE /api/v1/courses/2377c5b5-7785-4dc8-a02c-1c14e3869de8?expectedRevision=1
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>",
+    "X-CSRF-TOKEN": "<session.data.csrfToken>"
+}
+```
+
+Request body:
+
+```json
+null
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "과목 삭제. 과제·이력·연결 ID 보존 처리 완료",
+    "data": null
+}
+```
+
+### API-11 같은 필터의 과제 목록과 전체 집계 조회
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+GET /api/v1/tasks?term=2026-2&period=week&q=%EA%B7%B8%EB%9E%98%ED%94%84&course=%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98&status=todo&page=0&size=50
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>"
+}
+```
+
+Request body:
+
+```json
+null
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "같은 필터의 과제 목록과 전체 집계 조회 처리 완료",
+    "data": {
+        "items": [
+            {
+                "term": "2026-2",
+                "courseId": "2377c5b5-7785-4dc8-a02c-1c14e3869de8",
+                "courseRevision": 1,
+                "courseName": "알고리즘",
+                "section": "001",
+                "title": "그래프 탐색 과제",
+                "dueDate": "2026-11-28",
+                "dueTime": null,
+                "status": "todo",
+                "submissionFormat": "소스 코드",
+                "quantity": "",
+                "submissionUrl": null,
+                "description": "",
+                "id": "05528382-0f6e-4bf5-bb30-60c038ca577f",
+                "revision": 1,
+                "source": "manual",
+                "timeZone": "Asia/Seoul",
+                "createdAt": "2026-11-24T02:00:00Z",
+                "updatedAt": "2026-11-24T02:00:00Z"
+            }
+        ],
+        "page": 0,
+        "size": 50,
+        "total": 1,
+        "summary": {
+            "total": 1,
+            "remaining": 1,
+            "submitted": 0,
+            "unknown": 0
+        },
+        "range": {
+            "period": "week",
+            "startDate": "2026-11-23",
+            "endDate": "2026-11-29",
+            "timeZone": "Asia/Seoul"
+        },
+        "asOf": "2026-11-24T02:00:00Z"
+    }
+}
+```
+
+### API-12 수동 과제와 최초 변경 이력 생성
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+POST /api/v1/tasks
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>",
+    "X-CSRF-TOKEN": "<session.data.csrfToken>",
+    "Content-Type": "application/json",
+    "Idempotency-Key": "04eaabce-07db-4088-87f5-c9da93b1e3b2"
+}
+```
+
+Request body:
+
+```json
+{
+    "courseId": "2377c5b5-7785-4dc8-a02c-1c14e3869de8",
+    "courseRevision": 1,
+    "title": "그래프 탐색 과제",
+    "dueDate": "2026-11-28",
+    "dueTime": null,
+    "status": "todo",
+    "submissionFormat": "소스 코드",
+    "quantity": "",
+    "submissionUrl": null,
+    "description": ""
+}
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "수동 과제와 최초 변경 이력 생성 처리 완료",
+    "data": {
+        "term": "2026-2",
+        "courseId": "2377c5b5-7785-4dc8-a02c-1c14e3869de8",
+        "courseRevision": 1,
+        "courseName": "알고리즘",
+        "section": "001",
+        "title": "그래프 탐색 과제",
+        "dueDate": "2026-11-28",
+        "dueTime": null,
+        "status": "todo",
+        "submissionFormat": "소스 코드",
+        "quantity": "",
+        "submissionUrl": null,
+        "description": "",
+        "id": "05528382-0f6e-4bf5-bb30-60c038ca577f",
+        "revision": 1,
+        "source": "manual",
+        "timeZone": "Asia/Seoul",
+        "createdAt": "2026-11-24T02:00:00Z",
+        "updatedAt": "2026-11-24T02:00:00Z"
+    }
+}
+```
+
+### API-13 과제 상세 조회
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+GET /api/v1/tasks/05528382-0f6e-4bf5-bb30-60c038ca577f
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>"
+}
+```
+
+Request body:
+
+```json
+null
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "과제 상세 조회 처리 완료",
+    "data": {
+        "term": "2026-2",
+        "courseId": "2377c5b5-7785-4dc8-a02c-1c14e3869de8",
+        "courseRevision": 1,
+        "courseName": "알고리즘",
+        "section": "001",
+        "title": "그래프 탐색 과제",
+        "dueDate": "2026-11-28",
+        "dueTime": null,
+        "status": "todo",
+        "submissionFormat": "소스 코드",
+        "quantity": "",
+        "submissionUrl": null,
+        "description": "",
+        "id": "05528382-0f6e-4bf5-bb30-60c038ca577f",
+        "revision": 1,
+        "source": "manual",
+        "timeZone": "Asia/Seoul",
+        "createdAt": "2026-11-24T02:00:00Z",
+        "updatedAt": "2026-11-24T02:00:00Z"
+    }
+}
+```
+
+### API-14 과제 전체 입력값과 변경 이력 저장
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+PUT /api/v1/tasks/05528382-0f6e-4bf5-bb30-60c038ca577f
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>",
+    "X-CSRF-TOKEN": "<session.data.csrfToken>",
+    "Content-Type": "application/json"
+}
+```
+
+Request body:
+
+```json
+{
+    "courseId": "2377c5b5-7785-4dc8-a02c-1c14e3869de8",
+    "courseRevision": 1,
+    "title": "그래프 탐색 과제 (수정)",
+    "dueDate": "2026-11-28",
+    "dueTime": null,
+    "status": "todo",
+    "submissionFormat": "소스 코드",
+    "quantity": "",
+    "submissionUrl": null,
+    "description": "",
+    "expectedRevision": 1
+}
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "과제 전체 입력값과 변경 이력 저장 처리 완료",
+    "data": {
+        "term": "2026-2",
+        "courseId": "2377c5b5-7785-4dc8-a02c-1c14e3869de8",
+        "courseRevision": 1,
+        "courseName": "알고리즘",
+        "section": "001",
+        "title": "그래프 탐색 과제 (수정)",
+        "dueDate": "2026-11-28",
+        "dueTime": null,
+        "status": "todo",
+        "submissionFormat": "소스 코드",
+        "quantity": "",
+        "submissionUrl": null,
+        "description": "",
+        "id": "05528382-0f6e-4bf5-bb30-60c038ca577f",
+        "revision": 2,
+        "source": "manual",
+        "timeZone": "Asia/Seoul",
+        "createdAt": "2026-11-24T02:00:00Z",
+        "updatedAt": "2026-11-24T02:05:00Z"
+    }
+}
+```
+
+### API-15 과제의 변경 이력 조회
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+GET /api/v1/tasks/05528382-0f6e-4bf5-bb30-60c038ca577f/history?kind=created&page=0&size=50
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>"
+}
+```
+
+Request body:
+
+```json
+null
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "과제의 변경 이력 조회 처리 완료",
+    "data": {
+        "items": [
+            {
+                "id": "0b3f7703-a5c6-48a6-a584-03e375d3d702",
+                "taskId": "05528382-0f6e-4bf5-bb30-60c038ca577f",
+                "version": 1,
+                "snapshotVersion": 1,
+                "kind": "created",
+                "before": null,
+                "after": {
+                    "term": "2026-2",
+                    "courseId": "2377c5b5-7785-4dc8-a02c-1c14e3869de8",
+                    "courseName": "알고리즘",
+                    "section": "001",
+                    "title": "그래프 탐색 과제",
+                    "dueDate": "2026-11-28",
+                    "dueTime": null,
+                    "status": "todo",
+                    "submissionFormat": "소스 코드",
+                    "quantity": "",
+                    "submissionUrl": null,
+                    "description": ""
+                },
+                "note": "과제를 등록했습니다.",
+                "occurredAt": "2026-11-24T02:00:00Z"
+            }
+        ],
+        "page": 0,
+        "size": 50,
+        "total": 1
+    }
+}
+```
+
+### API-16 메인 목록과 독립적인 주간 미제출 일정 조회
+
+구현 상태: 설계 · 미구현.
+
+Request URL:
+
+```text
+GET /api/v1/schedule?term=2026-2&weekStart=2026-11-23
+```
+
+Request headers:
+
+```json
+{
+    "Cookie": "DUELENS_SESSION=<서버 발급 세션>"
+}
+```
+
+Request body:
+
+```json
+null
+```
+
+Response 성공 · HTTP 200:
+
+```json
+{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "메인 목록과 독립적인 주간 미제출 일정 조회 처리 완료",
+    "data": {
+        "term": "2026-2",
+        "weekStart": "2026-11-23",
+        "weekEnd": "2026-11-29",
+        "timeZone": "Asia/Seoul",
+        "asOf": "2026-11-24T02:00:00Z",
+        "days": [
+            {
+                "date": "2026-11-23",
+                "count": 0,
+                "tasks": []
+            },
+            {
+                "date": "2026-11-24",
+                "count": 0,
+                "tasks": []
+            },
+            {
+                "date": "2026-11-25",
+                "count": 0,
+                "tasks": []
+            },
+            {
+                "date": "2026-11-26",
+                "count": 0,
+                "tasks": []
+            },
+            {
+                "date": "2026-11-27",
+                "count": 0,
+                "tasks": []
+            },
+            {
+                "date": "2026-11-28",
+                "count": 1,
+                "tasks": [
+                    {
+                        "id": "05528382-0f6e-4bf5-bb30-60c038ca577f",
+                        "title": "그래프 탐색 과제",
+                        "courseName": "알고리즘",
+                        "section": "001",
+                        "dueTime": null,
+                        "status": "todo"
+                    }
+                ]
+            },
+            {
+                "date": "2026-11-29",
+                "count": 0,
+                "tasks": []
+            }
+        ]
+    }
+}
+```
+## 첫 사용의 학기 선택
+
+- POST /workspace/start의 initialTerm은 선택 입력입니다. {}로 요청하면 selectedTerm=null로 시작합니다.
+- GET /workspace와 GET /terms는 미선택 상태에서도 성공하며, 학기 기록이 없으면 items=[]입니다.
+- 학기 선택은 PATCH /workspace에서 저장합니다. 과목의 소속 term은 필수이며 과제는 필수 courseId로 과목의 학기를 따릅니다.
+- iClass 정보 수집은 미구현이며 현재 날짜·연결 예시로 선택 학기를 자동 저장하지 않습니다.
+- 이번 주·이번 달은 실제 오늘 기준이며, 일정 카드의 학기별 시작 위치는 프론트의 표시 기준입니다. API는 전달받은 term·weekStart로 조회합니다.
+
+## 조회·표시와 연동 규칙
+
+- 과제 목록과 집계는 같은 학기·기간·검색·과목명·상태 필터와 DB 읽기 스냅샷을 사용합니다. 집계는 페이지 분할 전 결과입니다. 남은 과제에는 작성 완료와 기한 지난 미제출도 포함합니다.
+- period는 all/week/month/undated입니다. 주는 한국 날짜 월~일, 월은 1일~말일입니다. 주·월 조회에서 날짜 미정은 제외하며 제출 건수의 기간도 과제 마감 날짜 기준입니다.
+- 주간 일정은 term·weekStart만 받는 독립 조회입니다. 메인 목록 필터와 모바일 목록에도 영향을 주지 않습니다. 월요일이 아닌 weekStart는 VALIDATION_FAILED입니다.
+- 과제는 날짜·시각 오름차순 NULLS LAST 후 제목(C collation)·ID, 과목은 이름·분반·ID, 이력은 버전 내림차순으로 정렬합니다.
+- API data.courseName은 현재 UI의 course, 이력 data.items[].before/after.status는 progress 표시 모델로 변환합니다. 날짜·시각·URL의 null은 폼의 빈 문자열로 변환합니다. 과목 연결은 필수입니다.
+- 실패 응답은 과제·이력 저장 완료나 학교 제출 완료를 뜻하지 않습니다. submitted는 사용자 표시이며 학교에 제출하지 않습니다. 예시 데이터를 서버에 자동 저장하지 않습니다.
 
 ## 검증 범위
 
-이 단계에서는 OpenAPI의 참조·경로 매개변수·보안 선언과 JSON Schema 예시·입력 경계를 정적으로 확인합니다. PostgreSQL 실행, 마이그레이션 재현성, 실제 HTTP 상태·쿠키·CSRF·권한·롤백 검증은 구현 후 통합 테스트 항목입니다. 정적 검증을 연동 완료로 표시하지 않습니다.
-
-문서 형식은 [OpenAPI 3.1.1 공식 규격](https://spec.openapis.org/oas/v3.1.1.html)을 사용합니다. 특정 도구의 전체 OpenAPI 검증을 통과했다는 의미는 아닙니다.
-
-2026-11-24 확인 결과: 17개 엔드포인트 동작(기존 health 1개, 설계 업무 16개)의 경로·보안 선언과 내부 참조 161개를 확인했습니다. 현재 사용하는 JSON Schema 구문에 대해 기존 개발 의존성 AJV로 예시 20개, 허용 경계 6개, 거부 경계 25개를 검증했습니다. 실제 DB 실행과 HTTP 통합 검증은 수행 전입니다. 검토용 엑셀은 이 계약에서 생성했으며 API 17행·본문/경로/쿼리/헤더 필드 173행·공통 규칙 39행의 일치, 문자열 분반 `001` 보존, 저장 결과·화면 배치를 확인했습니다.
+계약 참조·경로·요청 URL과 JSON 예시·성공/실패 구분을 정적으로 검증합니다. DB 실행과 실제 HTTP·세션·권한·롤백 통합 검증은 구현 후 수행합니다. 전체 OpenAPI 도구 검증 또는 실제 연동 완료를 의미하지 않습니다.
