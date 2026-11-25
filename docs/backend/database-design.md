@@ -1,6 +1,6 @@
 # 컬럼·제약 참고
 
-v0.3 · 2026-11-25. DB 설계서는 [ERD](erd.md)로 관리합니다. 이 문서는 SQL의 컬럼·기본값·제약·인덱스를 읽기 위한 참고 자료입니다. 5개 테이블·54개 컬럼·4개 FK이며 동일한 업무 DDL을 로컬 PostgreSQL 18.7에 적용·검증했습니다. [ERD](erd.md), [DDL](schema.sql), [업무 규칙](data-model.md), [API 계약](api.md)을 함께 관리합니다.
+v0.4 · 2026-11-25. DB 설계서는 [ERD](erd.md)로 관리합니다. 이 문서는 SQL의 컬럼·기본값·제약·인덱스를 읽기 위한 참고 자료입니다. 업무 5개 테이블·54개 컬럼·4개 FK와 서버 세션 2개 테이블·10개 컬럼·1개 FK이며 동일한 업무 DDL을 로컬 PostgreSQL 18.7에 적용·검증했습니다. [ERD](erd.md), [DDL](schema.sql), [업무 규칙](data-model.md), [API 계약](api.md)을 함께 관리합니다.
 
 ![DueLens ERD](erd.svg)
 
@@ -205,5 +205,23 @@ DueLens 사용자 정보와 선택 학기
 - [x] 사용자 정보와 사용자 → 과목 → 과제 관계 정의
 - [x] 필수 과목 FK·과목에서 파생하는 과제 표시 값 정의
 - [x] 로컬 PostgreSQL V1 업무 스키마·V2 실행 권한 적용
-- [ ] 사용자 세션·소유권 검사 구현
+- [x] 사용자 세션·CSRF·현재 작업 공간/학기 소유권 검사
+- [ ] 과목·과제 API의 자원별 소유권 검사
 - [ ] 정식 로그인·iClass 연결·구독·결제 설계 및 구현
+
+## 서버 세션 컬럼 (Spring Session JDBC 4.2.0)
+
+| 테이블 | 컬럼 | 타입 | 키·NULL |
+| --- | --- | --- | --- |
+| spring_session | primary_id | char(36) | PK·필수 |
+| spring_session | session_id | char(36) | UNIQUE·필수 |
+| spring_session | creation_time | bigint | 필수 |
+| spring_session | last_access_time | bigint | 필수 |
+| spring_session | max_inactive_interval | int | 필수 |
+| spring_session | expiry_time | bigint | 필수 |
+| spring_session | principal_name | varchar(100) | NULL 허용·인덱스 |
+| spring_session_attributes | session_primary_id | char(36) | PK·FK·필수 |
+| spring_session_attributes | attribute_name | varchar(200) | PK·필수 |
+| spring_session_attributes | attribute_bytes | bytea | 필수 |
+
+세션 속성은 복합 PK와 ON DELETE CASCADE FK를 가집니다. principal_name은 사용자 FK가 아니며 해당 계정의 유효성과 데이터 소유권은 서비스가 별도로 확인합니다. 두 테이블은 V3 공식 스키마와 [서버 세션 ERD](session-erd.svg)를 따릅니다.
