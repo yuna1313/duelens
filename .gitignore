@@ -13,6 +13,9 @@ dist-ssr
 .gradle/
 /backend/build/
 /backend/out/
+/.local/
+/backend/config/local.properties
+/backend/config/test.properties
 *.local
 .env
 .env.*

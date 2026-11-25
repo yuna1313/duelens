@@ -7,6 +7,9 @@
     "frontend"
   ],
   "scripts": {
+    "db:start": "node scripts/database.mjs start",
+    "db:stop": "node scripts/database.mjs stop",
+    "db:status": "node scripts/database.mjs status",
     "dev": "npm run dev --workspace @duelens/frontend --",
     "dev:backend": "./backend/gradlew -p backend bootRun",
     "build": "npm run build --workspace @duelens/frontend --",
