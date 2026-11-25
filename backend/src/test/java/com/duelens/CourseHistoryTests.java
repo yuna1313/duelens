@@ -95,6 +95,20 @@ class CourseHistoryTests {
     }
 
     @Test
+    @Transactional
+    void deletionRetainsCourseConnectionTasksAndAppendOnlyHistory() {
+        UUID user = user(false);
+        Course course = courses.create(user, UUID.randomUUID(), input("기존", "2026-2", "001")).data();
+        UUID task = task(course.id(), UUID.randomUUID(), "submitted");
+        courses.delete(user, course.id(), 1);
+        assertThat(jdbc.queryForObject("SELECT deleted_at IS NOT NULL FROM courses WHERE id = ?", Boolean.class, course.id())).isTrue();
+        assertThat(jdbc.queryForObject("SELECT course_id FROM tasks WHERE id = ?", UUID.class, task)).isEqualTo(course.id());
+        assertThat(revision(task)).isOne();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM task_history WHERE task_id = ?", Integer.class, task)).isOne();
+        assertThat(workspaces.terms(user).items()).extracting(item -> item.code()).contains("2026-2");
+    }
+
+    @Test
     void historyConstraintFailureRollsBackCourseAndEveryTaskChange() {
         UUID user = user(true);
         Course before = courses.create(user, UUID.randomUUID(), input("기존", "2026-2", "001")).data();

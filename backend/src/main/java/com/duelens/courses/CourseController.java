@@ -3,6 +3,7 @@ package com.duelens.courses;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -48,5 +49,13 @@ public class CourseController {
             @RequestParam MultiValueMap<String, String> query, Authentication authentication) {
         RequestParameters.allowOnly(query);
         return ApiResponse.success(courses.update(CurrentUser.requireId(authentication), RequestParameters.uuid(courseId), input.input(), input.revision()));
+    }
+
+    @DeleteMapping("/api/v1/courses/{courseId}")
+    public ApiResponse<Void> delete(@PathVariable String courseId, @RequestParam MultiValueMap<String, String> query, Authentication authentication) {
+        RequestParameters.allowOnly(query, "expectedRevision");
+        long revision = RequestParameters.number(RequestParameters.required(query, "expectedRevision"), "expectedRevision", 1, RequestParameters.MAX_REVISION);
+        courses.delete(CurrentUser.requireId(authentication), RequestParameters.uuid(courseId), revision);
+        return ApiResponse.success(null);
     }
 }

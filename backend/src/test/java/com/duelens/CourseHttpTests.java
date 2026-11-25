@@ -182,6 +182,53 @@ class CourseHttpTests {
         code(owner.write("PUT", "/api/v1/courses/" + id, input.replace("\"expectedRevision\":1", "\"expectedRevision\":\"2\""), null), "MALFORMED_REQUEST");
     }
 
+    @Test
+    void deletionWithoutBodyChecksOwnerAndVersionAndAllowsReregistration() throws Exception {
+        Client owner = started();
+        Client other = started();
+        String original = "{\"term\":\"2026-2\",\"name\":\"삭제 과목\",\"section\":\"001\",\"days\":[],\"startTime\":null}";
+        String key = UUID.randomUUID().toString();
+        Reply created = owner.write("POST", "/api/v1/courses", original, key);
+        code(created, "SUCCESS");
+        String id = created.body.path("data").path("id").asString();
+        String path = "/api/v1/courses/" + id + "?expectedRevision=1";
+        code(other.write("DELETE", path, null, null), "NOT_FOUND");
+        code(owner.write("DELETE", path.replace("=1", "=2"), null, null), "REVISION_CONFLICT");
+        code(owner.write("DELETE", path, "{}", null), "MALFORMED_REQUEST");
+        code(owner.write("DELETE", path + "&expectedRevision=1", null, null), "MALFORMED_REQUEST");
+        code(owner.write("DELETE", "/api/v1/courses/" + id, null, null), "VALIDATION_FAILED");
+        Reply deleted = owner.write("DELETE", path, null, null);
+        code(deleted, "SUCCESS");
+        assertThat(deleted.body.path("data").isNull()).isTrue();
+        code(owner.get("/api/v1/courses/" + id), "NOT_FOUND");
+        code(owner.write("PUT", "/api/v1/courses/" + id, updateBody("삭제 과목", 2), null), "NOT_FOUND");
+        code(owner.write("DELETE", path, null, null), "NOT_FOUND");
+        assertThat(owner.get("/api/v1/courses?term=2026-2").body.path("data").path("total").asLong()).isZero();
+        Reply replay = owner.write("POST", "/api/v1/courses", original, key);
+        assertThat(replay.body).isEqualTo(created.body);
+        Reply next = owner.write("POST", "/api/v1/courses", original, UUID.randomUUID().toString());
+        code(next, "SUCCESS");
+        assertThat(next.body.path("data").path("id").asString()).isNotEqualTo(id);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM courses WHERE user_id = ?", Integer.class, owner.user)).isEqualTo(2);
+    }
+
+    @Test
+    void allCourseWritesKeepCsrfAndOriginProtection() throws Exception {
+        Client owner = started();
+        UUID id = seed(owner.user, "2026-2", "보호할 과목", "001", false);
+        for (String method : List.of("POST", "PUT", "DELETE")) {
+            String path = method.equals("POST") ? "/api/v1/courses" : "/api/v1/courses/" + id + (method.equals("DELETE") ? "?expectedRevision=1" : "");
+            String body = method.equals("DELETE") ? null : updateBody("변조", 1);
+            var missingToken = HttpRequest.newBuilder(URI.create(owner.base + path)).header("Origin", owner.base);
+            if (body != null) missingToken.header("Content-Type", "application/json");
+            code(owner.send(missingToken.method(method, body == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(body))), "CSRF_INVALID");
+            var foreignOrigin = HttpRequest.newBuilder(URI.create(owner.base + path)).header("Origin", "https://untrusted.example").header("X-CSRF-TOKEN", owner.csrf);
+            if (body != null) foreignOrigin.header("Content-Type", "application/json");
+            code(owner.send(foreignOrigin.method(method, body == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(body))), "CSRF_INVALID");
+        }
+        assertThat(owner.get("/api/v1/courses/" + id).body.path("data").path("revision").asLong()).isOne();
+    }
+
     private String updateBody(String name, long revision) {
         return "{\"term\":\"2026-2\",\"name\":\"" + name + "\",\"section\":\"001\",\"days\":[],\"startTime\":null,\"expectedRevision\":" + revision + "}";
     }

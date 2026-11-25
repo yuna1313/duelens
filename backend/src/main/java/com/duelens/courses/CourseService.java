@@ -94,6 +94,15 @@ public class CourseService {
         return updated;
     }
 
+    @Transactional
+    public void delete(UUID user, UUID id, long expectedRevision) {
+        lockOwner(user);
+        Course current = owned(user, id, true);
+        checkRevision(current, expectedRevision);
+        requireNextRevision(current.revision());
+        jdbc.update("UPDATE courses SET deleted_at = statement_timestamp(), updated_at = statement_timestamp(), revision = revision + 1 WHERE id = ? AND user_id = ?", id, user);
+    }
+
     private void checkRevision(Course current, long expectedRevision) {
         if (current.revision() != expectedRevision) throw new ApiException("REVISION_CONFLICT", "다른 변경이 있습니다. 최신 내용을 확인해 주세요.");
     }

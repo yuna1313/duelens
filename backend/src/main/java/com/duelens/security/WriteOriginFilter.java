@@ -42,13 +42,18 @@ public class WriteOriginFilter extends OncePerRequestFilter {
                 responses.failure(response, "PAYLOAD_TOO_LARGE", "요청 본문은 256 KiB 이내로 보내 주세요.");
                 return;
             }
-            if (request.getContentType() == null || !request.getContentType().split(";", 2)[0].trim().equalsIgnoreCase("application/json")) {
-                responses.failure(response, "MALFORMED_REQUEST", "JSON 형식으로 요청해 주세요.");
-                return;
-            }
             byte[] body = request.getInputStream().readNBytes(262145);
             if (body.length > 262144) {
                 responses.failure(response, "PAYLOAD_TOO_LARGE", "요청 본문은 256 KiB 이내로 보내 주세요.");
+                return;
+            }
+            if ("DELETE".equals(request.getMethod())) {
+                if (body.length != 0) {
+                    responses.failure(response, "MALFORMED_REQUEST", "삭제 요청은 본문 없이 URL 쿼리로 보내 주세요.");
+                    return;
+                }
+            } else if (request.getContentType() == null || !request.getContentType().split(";", 2)[0].trim().equalsIgnoreCase("application/json")) {
+                responses.failure(response, "MALFORMED_REQUEST", "JSON 형식으로 요청해 주세요.");
                 return;
             }
             request = new HttpServletRequestWrapper(request) {
