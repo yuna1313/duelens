@@ -264,7 +264,7 @@ frontend/
 
 ## 개발 진행 현황
 
-체크된 화면은 예시 데이터로 구현을 완료한 범위이며 실제 연동 완료를 뜻하지 않습니다. 백엔드는 수동 관리의 API·DB 초안을 작성했으며, 구현 전에 첫 사용의 학기 미선택 흐름을 설계에 반영해야 합니다.
+체크된 화면은 예시 데이터로 구현을 완료한 범위이며 실제 연동 완료를 뜻하지 않습니다. 백엔드는 수동 관리의 API·DB 초안과 ERD에 첫 사용의 학기 미선택 흐름을 반영했습니다. 실제 DB·세션·업무 API 구현은 다음 단계입니다.
 단계 완료 보고는 완료 작업·검증 결과와 함께 아래 체크박스 목록을 갱신하고 바로 다음 단계를 명시합니다.
 
 - [x] 과목 등록·수정
@@ -283,8 +283,11 @@ frontend/
 - [x] 본문·일정 미리보기 글자 확대와 학기별 달력 시작 위치 보완
 - [x] 과목 필수 등록·선택과 예시 과목 분리: [화면 흐름·검증 기록](docs/frontend-course-flow.md)
 - [x] 백엔드 첫 저장 범위 설계: 게스트 소유권·PostgreSQL 학기/과목/수동 과제/이력·API 계약
-- [ ] **첫 사용의 학기 미선택을 API·DB 설계에 반영 — 바로 다음 단계**
-- [ ] PostgreSQL 연결·마이그레이션과 게스트 세션·소유권 검증 구현
+- [x] ERD 기반 DB 설계와 API별 Request·Response 예시: URL·헤더/본문 JSON·성공/실패 HTTP 200
+- [x] API 명세를 API 하나당 한 행의 표로 정리하고 모델·오류코드 정의서를 별도 파일로 분리
+- [x] 첫 사용의 학기 미선택을 API·DB 설계에 반영
+- [x] 전체 컬럼·PK/FK·4개 관계를 포함한 ERD와 모델 정의서 읽는 방법 작성
+- [ ] **PostgreSQL 연결·마이그레이션과 게스트 세션·소유권 검증 구현 — 바로 다음 단계**
 - [ ] 과목·수동 과제·변경 이력 API 구현과 실제 DB 통합 검증
 - [ ] 프론트엔드 API 연결·저장 위치 안내·선택적 로컬 과목 가져오기
 - [ ] 공지·분석 후보·검토 결과·알림의 서버 저장
@@ -294,7 +297,7 @@ frontend/
 - [ ] 실제 알림 예약·발송 및 마감·제출 상태에 따른 갱신
 - [ ] 통합 검증·출시 준비
 
-설계 문서는 [데이터 모델](docs/backend/data-model.md), [테이블 설계안](docs/backend/schema.sql), [API 설명](docs/backend/api.md), [OpenAPI 계약](docs/backend/openapi.json)에 있습니다. 수정 검토용 엑셀 명세서는 기존 기획서와 함께 저장소 밖 `duelens-reference-20261121/docs/specs/03_API명세서_v0.1.xlsx`에 보관합니다. 수정 요청은 엑셀과 API 계약에 함께 반영합니다.
+설계 문서는 [ERD](docs/backend/erd.md), [업무 모델](docs/backend/data-model.md), [컬럼·제약 참고](docs/backend/database-design.md), [테이블 설계안](docs/backend/schema.sql), [API 명세서](docs/backend/api.md), [모델 정의서](docs/backend/models.md), [오류코드 정의서](docs/backend/error-codes.md), [OpenAPI 계약](docs/backend/openapi.json)에 있습니다. 검토용 엑셀은 저장소 밖 `duelens-reference-20261121/docs/specs/`의 `03_API명세서_v0.8.xlsx`, `05_모델정의서_v0.4.xlsx`, `06_오류코드정의서_v0.4.xlsx`로 보관합니다. DB 설계서는 ERD로 관리하며 중복 DB 설계 엑셀은 보관하지 않습니다. ERD는 같은 폴더의 `04_ERD_v0.3.svg`·`.jpg`와 편집용 `.drawio`로 제공합니다. API 파일은 `API 명세` 한 탭에서 API 하나당 한 행으로 나열하며 기능·메서드·URL·요청 헤더·요청 본문·성공 응답·HTTP를 열로 배치합니다. 헤더가 없으면 빈 셀로 두며, 실패 응답 열은 두지 않습니다. 실패 코드·조건·처리 방법·응답 JSON은 별도 오류코드 정의서에 모읍니다. 응답은 success·code·message·data 네 필드이고, 검증 오류의 구체적인 이유는 message에 담습니다. JSON 내용은 생략하지 않고 고정폭 글꼴·4칸 들여쓰기와 중첩 객체의 짧은 필드 정렬을 사용합니다. 모델 타입·필드와 오류코드의 정의는 각각의 별도 문서에 둡니다. 서버가 처리한 응답은 HTTP 200이며 `success`·`code`로 결과를 판단합니다. 이 공통 응답은 기존 health 경로에도 아직 적용하지 않은 목표 계약입니다. 수정 요청은 엑셀과 API 계약에 함께 반영합니다.
 
 ## 검증 및 빌드
 
@@ -355,3 +358,7 @@ npm install -D <개발용-패키지명> --workspace @duelens/frontend
 
 프론트엔드와 백엔드는 동일한 저장소에서 관리하며 각각 빌드·배포할 수 있도록 구성합니다.
 자동 배포 파이프라인은 아직 설정하지 않았습니다.
+
+### 2026-11-25 설계 변경
+
+사용자 정보는 `users`, 과목은 `courses.user_id`, 과제는 필수 `tasks.course_id`로 연결합니다. 과제의 사용자·학기·과목명·분반은 과목에서 확인합니다. [개정 ERD](docs/backend/erd.md)와 [API 명세](docs/backend/api.md)에 반영했습니다. 화면의 과목 필수 등록 전환은 완료했으며 실제 DB·API 적용은 후속 단계입니다. 기본 기능 무료·추가 기능 유료 방향은 [업무 모델](docs/backend/data-model.md)에 기록했습니다.
