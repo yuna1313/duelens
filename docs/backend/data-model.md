@@ -1,6 +1,6 @@
 # 백엔드 저장 모델
 
-v0.3 · 2026-11-25. [ERD](erd.md)·[DDL](schema.sql)·[컬럼 정의](database-design.md)·[API 계약](api.md)을 함께 관리합니다. PostgreSQL의 목표 설계이며 실행 중인 서버·DB에는 아직 적용하지 않았습니다.
+v0.3 · 2026-11-25. [ERD](erd.md)·[DDL](schema.sql)·[컬럼 정의](database-design.md)·[API 계약](api.md)을 함께 관리합니다. 업무 DDL은 로컬 PostgreSQL 18.7에 V1으로 적용했고 V2로 실행 계정 권한을 분리했습니다. 사용자 세션·업무 API 규칙은 아직 목표 설계입니다.
 
 ## 사용자와 데이터 소유권
 
@@ -91,7 +91,8 @@ iClass 연결은 학교 데이터 접근용이며 DueLens 사용자 식별과 �
 
 - [x] 사용자 테이블과 필수 과목 연결의 ERD·SQL·API 계약 개정
 - [x] 화면의 과목 등록 필수 흐름 반영 — 검증 기록: ../frontend-course-flow.md
-- [ ] PostgreSQL 연결·마이그레이션·사용자 세션과 소유권 검증 구현
+- [x] PostgreSQL 연결·초기 마이그레이션·개발/테스트 DB 및 실행 권한 분리
+- [ ] 사용자 세션·CSRF·소유권 검사 — 바로 다음 단계
 - [ ] 과목·과제·변경 이력 API와 실제 DB 통합 검증
 - [ ] 프론트엔드 API 연결과 로컬 데이터의 명시적 가져오기
 - [ ] 정식 로그인·iClass·AI·알림 발송 구현

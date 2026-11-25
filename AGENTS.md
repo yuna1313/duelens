@@ -10,6 +10,9 @@
 - npm workspaces로 `frontend/` 패키지를 관리하며, 의존성 설치는 저장소 루트에서 실행합니다. 루트의 `package-lock.json` 하나를 유지하고 TypeScript의 엄격한 타입 검사를 사용합니다.
 - 루트의 `npm run dev`, `npm run typecheck`, `npm run lint`, `npm run build`, `npm run preview`는 현재 프론트엔드 명령입니다. 백엔드는 루트의 `npm run dev:backend`, `npm run test:backend`, `npm run build:backend` 또는 `./backend/gradlew -p backend <작업>`으로 실행·검증합니다.
 - 프론트엔드 변경 후 `npm run lint`와 `npm run build`를 실행합니다. 백엔드 변경 후 `npm run build:backend`로 통합 테스트와 빌드를 검증합니다.
+- 백엔드 실행·DB 통합 테스트 전 `npm run db:start`로 프로젝트 전용 PostgreSQL을 준비합니다. `npm run db:status`·`npm run db:stop`으로 관리하며 Homebrew 기본 DB 서비스는 사용하지 않습니다.
+- `.local/`과 `backend/config/local.properties`·`test.properties`는 로컬 데이터·비밀 접속 정보입니다. Git에 추가하거나 내용·비밀번호를 로그에 출력하지 않습니다. 개발 DB와 테스트 DB·환경 변수는 분리합니다.
+- 백엔드 DB 변경은 Flyway 마이그레이션으로 관리합니다. 적용된 마이그레이션을 수정하지 않고 새 버전을 추가하며 ERD·`schema.sql`도 함께 갱신합니다.
 
 ## 프론트엔드 소스 배치
 
